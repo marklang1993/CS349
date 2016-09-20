@@ -14,3 +14,8 @@ tst:
 	javac -d out -cp .:junit-4.12.jar src/tetris/*.java  test/tetris/*.java 
 	java -cp .:out:junit-4.12.jar:hamcrest-core-1.3.jar org.junit.runner.JUnitCore \
 			tetris.ProgramArgsTest tetris.TetrisTest
+
+
+catsEyes:
+	javac -d out src/catsEyes/*.java
+	java -cp .:out catsEyes.Main

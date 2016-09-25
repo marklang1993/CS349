@@ -2,7 +2,10 @@ package catsEyes;
 
 import java.awt.*;
 import java.awt.event.MouseEvent;
+import java.awt.image.BufferedImage;
 import java.util.LinkedList;
+
+import static java.awt.image.BufferedImage.TYPE_3BYTE_BGR;
 
 /**
  * This example recreates Xlib's explict event loop style of programming.
@@ -42,15 +45,18 @@ public class CatsEyes extends EventComponent {
 
 
     public void eventLoop() throws InterruptedException {
+        Image dBuff = new BufferedImage(this.getWidth(), this.getHeight(), TYPE_3BYTE_BGR);
         while (true) {
-            if (this.hasEvents()) {
+            // Extract the most recent event
+            while(this.hasEvents()) {
                 this.handleEvent(this.nextEvent());
             }
             this.handleAnimation();
-            this.paintComponent(this.getGraphics());
+            this.paintComponent(dBuff.getGraphics());
+            this.getGraphics().drawImage(dBuff, 0, 0, this.getWidth(), this.getHeight(), null);
+            Thread.sleep(1000/FPS);
         }
     }
-
 
     private void handleEvent(AWTEvent e) {
         if (e instanceof MouseEvent) {

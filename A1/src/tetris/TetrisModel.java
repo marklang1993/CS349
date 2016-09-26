@@ -1,0 +1,182 @@
+package tetris;
+
+import java.util.Vector;
+
+/**
+ * Created by LangChen on 2016/9/26.
+ */
+
+
+public class TetrisModel
+{
+    // size of the play area (unit: block)
+    private static final Size PlayArea = new Size(10, 24);
+    private static final Size BoundaryPlayArea = new Size(PlayArea.Width + 2, PlayArea.Height + 2); // 2 => boundary
+
+    public enum BlockStatus {
+        EMPTY,      // Nothing to shown
+        BLOCK,      // Fixed pieces
+        WALL,       // Boundary
+        ACTIVE      // Pieces (NOT VALID FOR playArea)
+    }
+
+    // Definition of pieces
+    private Vector< Vector<BlockStatus[][]> > _piecesData; // Types => Rotation => Data Matrix
+
+    // play area related
+    private BlockStatus _playAreaMatrix[][];    // main play area
+    private int _playAreaMaskMatrix[][];        // used for differentiate the type of pieces, only valid for BLOCK
+    // basic parameters
+    private int _fps;
+    private double _speed;
+    private String _sequence;
+
+    // runtime parameters
+    private Point _position;                    // position of current moving pieces
+    private int _indexMovingPiece;              // current index of moving piece: 0 ~ _sequence.size() - 1
+    private int _indexRotation;                 // current index of moving piece after rotation
+    private BlockStatus[][] _movingPiece;       // current moving piece
+    private int _score;                         // total score
+
+
+    // Constructor
+    public TetrisModel(int fps, double speed, String sequence)
+    {
+        // initialize basic parameters
+        _fps = fps;
+        _speed = speed;
+        _sequence = TetrisMath.ParsePiecesType(sequence);
+
+        // initialize game parameters
+        _playAreaMatrix = new BlockStatus[BoundaryPlayArea.Width][BoundaryPlayArea.Height];
+        _playAreaMaskMatrix = new int[BoundaryPlayArea.Width][BoundaryPlayArea.Height];
+        // init. walls
+        TetrisMath.AddWalls(_playAreaMatrix, BoundaryPlayArea);
+        // init. pieces data
+        _piecesData = TetrisMath.GeneratePieces();
+
+        // init. runtime parameters
+        _position = TetrisMath.GetInitPosMoving(BoundaryPlayArea);
+        _indexMovingPiece = 0;
+        _indexRotation = 0;
+        int indexMovingPieceType = TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece);
+        _movingPiece = TetrisMath.GetCurrentPiece(_piecesData, indexMovingPieceType, _indexRotation);
+        _score = 0;
+    }
+
+    // Actions
+    public boolean MoveLeft()
+    {
+        boolean result =_changePosition(_position.Subtract(new Point(1, 0)));
+        _draw();
+        return result;
+    }
+    public boolean MoveRight()
+    {
+        boolean result = _changePosition(_position.Add(new Point(1, 0)));
+        _draw();
+        return result;
+    }
+    public boolean Drop()
+    {
+        boolean result = _changePosition(_position.Add(new Point(0, 1)));
+        _draw();
+        return result;
+    }
+    public boolean RotateLeft()
+    {
+        int countRotation = _piecesData.elementAt(TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece)).size();
+        int newIndexRotation = (countRotation + _indexRotation - 1) % countRotation;
+        boolean result = _changeRotation(newIndexRotation);
+        _draw();
+        return result;
+    }
+    public boolean RotateRight()
+    {
+        int countRotation = _piecesData.elementAt(TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece)).size();
+        int newIndexRotation = (_indexRotation + 1) % countRotation;
+        boolean result = _changeRotation(newIndexRotation);
+        _draw();
+        return result;
+    }
+
+    // Called only no other actions after one time period (i.e. after $speed seconds)
+    public void NextStep()
+    {
+        /**
+         * 1. Check collision at current position
+         * 2. If (!collision) => Drop(), Return; Else => 3.
+         * 3. FixMovingPieces();
+         * 4. CheckFinishedRow();
+         * 5. Generate new moving pieces
+         * 6. Init. some runtime parameters
+         * 7. CheckGameOver();
+         * 8. Transfer the right of control to user
+         */
+        boolean collision = TetrisMath.CheckCollision(_movingPiece, _playAreaMatrix, _position);
+        if(!collision)
+        {
+            Drop();
+        }
+        else
+        {
+            TetrisMath.FixMovingPieces(
+                    _movingPiece,
+                    _playAreaMatrix,
+                    TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece),
+                    _playAreaMaskMatrix,
+                    _position
+            );
+
+            _score += TetrisMath.CheckFinishedRow(
+                    _playAreaMatrix,
+                    _playAreaMaskMatrix,
+                    BoundaryPlayArea
+            );
+
+            // Generate new moving pieces
+            _indexMovingPiece = TetrisMath.GetNextPieceIndex(_sequence, _indexMovingPiece);
+            _indexRotation = 0;
+            _position = TetrisMath.GetInitPosMoving(BoundaryPlayArea);
+            int indexMovingPieceType = TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece);
+            _movingPiece = TetrisMath.GetCurrentPiece(_piecesData, indexMovingPieceType, _indexRotation);
+
+            // Check Game Over
+            TetrisMath.CheckGameOver(_movingPiece, _playAreaMatrix, BoundaryPlayArea);
+        }
+
+        _draw();
+    }
+
+    // Helper function for MoveLeft, MoveRight, Drop
+    private boolean _changePosition(Point newPosition)
+    {
+        boolean collision = TetrisMath.CheckCollision(_movingPiece, _playAreaMatrix, newPosition);
+        if(!collision)
+        {
+            _position = newPosition;
+            return true;
+        }
+        return false;
+    }
+    // Helper function for RotateLeft, RotateRight
+    private boolean _changeRotation(int newIndexRotation)
+    {
+        TetrisModel.BlockStatus[][] newPiece = TetrisMath.GetCurrentPiece(
+                _piecesData,
+                TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece),
+                newIndexRotation);
+        boolean collision = TetrisMath.CheckCollision(newPiece, _playAreaMatrix, _position);
+        if(!collision)
+        {
+            _movingPiece = newPiece;
+            return true;
+        }
+        return false;
+    }
+
+    // Update View
+    private void _draw()
+    {
+    }
+}

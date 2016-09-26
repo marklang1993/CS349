@@ -7,6 +7,8 @@ import java.util.Vector;
  */
 public class TetrisMath {
 
+    public static Size PieceSize = new Size(16, 16);
+
     // Generate the vector of all pieces
     public static Vector< Vector<TetrisModel.BlockStatus[][]> >GeneratePieces()
     {

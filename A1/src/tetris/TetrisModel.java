@@ -27,8 +27,6 @@ public class TetrisModel
     private BlockStatus _playAreaMatrix[][];    // main play area
     private int _playAreaMaskMatrix[][];        // used for differentiate the type of pieces, only valid for BLOCK
     // basic parameters
-    private int _fps;
-    private double _speed;
     private String _sequence;
 
     // runtime parameters
@@ -38,13 +36,15 @@ public class TetrisModel
     private BlockStatus[][] _movingPiece;       // current moving piece
     private int _score;                         // total score
 
+    // View & Controller
+    private TetrisView _tetrisView;
+    private TetrisController _tetrisController;
+
 
     // Constructor
     public TetrisModel(int fps, double speed, String sequence)
     {
         // initialize basic parameters
-        _fps = fps;
-        _speed = speed;
         _sequence = TetrisMath.ParsePiecesType(sequence);
 
         // initialize game parameters
@@ -62,6 +62,10 @@ public class TetrisModel
         int indexMovingPieceType = TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece);
         _movingPiece = TetrisMath.GetCurrentPiece(_piecesData, indexMovingPieceType, _indexRotation);
         _score = 0;
+
+        // init. View & Controller
+        _tetrisView = new TetrisView(fps, PlayArea);
+
     }
 
     // Actions
@@ -178,5 +182,41 @@ public class TetrisModel
     // Update View
     private void _draw()
     {
+        int[][] displayMatrix = new int[PlayArea.Width][PlayArea.Height];
+
+        // Processing PlayArea
+        for(int i = 1; i < BoundaryPlayArea.Width - 1; i++)
+        {
+            for(int j = 1; j < BoundaryPlayArea.Height - 1; j++)
+            {
+                if(_playAreaMatrix[i][j] == BlockStatus.BLOCK)
+                {
+                    displayMatrix[i - 1][j - 1] = _playAreaMaskMatrix[i][j];
+                }
+                else
+                {
+                    displayMatrix[i - 1][j - 1] = - 1;  // -1 : Nothing to display
+                }
+            }
+        }
+
+        // Processing Moving Piece
+        // Assert : Should not go out of boundary, Overlap with PlayArea should not occur
+        for(int i = 0; i < 4; i++)
+        {
+            for (int j = 0; j < 4; j++)
+            {
+                Point absPosition = _position.Add(new Point(i - 1, j - 1));
+                if(_movingPiece[i][j] != BlockStatus.EMPTY)
+                {
+                    displayMatrix[absPosition.X][absPosition.Y] = TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece);
+                }
+            }
+        }
+
+        // Pass the processed Matrix to View
+
+
     }
+
 }

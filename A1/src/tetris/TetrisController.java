@@ -24,6 +24,10 @@ public class TetrisController{
         _tetrisModel = tetrisModel;
 
         _timer = new Timer((int)(speed * 1000), new InputProcessor(this));
+    }
+
+    public void Start()
+    {
         _timer.start();
     }
 

@@ -93,6 +93,10 @@ public class TetrisModel
     public boolean Drop()
     {
         boolean result = _changePosition(_position.Add(new Point(0, 2)));
+        if(!result)
+        {
+            result = _changePosition(_position.Add(new Point(0, 1)));
+        }
         _draw();
         return result;
     }
@@ -140,8 +144,8 @@ public class TetrisModel
          * 7. CheckGameOver();
          * 8. Transfer the right of control to user
          */
-        boolean collision = TetrisMath.CheckCollision(_movingPiece, _playAreaMatrix, _position);
-        if(!collision)
+        boolean hitBottom = TetrisMath.CheckHitBottom(_movingPiece, _playAreaMatrix, _position);
+        if(!hitBottom)
         {
             _position = _position.Add(new Point(0, 1));
         }

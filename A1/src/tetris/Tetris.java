@@ -29,9 +29,9 @@ public class Tetris {
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(400, 500);
         frame.add(_tetrisView);
-        //frame.getContentPane().add(_tetrisView);
         frame.setVisible(true);
 
         _tetrisView.Start(frame);
+        _tetrisController.Start();
     }
 }

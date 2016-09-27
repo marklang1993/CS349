@@ -11,8 +11,9 @@ public interface TetrisDrawable {
 
 class TetrisPiece implements TetrisDrawable{
 
-    private int[][] _displayMatrix;         // Pieces description matrix
+    private TetrisView _view;               // TetrisView
     private Size _displaySize;              // Display size
+    private Point _offset;                  // Offset (Pixels)
     private static Color[] _colorMap =      // Pieces color map
             {
                     new Color(13, 132, 249),
@@ -24,15 +25,18 @@ class TetrisPiece implements TetrisDrawable{
                     new Color(240, 30, 30)
             };
 
-    TetrisPiece(int[][] displayMatrix, Size displaySize)
+
+    TetrisPiece(TetrisView view, Size displaySize, Point offset)
     {
-        _displayMatrix = displayMatrix;
+        _view = view;
         _displaySize = displaySize;
+        _offset = offset;
     }
 
     @Override
     public void draw(Graphics g)
     {
+        int[][] _displayMatrix = _view.DataOpeartion(null, true);         // Pieces description matrix
         if(_displayMatrix != null)
         {
             for (int i = 0; i < _displaySize.Width; i++)
@@ -43,14 +47,14 @@ class TetrisPiece implements TetrisDrawable{
                     {
                         // Draw boarder
                         g.setColor(Color.gray);
-                        g.drawRect(i * TetrisMath.PieceSize.Width,
-                                j * TetrisMath.PieceSize.Height,
+                        g.drawRect(_offset.X + i * TetrisMath.PieceSize.Width,
+                                _offset.Y+ j * TetrisMath.PieceSize.Height,
                                 TetrisMath.PieceSize.Width,
                                 TetrisMath.PieceSize.Height);
                         // Fill with color
                         g.setColor(_colorMap[_displayMatrix[i][j]]);
-                        g.fillRect(i * TetrisMath.PieceSize.Width + 1,
-                                j * TetrisMath.PieceSize.Height + 1,
+                        g.fillRect(_offset.X + i * TetrisMath.PieceSize.Width + 1,
+                                _offset.Y + j * TetrisMath.PieceSize.Height + 1,
                                 TetrisMath.PieceSize.Width - 1,
                                 TetrisMath.PieceSize.Height - 1);
                     }
@@ -60,6 +64,31 @@ class TetrisPiece implements TetrisDrawable{
 
     }
 
+}
+
+class TetrisBoarder implements TetrisDrawable{
+
+    private Size _displaySize;              // Display size (Pixels)
+    private Point _offset;                  // Offset (Pixels)
+    private static int _width = 3;
+
+
+    TetrisBoarder(Size displaySize, Point offset)
+    {
+        _displaySize = new Size(displaySize.Width * TetrisMath.PieceSize.Width,
+                displaySize.Height * TetrisMath.PieceSize.Height);
+        _offset = offset;
+    }
+
+    @Override
+    public void draw(Graphics g) {
+
+        Graphics2D g2 = (Graphics2D)g;
+        g2.setStroke(new BasicStroke(_width));
+        g2.setColor(Color.black);
+        g2.drawRect(_offset.X - _width, _offset.Y - _width,
+                _displaySize.Width + _width * 2, _displaySize.Height + _width * 2);
+    }
 }
 
 

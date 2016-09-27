@@ -5,6 +5,7 @@ import javax.swing.Timer;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
+import java.util.LinkedList;
 
 import static java.awt.image.BufferedImage.TYPE_3BYTE_BGR;
 
@@ -26,6 +27,9 @@ public class TetrisView extends JPanel{
     // controller
     private TetrisController _tetrisController;
 
+    // list of TetrisDrawable
+    LinkedList<TetrisDrawable> _drawableList;
+
     public TetrisView(int fps, Size displayArea, TetrisController tetrisController)
     {
         // init. basic parameters
@@ -41,18 +45,21 @@ public class TetrisView extends JPanel{
         // init. view update component
         _viewUpdate = new Timer(1000 / _fps, new ViewUpdateListener(this));
 
-        // init, JPanel
-        //setLayout(new GridLayout(1, 1));
+        // init. drawables
+        Point offset = new Point(32, 32);
+        _drawableList = new LinkedList<TetrisDrawable>();
+        _drawableList.add(new TetrisPiece(this, _displayArea, offset));
+        _drawableList.add(new TetrisBoarder(_displayArea, offset));
     }
 
     protected void paintComponent(Graphics g)
     {
         super.paintComponent(g);
 
-        int[][] _displayMatrix = DataOpeartion(null, true);
+        for (TetrisDrawable drawable: _drawableList) {
+            drawable.draw(g);
+        }
 
-        TetrisDrawable drawable = new TetrisPiece(_displayMatrix, _displayArea);
-        drawable.draw(g);
     }
 
     public void Start(JFrame parentFrame)
@@ -96,7 +103,7 @@ class ViewUpdateListener implements ActionListener
     }
 }
 
-// For getting user inputs
+// For accepting users' inputs
 class ViewKeyListener implements KeyListener
 {
     TetrisController _tetrisController;

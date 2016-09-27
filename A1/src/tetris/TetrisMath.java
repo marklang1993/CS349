@@ -323,12 +323,49 @@ public class TetrisMath {
                     TetrisModel.BlockStatus movingPiecesElement = movingPieces[relativePos.X][relativePos.Y];
                     if(movingPiecesElement == TetrisModel.BlockStatus.ACTIVE)
                     {
+                        // if the element of moving piece is ACTIVE, then check the corresponding element of play area.
+                        TetrisModel.BlockStatus playAreaElement = playArea[i][j];
+                        if(playAreaElement != TetrisModel.BlockStatus.EMPTY)
+                        {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+        catch (IndexOutOfBoundsException ex)
+        {
+            // Out of boundary
+            return true;
+        }
+        return false;
+    }
+
+    // Check the collision of moving pieces with the bottom
+    // if collide => true, otherwise => false
+    public static boolean CheckHitBottom(TetrisModel.BlockStatus[][] movingPieces,
+                                         TetrisModel.BlockStatus[][] playArea,
+                                         Point position)
+    {
+        // Check the boundary
+        Point lowerBound = position.Add(0);
+        Point upperBound = position.Add(4);
+        try
+        {
+            for(int i = lowerBound.X; i < upperBound.X; i++)
+            {
+                for(int j = lowerBound.Y; j < upperBound.Y; j++)
+                {
+                    Point relativePos = (new Point(i, j)).Subtract(lowerBound); // for iterating movingPieces
+                    TetrisModel.BlockStatus movingPiecesElement = movingPieces[relativePos.X][relativePos.Y];
+                    if(movingPiecesElement == TetrisModel.BlockStatus.ACTIVE)
+                    {
                         // if the element of moving piece is ACTIVE, then check the surrounding elements of play area.
                         try
                         {
                             /**
                              * X X X
-                             * W A W
+                             * X A X
                              * X O X
                              *
                              * A: ACTIVE
@@ -337,16 +374,8 @@ public class TetrisMath {
                              * O: Check all
                              */
                             // May be out of boundary
-                            TetrisModel.BlockStatus playAreaElementUp = playArea[i][j - 1];
-                            TetrisModel.BlockStatus playAreaElementRight = playArea[i - 1][j];
                             TetrisModel.BlockStatus playAreaElementDown = playArea[i][j + 1];
-                            TetrisModel.BlockStatus playAreaElementLeft = playArea[i + 1][j];
                             if(playAreaElementDown != TetrisModel.BlockStatus.EMPTY)
-                            {
-                                return true;
-                            }
-                            if(playAreaElementRight == TetrisModel.BlockStatus.WALL ||
-                                    playAreaElementLeft == TetrisModel.BlockStatus.WALL)
                             {
                                 return true;
                             }
@@ -401,17 +430,19 @@ public class TetrisMath {
     {
         int score = 0;
         // Be careful with WALL
-        for(int j = boundaryPlayAreaSize.Height - 2; j > 0; j--) // from (boundaryPlayAreaSize.Height - 2) to 1
+        for(int rowIndex = boundaryPlayAreaSize.Height - 2; rowIndex > 0; rowIndex--) // from (boundaryPlayAreaSize.Height - 2) to 1
         {
             // Check current row
             boolean finished = true;
             for(int i = 1; i < boundaryPlayAreaSize.Width - 1; i++)
             {
-                finished = finished && (playArea[i][j] == TetrisModel.BlockStatus.BLOCK);
+                finished = finished && (playArea[i][rowIndex] == TetrisModel.BlockStatus.BLOCK);
             }
             if(finished) {
-                // Clear j-th row , and move other rows down
-                _clearRow(j, playArea, playAreaMask, boundaryPlayAreaSize);
+                // Clear rowIndex-th row , and move other rows down
+                _clearRow(playArea, playAreaMask, boundaryPlayAreaSize, rowIndex);
+                // Reset the rowIndex
+                rowIndex++;
                 // Add score
                 score += 10;
             }
@@ -419,40 +450,43 @@ public class TetrisMath {
         return score;
     }
 
-    private static void _clearRow(int rowIndex,
-                                  TetrisModel.BlockStatus[][] playArea,
+    private static void _clearRow(TetrisModel.BlockStatus[][] playArea,
                                   int[][] playAreaMask,
-                                  Size boundaryPlayAreaSize)
+                                  Size boundaryPlayAreaSize,
+                                  int rowIndex)
     {
-        // Clear the last row, and move down
         TetrisModel.BlockStatus[][] newPlayArea = new TetrisModel.BlockStatus[boundaryPlayAreaSize.Width][boundaryPlayAreaSize.Height];
         InitPlayAreaMatrix(newPlayArea, boundaryPlayAreaSize);
 
         int[][] newPlayAreaMask = new int[boundaryPlayAreaSize.Width][boundaryPlayAreaSize.Height];
 
-        for(int j = boundaryPlayAreaSize.Height - 2; j > 0 ; j--) // from the bottom to the top
+        for(int n = boundaryPlayAreaSize.Height - 2; n > 0 ; n--) // from the bottom to the top
         {
-            for(int i = 1; i < boundaryPlayAreaSize.Width - 1; i++)
+            for(int m = 1; m < boundaryPlayAreaSize.Width - 1; m++)
             {
-                if(rowIndex < j)
+                if(rowIndex < n)
                 {
                     // below the removed row, just copy
-                    newPlayArea[i][j] = playArea[i][j];
-                    newPlayAreaMask[i][j] = playAreaMask[i][j];
+                    newPlayArea[m][n] = playArea[m][n];
+                    newPlayAreaMask[m][n] = playAreaMask[m][n];
                 }
-                else if (rowIndex > j)
+                else if (rowIndex > n)
                 {
                     // above the removed row => move all rows down
-                    newPlayArea[i][j + 1] = playArea[i][j];
-                    newPlayAreaMask[i][j + 1] = playAreaMask[i][j];
+                    newPlayArea[m][n + 1] = playArea[m][n];
+                    newPlayAreaMask[m][n + 1] = playAreaMask[m][n];
                 }
             }
         }
-        // Add walls
-        AddWalls(newPlayArea, boundaryPlayAreaSize);
         // Update
-        playArea = newPlayArea;
-        playAreaMask = newPlayAreaMask;
+        for(int i = 1; i < boundaryPlayAreaSize.Width - 1; i++)
+        {
+            for(int j = 1; j < boundaryPlayAreaSize.Height - 1; j++)
+            {
+                playArea[i][j] = newPlayArea[i][j];
+                playAreaMask[i][j] = newPlayAreaMask[i][j];
+            }
+        }
     }
 
     // Check game over

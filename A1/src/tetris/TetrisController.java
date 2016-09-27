@@ -14,16 +14,12 @@ import javax.swing.Timer;
 public class TetrisController{
 
     private TetrisModel _tetrisModel;
-    private LinkedList<AWTEvent> _eventList;
-
     private Timer _timer;
 
     public TetrisController(TetrisModel tetrisModel, double speed)
     {
-        _eventList = new LinkedList<AWTEvent>();
         _tetrisModel = tetrisModel;
-
-        _timer = new Timer((int)(speed * 1000), new InputProcessor(this));
+        _timer = new Timer((int)(speed * 1000), new InputProcessor(_tetrisModel));
     }
 
     public void Start()
@@ -31,62 +27,27 @@ public class TetrisController{
         _timer.start();
     }
 
-    private boolean isEmpty()
+    public void EventHandle(AWTEvent event)
     {
-        return _eventList.isEmpty();
-    }
-
-    private AWTEvent newest()
-    {
-        AWTEvent top = null;
-        while(!isEmpty()) {
-            top = _eventList.peek();
-            _eventList.pop();
-            if(isEmpty()) {
-                break;
-            }
-        }
-        return top;
-    }
-
-    public void Push(AWTEvent event)
-    {
-        _eventList.push(event);
-    }
-
-    public void Activate()
-    {
-        AWTEvent event = newest();
         if(event != null)
         {
             if(event instanceof KeyEvent)
             {
-                keyboardEventHandler((KeyEvent) event);
+                _keyboardEventHandler((KeyEvent) event);
             }
             else if (event instanceof MouseEvent)
             {
-                mouseEventHandler((MouseEvent) event);
+                _mouseEventHandler((MouseEvent) event);
             }
-            else
-            {
-                // Non-realizable input => NextStep
-                _tetrisModel.NextStep();
-            }
-        }
-        else
-        {
-            // No user input => NextStep
-            _tetrisModel.NextStep();
         }
     }
 
-    private void mouseEventHandler(MouseEvent event)
+    private void _mouseEventHandler(MouseEvent event)
     {
-        _tetrisModel.NextStep();
         // Not implement yet!
     }
 
-    private void keyboardEventHandler(KeyEvent event)
+    private void _keyboardEventHandler(KeyEvent event)
     {
         switch (event.getKeyCode())
         {
@@ -124,26 +85,22 @@ public class TetrisController{
                 // Pause/Resume
 
                 break;
-            default:
-                // Non-realizable input => NextStep
-                _tetrisModel.NextStep();
-                break;
         }
     }
 }
 
 class InputProcessor implements ActionListener
 {
-    private TetrisController _tetrisController;
+    private TetrisModel _tetrisModel;
 
-    public InputProcessor(TetrisController tetrisController)
+    public InputProcessor(TetrisModel tetrisModel)
     {
-        _tetrisController = tetrisController;
+        _tetrisModel = tetrisModel;
     }
 
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        _tetrisController.Activate();
+        _tetrisModel.NextStep();
     }
 }

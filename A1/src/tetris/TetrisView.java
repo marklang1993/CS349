@@ -104,7 +104,7 @@ class ViewUpdateListener implements ActionListener
 }
 
 // For accepting users' inputs
-class ViewKeyListener implements KeyListener
+class ViewKeyListener extends KeyAdapter
 {
     TetrisController _tetrisController;
 
@@ -112,24 +112,13 @@ class ViewKeyListener implements KeyListener
     {
         _tetrisController = tetrisController;
     }
-
-    @Override
-    public void keyTyped(KeyEvent e) {
-        ;
-    }
-
     @Override
     public void keyPressed(KeyEvent e) {
-        _tetrisController.Push(e);
-    }
-
-    @Override
-    public void keyReleased(KeyEvent e) {
-        ;
+        _tetrisController.EventHandle(e);
     }
 }
 
-class ViewMouseListener implements MouseListener
+class ViewMouseListener extends MouseAdapter
 {
     TetrisController _tetrisController;
 
@@ -140,31 +129,11 @@ class ViewMouseListener implements MouseListener
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        _tetrisController.Push(e);
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
-        ;
-    }
-
-    @Override
-    public void mouseReleased(MouseEvent e) {
-        ;
-    }
-
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        ;
-    }
-
-    @Override
-    public void mouseExited(MouseEvent e) {
-        ;
+        _tetrisController.EventHandle(e);
     }
 }
 
-class ViewMouseMotionListener implements MouseMotionListener
+class ViewMouseMotionListener extends MouseMotionAdapter
 {
     TetrisController _tetrisController;
 
@@ -174,13 +143,8 @@ class ViewMouseMotionListener implements MouseMotionListener
     }
 
     @Override
-    public void mouseDragged(MouseEvent e) {
-        ;
-    }
-
-    @Override
     public void mouseMoved(MouseEvent e) {
-        _tetrisController.Push(e);
+        _tetrisController.EventHandle(e);
     }
 }
 
@@ -193,9 +157,8 @@ class ViewMouseWheelListener implements MouseWheelListener
         _tetrisController = tetrisController;
     }
 
-
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
-        _tetrisController.Push(e);
+        _tetrisController.EventHandle(e);
     }
 }

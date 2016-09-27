@@ -38,11 +38,9 @@ public class TetrisModel
 
     // View & Controller
     private TetrisView _tetrisView;
-    private TetrisController _tetrisController;
-
 
     // Constructor
-    public TetrisModel(int fps, double speed, String sequence)
+    public TetrisModel(String sequence)
     {
         // initialize basic parameters
         _sequence = TetrisMath.ParsePiecesType(sequence);
@@ -50,6 +48,8 @@ public class TetrisModel
         // initialize game parameters
         _playAreaMatrix = new BlockStatus[BoundaryPlayArea.Width][BoundaryPlayArea.Height];
         _playAreaMaskMatrix = new int[BoundaryPlayArea.Width][BoundaryPlayArea.Height];
+        // init. playAreaMatrix
+        TetrisMath.InitPlayAreaMatrix(_playAreaMatrix, BoundaryPlayArea);
         // init. walls
         TetrisMath.AddWalls(_playAreaMatrix, BoundaryPlayArea);
         // init. pieces data
@@ -62,10 +62,19 @@ public class TetrisModel
         int indexMovingPieceType = TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece);
         _movingPiece = TetrisMath.GetCurrentPiece(_piecesData, indexMovingPieceType, _indexRotation);
         _score = 0;
+    }
 
-        // init. View & Controller
-        _tetrisView = new TetrisView(fps, PlayArea);
+    public void SetView(TetrisView tetrisView)
+    {
+        _tetrisView = tetrisView;
 
+        // initial draw
+        _draw();
+    }
+
+    // Accessor
+    public Size GetDrawArea(){
+        return PlayArea;
     }
 
     // Actions
@@ -83,7 +92,7 @@ public class TetrisModel
     }
     public boolean Drop()
     {
-        boolean result = _changePosition(_position.Add(new Point(0, 1)));
+        boolean result = _changePosition(_position.Add(new Point(0, 2)));
         _draw();
         return result;
     }
@@ -92,6 +101,13 @@ public class TetrisModel
         int countRotation = _piecesData.elementAt(TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece)).size();
         int newIndexRotation = (countRotation + _indexRotation - 1) % countRotation;
         boolean result = _changeRotation(newIndexRotation);
+
+        if(result)
+        {
+            // Update indexRotation
+            _indexRotation = newIndexRotation;
+        }
+
         _draw();
         return result;
     }
@@ -100,6 +116,13 @@ public class TetrisModel
         int countRotation = _piecesData.elementAt(TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece)).size();
         int newIndexRotation = (_indexRotation + 1) % countRotation;
         boolean result = _changeRotation(newIndexRotation);
+
+        if(result)
+        {
+            // Update indexRotation
+            _indexRotation = newIndexRotation;
+        }
+
         _draw();
         return result;
     }
@@ -120,7 +143,7 @@ public class TetrisModel
         boolean collision = TetrisMath.CheckCollision(_movingPiece, _playAreaMatrix, _position);
         if(!collision)
         {
-            Drop();
+            _position = _position.Add(new Point(0, 1));
         }
         else
         {
@@ -215,8 +238,7 @@ public class TetrisModel
         }
 
         // Pass the processed Matrix to View
-
-
+        _tetrisView.DataOpeartion(displayMatrix, false);
     }
 
 }

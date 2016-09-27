@@ -154,7 +154,7 @@ public class TetrisMath {
                         {TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY}
                 };
         Vector<TetrisModel.BlockStatus[][]> vector_O = new Vector<TetrisModel.BlockStatus[][]>();
-        vector_T.add(matrix_O0);
+        vector_O.add(matrix_O0);
         piecesDefinition.add(vector_O);
 
         // 5. S
@@ -173,8 +173,8 @@ public class TetrisMath {
                         {TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.ACTIVE, TetrisModel.BlockStatus.EMPTY}
                 };
         Vector<TetrisModel.BlockStatus[][]> vector_S = new Vector<TetrisModel.BlockStatus[][]>();
-        vector_T.add(matrix_S0);
-        vector_T.add(matrix_S1);
+        vector_S.add(matrix_S0);
+        vector_S.add(matrix_S1);
         piecesDefinition.add(vector_S);
 
         // 6. Z
@@ -193,8 +193,8 @@ public class TetrisMath {
                         {TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.ACTIVE, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY}
                 };
         Vector<TetrisModel.BlockStatus[][]> vector_Z = new Vector<TetrisModel.BlockStatus[][]>();
-        vector_T.add(matrix_Z0);
-        vector_T.add(matrix_Z1);
+        vector_Z.add(matrix_Z0);
+        vector_Z.add(matrix_Z1);
         piecesDefinition.add(vector_Z);
 
         return piecesDefinition;
@@ -250,15 +250,14 @@ public class TetrisMath {
     // Get type of current piece
     public static int GetCurrentPieceType(String inStr, int currentIndex)
     {
-        return Integer.getInteger(inStr.substring(currentIndex, 1));
+        String num = inStr.substring(currentIndex, currentIndex + 1);
+        return Integer.parseInt(num);
     }
 
     // Get data of current piece
     public static TetrisModel.BlockStatus[][] GetCurrentPiece(
             Vector< Vector<TetrisModel.BlockStatus[][]> > piecesData,
-            int type,
-            int rotation
-    )
+            int type, int rotation)
     {
         return piecesData.elementAt(type).elementAt(rotation);
     }
@@ -269,6 +268,19 @@ public class TetrisMath {
         return new Point(boundaryPlayAreaSize.Width / 2 - 2, 1); // "-2" since the size of moving pieces is 4*4
     }
 
+    // Init. PlayArea Matrix
+    public static void InitPlayAreaMatrix(TetrisModel.BlockStatus[][] playArea, Size boundaryPlayArea)
+    {
+        for(int i = 0; i< boundaryPlayArea.Width; i++)
+        {
+            for(int j = 0; j < boundaryPlayArea.Height; j++)
+            {
+                playArea[i][j] = TetrisModel.BlockStatus.EMPTY;
+            }
+        }
+    }
+
+    // Add walls
     public static void AddWalls(TetrisModel.BlockStatus[][] playArea, Size boundaryPlayArea)
     {
         // init. walls
@@ -311,14 +323,39 @@ public class TetrisMath {
                     TetrisModel.BlockStatus movingPiecesElement = movingPieces[relativePos.X][relativePos.Y];
                     if(movingPiecesElement == TetrisModel.BlockStatus.ACTIVE)
                     {
-                        // if the element of moving piece is ACTIVE, then check the element of play area.
-                        TetrisModel.BlockStatus playAreaElement = playArea[i][j]; // May be out of boundary
-                        if(playAreaElement != TetrisModel.BlockStatus.EMPTY)
+                        // if the element of moving piece is ACTIVE, then check the surrounding elements of play area.
+                        try
                         {
-                            return true;
+                            /**
+                             * X X X
+                             * W A W
+                             * X O X
+                             *
+                             * A: ACTIVE
+                             * X: Does not check
+                             * W: Only check wall
+                             * O: Check all
+                             */
+                            // May be out of boundary
+                            TetrisModel.BlockStatus playAreaElementUp = playArea[i][j - 1];
+                            TetrisModel.BlockStatus playAreaElementRight = playArea[i - 1][j];
+                            TetrisModel.BlockStatus playAreaElementDown = playArea[i][j + 1];
+                            TetrisModel.BlockStatus playAreaElementLeft = playArea[i + 1][j];
+                            if(playAreaElementDown != TetrisModel.BlockStatus.EMPTY)
+                            {
+                                return true;
+                            }
+                            if(playAreaElementRight == TetrisModel.BlockStatus.WALL ||
+                                    playAreaElementLeft == TetrisModel.BlockStatus.WALL)
+                            {
+                                return true;
+                            }
+                        }
+                        catch (IndexOutOfBoundsException ex)
+                        {
+
                         }
                     }
-
                 }
             }
         }
@@ -389,6 +426,8 @@ public class TetrisMath {
     {
         // Clear the last row, and move down
         TetrisModel.BlockStatus[][] newPlayArea = new TetrisModel.BlockStatus[boundaryPlayAreaSize.Width][boundaryPlayAreaSize.Height];
+        InitPlayAreaMatrix(newPlayArea, boundaryPlayAreaSize);
+
         int[][] newPlayAreaMask = new int[boundaryPlayAreaSize.Width][boundaryPlayAreaSize.Height];
 
         for(int j = boundaryPlayAreaSize.Height - 2; j > 0 ; j--) // from the bottom to the top

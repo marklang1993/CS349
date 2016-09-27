@@ -33,27 +33,31 @@ class TetrisPiece implements TetrisDrawable{
     @Override
     public void draw(Graphics g)
     {
-        for (int i = 0; i < _displaySize.Width; i++)
+        if(_displayMatrix != null)
         {
-            for(int j = 0; j < _displaySize.Height; j++)
+            for (int i = 0; i < _displaySize.Width; i++)
             {
-                if(_displayMatrix[i][j] >= 0)
+                for(int j = 0; j < _displaySize.Height; j++)
                 {
-                    // Draw boarder
-                    g.setColor(Color.gray);
-                    g.drawRect(i * TetrisMath.PieceSize.Width,
-                            j * TetrisMath.PieceSize.Height,
-                            TetrisMath.PieceSize.Width,
-                            TetrisMath.PieceSize.Height);
-                    // Fill with color
-                    g.setColor(_colorMap[_displayMatrix[i][j]]);
-                    g.fillRect(i * TetrisMath.PieceSize.Width + 1,
-                            j * TetrisMath.PieceSize.Height + 1,
-                            TetrisMath.PieceSize.Width - 1,
-                            TetrisMath.PieceSize.Height - 1);
+                    if(_displayMatrix[i][j] >= 0)
+                    {
+                        // Draw boarder
+                        g.setColor(Color.gray);
+                        g.drawRect(i * TetrisMath.PieceSize.Width,
+                                j * TetrisMath.PieceSize.Height,
+                                TetrisMath.PieceSize.Width,
+                                TetrisMath.PieceSize.Height);
+                        // Fill with color
+                        g.setColor(_colorMap[_displayMatrix[i][j]]);
+                        g.fillRect(i * TetrisMath.PieceSize.Width + 1,
+                                j * TetrisMath.PieceSize.Height + 1,
+                                TetrisMath.PieceSize.Width - 1,
+                                TetrisMath.PieceSize.Height - 1);
+                    }
                 }
             }
         }
+
     }
 
 }

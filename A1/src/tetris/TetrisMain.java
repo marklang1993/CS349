@@ -9,7 +9,8 @@ public class TetrisMain {
         System.out.println("Hello, Tetris!");
         try {
             ProgramArgs a = ProgramArgs.parseArgs(args);
-            Tetris tetris = new Tetris(a.getFPS(), a.getSpeed(), a.getSequence());
+            //Tetris tetris = new Tetris(a.getFPS(), a.getSpeed(), a.getSequence());
+            Tetris tetris = new Tetris(a.getFPS(), 0.3, a.getSequence());
 
         } catch (IllegalArgumentException e) {
             System.out.println(e);

@@ -2,13 +2,16 @@ package tetris;
 
 import javax.swing.*;
 import javax.swing.Timer;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.awt.event.*;
+import java.awt.image.BufferedImage;
+
+import static java.awt.image.BufferedImage.TYPE_3BYTE_BGR;
 
 /**
  * Created by LangChen on 2016/9/26.
  */
-public class TetrisView extends JFrame{
+public class TetrisView extends JPanel{
 
     // basic parameters
     private int _fps;
@@ -20,7 +23,10 @@ public class TetrisView extends JFrame{
     // timer
     private Timer _viewUpdate;
 
-    public TetrisView(int fps, Size displayArea)
+    // controller
+    private TetrisController _tetrisController;
+
+    public TetrisView(int fps, Size displayArea, TetrisController tetrisController)
     {
         // init. basic parameters
         _fps = fps;
@@ -29,32 +35,52 @@ public class TetrisView extends JFrame{
         _displayMatrix = null;
         _displayArea = displayArea;
 
+        // init. Controller
+        _tetrisController = tetrisController;
+
         // init. view update component
         _viewUpdate = new Timer(1000 / _fps, new ViewUpdateListener(this));
+
+        // init, JPanel
+        //setLayout(new GridLayout(1, 1));
+    }
+
+    protected void paintComponent(Graphics g)
+    {
+        super.paintComponent(g);
+
+        int[][] _displayMatrix = DataOpeartion(null, true);
+
+        TetrisDrawable drawable = new TetrisPiece(_displayMatrix, _displayArea);
+        drawable.draw(g);
+    }
+
+    public void Start(JFrame parentFrame)
+    {
+        // init Listeners
+        parentFrame.addKeyListener(new ViewKeyListener(_tetrisController));
+        parentFrame.addMouseListener(new ViewMouseListener(_tetrisController));
+        parentFrame.addMouseMotionListener(new ViewMouseMotionListener(_tetrisController));
+        parentFrame.addMouseWheelListener(new ViewMouseWheelListener(_tetrisController));
+
+        // Start to repaint the view
         _viewUpdate.start();
     }
 
-    public synchronized int[][] DataOpeartion(int[][] displayMatrix, boolean isRead)
-    {
-        if(isRead)
-        {
+    public synchronized int[][] DataOpeartion(int[][] displayMatrix, boolean isRead) {
+        if (isRead) {
             // Read Operation
             return _displayMatrix;
-        }
-        else
-        {
+        } else {
             // Write Operation
             _displayMatrix = displayMatrix;
             return null;
         }
     }
 
-    public synchronized Size GetDisplayArea()
-    {
-        return _displayArea;
-    }
 }
 
+// For drawing Timer
 class ViewUpdateListener implements ActionListener
 {
     private TetrisView _tetrisView;
@@ -66,10 +92,103 @@ class ViewUpdateListener implements ActionListener
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        int[][] _displayMatrix = _tetrisView.DataOpeartion(null, true);
+        _tetrisView.repaint();
+    }
+}
 
-        // For Testing
-        TetrisDrawable drawable = new TetrisPiece(_displayMatrix, _tetrisView.GetDisplayArea());
-        drawable.draw(_tetrisView.getGraphics());
+// For getting user inputs
+class ViewKeyListener implements KeyListener
+{
+    TetrisController _tetrisController;
+
+    public ViewKeyListener(TetrisController tetrisController)
+    {
+        _tetrisController = tetrisController;
+    }
+
+    @Override
+    public void keyTyped(KeyEvent e) {
+        ;
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        _tetrisController.Push(e);
+    }
+
+    @Override
+    public void keyReleased(KeyEvent e) {
+        ;
+    }
+}
+
+class ViewMouseListener implements MouseListener
+{
+    TetrisController _tetrisController;
+
+    public ViewMouseListener(TetrisController tetrisController)
+    {
+        _tetrisController = tetrisController;
+    }
+
+    @Override
+    public void mouseClicked(MouseEvent e) {
+        _tetrisController.Push(e);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        ;
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        ;
+    }
+
+    @Override
+    public void mouseEntered(MouseEvent e) {
+        ;
+    }
+
+    @Override
+    public void mouseExited(MouseEvent e) {
+        ;
+    }
+}
+
+class ViewMouseMotionListener implements MouseMotionListener
+{
+    TetrisController _tetrisController;
+
+    public ViewMouseMotionListener(TetrisController tetrisController)
+    {
+        _tetrisController = tetrisController;
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        ;
+    }
+
+    @Override
+    public void mouseMoved(MouseEvent e) {
+        _tetrisController.Push(e);
+    }
+}
+
+class ViewMouseWheelListener implements MouseWheelListener
+{
+    TetrisController _tetrisController;
+
+    public ViewMouseWheelListener(TetrisController tetrisController)
+    {
+        _tetrisController = tetrisController;
+    }
+
+
+    @Override
+    public void mouseWheelMoved(MouseWheelEvent e) {
+        _tetrisController.Push(e);
     }
 }

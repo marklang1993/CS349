@@ -21,14 +21,15 @@ public class TetrisView extends JPanel{
     private int[][] _displayMatrix;     // Data matrix for displaying
     private int _score;                 // Current Score
     private Size _displayArea;          // Display area (unit: Block)
-    private Point _offset;  // Offset from (0, 0)
+    private Point _offset;              // Offset related to (0, 0)
 
     private JFrame _parenFrame;         // Main JFrame
     private Timer _viewUpdate;          // For view updating with exact FPS
     private TetrisController _tetrisController; // Controller
+    private TetrisModel _tetrisModel;   // Model
     LinkedList<TetrisDrawable> _drawableList;   // List of TetrisDrawable
 
-    public TetrisView(int fps, Size displayArea, TetrisController tetrisController)
+    public TetrisView(int fps, Size displayArea, TetrisController tetrisController, TetrisModel tetrisModel)
     {
         // init. basic parameters
         _fps = fps;
@@ -37,8 +38,9 @@ public class TetrisView extends JPanel{
         _displayMatrix = null;
         _displayArea = displayArea;
 
-        // init. Controller
+        // init. Controller&Model
         _tetrisController = tetrisController;
+        _tetrisModel = tetrisModel;
 
         // init. view update component
         _viewUpdate = new Timer(1000 / _fps, new ViewUpdateListener(this));
@@ -47,25 +49,30 @@ public class TetrisView extends JPanel{
         TetrisMath.PieceSize = new Size(TetrisMath.MinPieceSize);
 
         // init. drawables
-        _offset = new Point(32, 32);
-        _drawableList = new LinkedList<TetrisDrawable>();
+        _offset = new Point(60, 32);
+        _drawableList = new LinkedList<>();
+        _drawableList.add(new TetrisBackGround(_displayArea, _offset));
         _drawableList.add(new TetrisPiece(_displayArea, _offset, this));
         _drawableList.add(new TetrisBoarder(_displayArea, _offset));
         _drawableList.add(new TetrisScore(_displayArea, _offset, this));
+        _drawableList.add(new TetrisSplash(_displayArea, _offset));
+        _drawableList.add(new TetrisGameOver(_displayArea, _offset));
     }
 
-    protected void paintComponent(Graphics g)
-    {
+    protected void paintComponent(Graphics g) {
         super.paintComponent(g);
 
+        // Get Status
+        int gameStatus = _tetrisModel.GetStatus();
+
+        // Draw
         for (TetrisDrawable drawable: _drawableList) {
-            drawable.draw(g);
+            drawable.draw(g, gameStatus);
         }
 
     }
 
-    public void BindFrame(JFrame parentFrame)
-    {
+    public void BindFrame(JFrame parentFrame) {
         // Init
         _parenFrame = parentFrame;
         _parenFrame.addKeyListener(new ViewKeyListener(_tetrisController));
@@ -82,8 +89,7 @@ public class TetrisView extends JPanel{
         ));
     }
 
-    public void ResizePieceSize()
-    {
+    public void ResizePieceSize() {
         Insets insets = _parenFrame.getInsets();    // Get the size of boarder of JFrame
         Dimension frameSize = _parenFrame.getSize();    // Get the new size of JFrame
         Size minFrameSize = new Size(
@@ -106,8 +112,7 @@ public class TetrisView extends JPanel{
         }
     }
 
-    public void Start()
-    {
+    public void Start() {
         // Start the timer of repainting the view
         _viewUpdate.start();
     }
@@ -123,8 +128,7 @@ public class TetrisView extends JPanel{
         }
     }
 
-    public synchronized int ScoreOperation(int score, boolean isRead)
-    {
+    public synchronized int ScoreOperation(int score, boolean isRead) {
         if(isRead)
         {
             return _score;

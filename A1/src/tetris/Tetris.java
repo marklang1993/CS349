@@ -21,7 +21,7 @@ public class Tetris {
     public Tetris(int fps, double speed, String sequence) {
         _tetrisModel = new TetrisModel(sequence);
         _tetrisController = new TetrisController(_tetrisModel, speed);
-        _tetrisView = new TetrisView(fps, _tetrisModel.GetDrawArea(), _tetrisController);
+        _tetrisView = new TetrisView(fps, _tetrisModel.GetDrawArea(), _tetrisController, _tetrisModel);
         _tetrisModel.SetView(_tetrisView);
 
         // Init. view
@@ -35,7 +35,5 @@ public class Tetris {
         // Start Timer
         _tetrisView.Start();
         _tetrisController.Start();
-
-
     }
 }

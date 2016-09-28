@@ -50,71 +50,97 @@ public class TetrisController{
         }
     }
 
-    private void _mouseEventHandler(ViewMouseClickedEvent event)
-    {
+    private void _mouseEventHandler(ViewMouseClickedEvent event) {
         ViewMouseClickedEvent.MouseType _type = event.GetMouseEventType();
-        if(_type == ViewMouseClickedEvent.MouseType.MOVE)
-        {
-            // Mouse Motion
-            _tetrisModel.MouseMovePiece(event.GetBlockPosition());
+        int gameStatus = _tetrisModel.GetStatus();
 
-        }
-        else if(_type == ViewMouseClickedEvent.MouseType.CLICKED)
-        {
-            // Mouse Clicked
-            _tetrisModel.MouseClickPiece(event.GetBlockPosition());
+        if(gameStatus == TetrisModel.STATUS_PLAYING) {
+            if (_type == ViewMouseClickedEvent.MouseType.MOVE) {
+                // Mouse Motion
+                _tetrisModel.MouseMovePiece(event.GetBlockPosition());
+            } else if (_type == ViewMouseClickedEvent.MouseType.CLICKED) {
+                // Mouse Clicked
+                _tetrisModel.MouseClickPiece(event.GetBlockPosition());
+            }
         }
     }
 
-    private void _mouseWheelEventHandler(MouseWheelEvent event)
-    {
-        if(event.getWheelRotation() > 0) {
-            _tetrisModel.RotateRight();
-        }
-        else {
-            _tetrisModel.RotateLeft();
-        }
-    }
+    private void _mouseWheelEventHandler(MouseWheelEvent event) {
+        int gameStatus = _tetrisModel.GetStatus();
 
-    private void _keyboardEventHandler(KeyEvent event)
-    {
-        switch (event.getKeyCode())
+        if(gameStatus == TetrisModel.STATUS_PLAYING)
         {
-            case KeyEvent.VK_RIGHT:
-            case KeyEvent.VK_NUMPAD6:
-                // Right
-                _tetrisModel.MoveRight();
-                break;
-            case KeyEvent.VK_LEFT:
-            case KeyEvent.VK_NUMPAD4:
-                // Left
-                _tetrisModel.MoveLeft();
-                break;
-            case KeyEvent.VK_SPACE:
-            case KeyEvent.VK_NUMPAD8:
-                // Drop
-                _tetrisModel.Drop();
-                break;
-            case KeyEvent.VK_UP:
-            case KeyEvent.VK_X:
-            case KeyEvent.VK_NUMPAD1:
-            case KeyEvent.VK_NUMPAD5:
-            case KeyEvent.VK_NUMPAD9:
-                // Rotate Right
+            if(event.getWheelRotation() > 0) {
                 _tetrisModel.RotateRight();
-                break;
-            case KeyEvent.VK_CONTROL:
-            case KeyEvent.VK_Z:
-            case KeyEvent.VK_NUMPAD3:
-            case KeyEvent.VK_NUMPAD7:
-                // Rotate Left
+            }
+            else {
                 _tetrisModel.RotateLeft();
+            }
+        }
+    }
+
+    private void _keyboardEventHandler(KeyEvent event) {
+        int gameStatus = _tetrisModel.GetStatus();
+        int keyCode = event.getKeyCode();
+
+        switch (gameStatus) {
+            case TetrisModel.STATUS_SPLASH:
+                _tetrisModel.NewGame();
                 break;
-            case KeyEvent.VK_P:
-                // Pause/Resume
-                _tetrisModel.Pause();
+
+            case TetrisModel.STATUS_PLAYING:
+                switch (keyCode)
+                {
+                    case KeyEvent.VK_RIGHT:
+                    case KeyEvent.VK_NUMPAD6:
+                        // Right
+                        _tetrisModel.MoveRight();
+                        break;
+                    case KeyEvent.VK_LEFT:
+                    case KeyEvent.VK_NUMPAD4:
+                        // Left
+                        _tetrisModel.MoveLeft();
+                        break;
+                    case KeyEvent.VK_SPACE:
+                    case KeyEvent.VK_NUMPAD8:
+                        // Drop
+                        _tetrisModel.Drop();
+                        break;
+                    case KeyEvent.VK_UP:
+                    case KeyEvent.VK_X:
+                    case KeyEvent.VK_NUMPAD1:
+                    case KeyEvent.VK_NUMPAD5:
+                    case KeyEvent.VK_NUMPAD9:
+                        // Rotate Right
+                        _tetrisModel.RotateRight();
+                        break;
+                    case KeyEvent.VK_CONTROL:
+                    case KeyEvent.VK_Z:
+                    case KeyEvent.VK_NUMPAD3:
+                    case KeyEvent.VK_NUMPAD7:
+                        // Rotate Left
+                        _tetrisModel.RotateLeft();
+                        break;
+                    case KeyEvent.VK_P:
+                    // Pause
+                    _tetrisModel.Pause();
+                    break;
+                }
+                break;
+
+            case TetrisModel.STATUS_PAUSE:
+                if(keyCode == KeyEvent.VK_P)
+                {
+                    // Resume
+                    _tetrisModel.Pause();
+                }
+                break;
+
+            case TetrisModel.STATUS_GAMEOVER:
+                _tetrisModel.Splash();
                 break;
         }
+
     }
 
     private void _componentEventHandler(ComponentEvent event)
@@ -135,6 +161,10 @@ class InputProcessor implements ActionListener
     @Override
     public void actionPerformed(ActionEvent e)
     {
-        _tetrisModel.NextStep();
+        int gameStatus = _tetrisModel.GetStatus();
+        if(gameStatus == TetrisModel.STATUS_PLAYING)
+        {
+            _tetrisModel.NextStep();
+        }
     }
 }

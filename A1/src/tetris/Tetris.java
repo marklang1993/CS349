@@ -24,14 +24,18 @@ public class Tetris {
         _tetrisView = new TetrisView(fps, _tetrisModel.GetDrawArea(), _tetrisController);
         _tetrisModel.SetView(_tetrisView);
 
-        // show view
+        // Init. view
         JFrame frame = new JFrame("Tetris");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(400, 500);
         frame.add(_tetrisView);
+        // Show View
         frame.setVisible(true);
+        _tetrisView.BindFrame(frame);
 
-        _tetrisView.Start(frame);
+        // Start Timer
+        _tetrisView.Start();
         _tetrisController.Start();
+
+
     }
 }

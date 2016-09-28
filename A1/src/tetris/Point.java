@@ -13,6 +13,12 @@ public class Point {
         Y = y;
     }
 
+    Point(Point point)
+    {
+        X = point.X;
+        Y = point.Y;
+    }
+
     Point Add(Point p)
     {
         return new Point(X + p.X, Y + p.Y);

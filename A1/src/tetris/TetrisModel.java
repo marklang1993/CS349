@@ -9,10 +9,11 @@ import java.util.Vector;
 
 public class TetrisModel
 {
-    // size of the play area (unit: block)
+    // Size of the play area (unit: Block)
     private static final Size PlayArea = new Size(10, 24);
     private static final Size BoundaryPlayArea = new Size(PlayArea.Width + 2, PlayArea.Height + 2); // 2 => boundary
 
+    // Status of Block
     public enum BlockStatus {
         EMPTY,      // Nothing to shown
         BLOCK,      // Fixed pieces
@@ -20,24 +21,38 @@ public class TetrisModel
         ACTIVE      // Pieces (NOT VALID FOR playArea)
     }
 
+    // Status of Game
+    public enum GameStatus {
+        SPLASH,
+        MAIN_MENU,
+        DIFF_SELECT,
+        PLAYING,
+        PAUSE,
+        OVER
+    }
+
     // Definition of pieces
     private Vector< Vector<BlockStatus[][]> > _piecesData; // Types => Rotation => Data Matrix
 
-    // play area related
+    // Play area related
     private BlockStatus _playAreaMatrix[][];    // main play area
     private int _playAreaMaskMatrix[][];        // used for differentiate the type of pieces, only valid for BLOCK
-    // basic parameters
+    // Basic parameters
     private String _sequence;
 
-    // runtime parameters
+    // Runtime parameters
     private Point _position;                    // position of current moving pieces
     private int _indexMovingPiece;              // current index of moving piece: 0 ~ _sequence.size() - 1
     private int _indexRotation;                 // current index of moving piece after rotation
     private BlockStatus[][] _movingPiece;       // current moving piece
+    private boolean _pieceSelected;             // current piece selected flag
     private int _score;                         // total score
 
     // View & Controller
     private TetrisView _tetrisView;
+
+    // Game status
+    private GameStatus _gameStatus;
 
     // Constructor
     public TetrisModel(String sequence)
@@ -62,6 +77,9 @@ public class TetrisModel
         int indexMovingPieceType = TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece);
         _movingPiece = TetrisMath.GetCurrentPiece(_piecesData, indexMovingPieceType, _indexRotation);
         _score = 0;
+
+        // init. GameStatus
+        _gameStatus = GameStatus.PLAYING;
     }
 
     public void SetView(TetrisView tetrisView)
@@ -77,58 +95,157 @@ public class TetrisModel
         return PlayArea;
     }
 
-    // Actions
+    // KeyBoard Actions
     public boolean MoveLeft()
     {
-        boolean result =_changePosition(_position.Subtract(new Point(1, 0)));
-        _draw();
-        return result;
+        if(_gameStatus == GameStatus.PLAYING)
+        {
+            boolean result =_changePosition(_position.Subtract(new Point(1, 0)));
+            _draw();
+            return result;
+        }
+        return false;
     }
     public boolean MoveRight()
     {
-        boolean result = _changePosition(_position.Add(new Point(1, 0)));
-        _draw();
-        return result;
+        if(_gameStatus == GameStatus.PLAYING)
+        {
+            boolean result = _changePosition(_position.Add(new Point(1, 0)));
+            _draw();
+            return result;
+        }
+        return false;
     }
     public boolean Drop()
     {
-        boolean result = _changePosition(_position.Add(new Point(0, 2)));
-        if(!result)
+        if(_gameStatus == GameStatus.PLAYING)
         {
-            result = _changePosition(_position.Add(new Point(0, 1)));
+            boolean result = _changePosition(_position.Add(new Point(0, 2)));
+            if(!result)
+            {
+                result = _changePosition(_position.Add(new Point(0, 1)));
+            }
+            _draw();
+            return result;
         }
-        _draw();
-        return result;
+        return false;
     }
     public boolean RotateLeft()
     {
-        int countRotation = _piecesData.elementAt(TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece)).size();
-        int newIndexRotation = (countRotation + _indexRotation - 1) % countRotation;
-        boolean result = _changeRotation(newIndexRotation);
-
-        if(result)
+        if(_gameStatus == GameStatus.PLAYING)
         {
-            // Update indexRotation
-            _indexRotation = newIndexRotation;
-        }
+            int countRotation = _piecesData.elementAt(TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece)).size();
+            int newIndexRotation = (_indexRotation + 1) % countRotation;
+            boolean result = _changeRotation(newIndexRotation);
 
-        _draw();
-        return result;
+            if(result)
+            {
+                // Update indexRotation
+                _indexRotation = newIndexRotation;
+            }
+
+            _draw();
+            return result;
+        }
+        return false;
     }
     public boolean RotateRight()
     {
-        int countRotation = _piecesData.elementAt(TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece)).size();
-        int newIndexRotation = (_indexRotation + 1) % countRotation;
-        boolean result = _changeRotation(newIndexRotation);
-
-        if(result)
+        if(_gameStatus == GameStatus.PLAYING)
         {
-            // Update indexRotation
-            _indexRotation = newIndexRotation;
+            int countRotation = _piecesData.elementAt(TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece)).size();
+            int newIndexRotation = (countRotation + _indexRotation - 1) % countRotation;
+            boolean result = _changeRotation(newIndexRotation);
+
+            if(result)
+            {
+                // Update indexRotation
+                _indexRotation = newIndexRotation;
+            }
+
+            _draw();
+            return result;
+        }
+        return false;
+    }
+    public boolean ResizePieceSize()
+    {
+        if(_gameStatus == GameStatus.PAUSE)
+        {
+            _tetrisView.ResizePieceSize();
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+    public boolean Pause()
+    {
+        if(_gameStatus == GameStatus.PLAYING)
+        {
+            _gameStatus = GameStatus.PAUSE;
+            return true;
+        }
+        else if (_gameStatus == GameStatus.PAUSE)
+        {
+            _gameStatus = GameStatus.PLAYING;
+            return true;
+        }
+        return false;
+    }
+
+    // Mouse Actions
+    public boolean MouseClickPiece(Point mousePos)
+    {
+        if(!_pieceSelected)
+        {
+            // Select
+            if(_gameStatus == GameStatus.PLAYING) {
+                _pieceSelected = TetrisMath.CheckMouseSelected(mousePos, _position, _movingPiece);
+                return _pieceSelected;
+            }
+            return false;
+        }
+        else
+        {
+            // Drop
+            _pieceSelected = false; // clear flag to prevent processing event of MouseMotion
+            while(Drop()) { ; }     // drop until the bottom?
+            return true;
+        }
+    }
+    public void MouseMovePiece(Point mousePos)
+    {
+        // Move only if the current piece is selected
+        if(_pieceSelected)
+        {
+            int mouseStartPos = mousePos.X - 2; // -2: transfer from mid position to start position w.r.t moving pieces
+            int pieceStartPos = _position.X;
+            int diff = mouseStartPos - pieceStartPos;
+            int moveTimes = Math.abs(diff);
+            // Direction Determine
+            for(int i = 0; i < moveTimes; i++)
+            {
+                if(diff > 0)
+                {
+                    // move right
+                    if(!MoveRight())
+                    {
+                        break;
+                    }
+                }
+                else if (diff < 0)
+                {
+                    // move left
+                    if(!MoveLeft())
+                    {
+                        break;
+                    }
+                }
+            }
         }
 
-        _draw();
-        return result;
     }
 
     // Called only no other actions after one time period (i.e. after $speed seconds)
@@ -144,38 +261,43 @@ public class TetrisModel
          * 7. CheckGameOver();
          * 8. Transfer the right of control to user
          */
-        boolean hitBottom = TetrisMath.CheckHitBottom(_movingPiece, _playAreaMatrix, _position);
-        if(!hitBottom)
+        if(_gameStatus == GameStatus.PLAYING)
         {
-            _position = _position.Add(new Point(0, 1));
+            boolean hitBottom = TetrisMath.CheckHitBottom(_movingPiece, _playAreaMatrix, _position);
+            if(!hitBottom)
+            {
+                _position = _position.Add(new Point(0, 1));
+            }
+            else
+            {
+                TetrisMath.FixMovingPieces(
+                        _movingPiece,
+                        _playAreaMatrix,
+                        TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece),
+                        _playAreaMaskMatrix,
+                        _position
+                );
+
+                _score += TetrisMath.CheckFinishedRow(
+                        _playAreaMatrix,
+                        _playAreaMaskMatrix,
+                        BoundaryPlayArea
+                );
+
+                // Generate new moving pieces
+                _indexMovingPiece = TetrisMath.GetNextPieceIndex(_sequence, _indexMovingPiece);
+                _indexRotation = 0;
+                _position = TetrisMath.GetInitPosMoving(BoundaryPlayArea);
+                int indexMovingPieceType = TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece);
+                _movingPiece = TetrisMath.GetCurrentPiece(_piecesData, indexMovingPieceType, _indexRotation);
+                _pieceSelected = false;     // clear selected flag
+
+                // Check Game Over
+                TetrisMath.CheckGameOver(_movingPiece, _playAreaMatrix, BoundaryPlayArea);
+            }
         }
-        else
-        {
-            TetrisMath.FixMovingPieces(
-                    _movingPiece,
-                    _playAreaMatrix,
-                    TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece),
-                    _playAreaMaskMatrix,
-                    _position
-            );
 
-            _score += TetrisMath.CheckFinishedRow(
-                    _playAreaMatrix,
-                    _playAreaMaskMatrix,
-                    BoundaryPlayArea
-            );
-
-            // Generate new moving pieces
-            _indexMovingPiece = TetrisMath.GetNextPieceIndex(_sequence, _indexMovingPiece);
-            _indexRotation = 0;
-            _position = TetrisMath.GetInitPosMoving(BoundaryPlayArea);
-            int indexMovingPieceType = TetrisMath.GetCurrentPieceType(_sequence, _indexMovingPiece);
-            _movingPiece = TetrisMath.GetCurrentPiece(_piecesData, indexMovingPieceType, _indexRotation);
-
-            // Check Game Over
-            TetrisMath.CheckGameOver(_movingPiece, _playAreaMatrix, BoundaryPlayArea);
-        }
-
+        // Update View
         _draw();
     }
 
@@ -243,6 +365,8 @@ public class TetrisModel
 
         // Pass the processed Matrix to View
         _tetrisView.DataOpeartion(displayMatrix, false);
+        // Pass the current score to View
+        _tetrisView.ScoreOperation(_score, false);
     }
 
 }

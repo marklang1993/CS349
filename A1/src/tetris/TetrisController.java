@@ -35,16 +35,45 @@ public class TetrisController{
             {
                 _keyboardEventHandler((KeyEvent) event);
             }
-            else if (event instanceof MouseEvent)
+            else if (event instanceof ViewMouseClickedEvent)
             {
-                _mouseEventHandler((MouseEvent) event);
+                _mouseEventHandler((ViewMouseClickedEvent) event);
+            }
+            else if(event instanceof MouseWheelEvent)
+            {
+                _mouseWheelEventHandler((MouseWheelEvent) event);
+            }
+            else if(event instanceof ComponentEvent)
+            {
+                _componentEventHandler((ComponentEvent) event);
             }
         }
     }
 
-    private void _mouseEventHandler(MouseEvent event)
+    private void _mouseEventHandler(ViewMouseClickedEvent event)
     {
-        // Not implement yet!
+        ViewMouseClickedEvent.MouseType _type = event.GetMouseEventType();
+        if(_type == ViewMouseClickedEvent.MouseType.MOVE)
+        {
+            // Mouse Motion
+            _tetrisModel.MouseMovePiece(event.GetBlockPosition());
+
+        }
+        else if(_type == ViewMouseClickedEvent.MouseType.CLICKED)
+        {
+            // Mouse Clicked
+            _tetrisModel.MouseClickPiece(event.GetBlockPosition());
+        }
+    }
+
+    private void _mouseWheelEventHandler(MouseWheelEvent event)
+    {
+        if(event.getWheelRotation() > 0) {
+            _tetrisModel.RotateRight();
+        }
+        else {
+            _tetrisModel.RotateLeft();
+        }
     }
 
     private void _keyboardEventHandler(KeyEvent event)
@@ -83,9 +112,14 @@ public class TetrisController{
                 break;
             case KeyEvent.VK_P:
                 // Pause/Resume
-
+                _tetrisModel.Pause();
                 break;
         }
+    }
+
+    private void _componentEventHandler(ComponentEvent event)
+    {
+        _tetrisModel.ResizePieceSize();
     }
 }
 

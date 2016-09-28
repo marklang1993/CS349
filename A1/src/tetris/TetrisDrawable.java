@@ -8,12 +8,20 @@ import java.awt.*;
 public interface TetrisDrawable {
     void draw(Graphics g);
 }
+abstract class TetrisDrawAdapter{
+    protected Size _displaySize;              // Display size (unit: Block)
+    protected Point _offset;                  // Offset (unit: Pixels)
 
-class TetrisPiece implements TetrisDrawable{
+    TetrisDrawAdapter(Size displaySize, Point offset)
+    {
+        _displaySize = displaySize;
+        _offset = offset;
+    }
+}
+
+class TetrisPiece extends TetrisDrawAdapter implements TetrisDrawable{
 
     private TetrisView _view;               // TetrisView
-    private Size _displaySize;              // Display size
-    private Point _offset;                  // Offset (Pixels)
     private static Color[] _colorMap =      // Pieces color map
             {
                     new Color(13, 132, 249),
@@ -26,11 +34,10 @@ class TetrisPiece implements TetrisDrawable{
             };
 
 
-    TetrisPiece(TetrisView view, Size displaySize, Point offset)
+    TetrisPiece(Size displaySize, Point offset, TetrisView view)
     {
+        super(displaySize, offset);
         _view = view;
-        _displaySize = displaySize;
-        _offset = offset;
     }
 
     @Override
@@ -66,18 +73,13 @@ class TetrisPiece implements TetrisDrawable{
 
 }
 
-class TetrisBoarder implements TetrisDrawable{
+class TetrisBoarder extends TetrisDrawAdapter implements TetrisDrawable{
 
-    private Size _displaySize;              // Display size (Pixels)
-    private Point _offset;                  // Offset (Pixels)
-    private static int _width = 3;
-
+    private static int _width = 3;          // Stroke size
 
     TetrisBoarder(Size displaySize, Point offset)
     {
-        _displaySize = new Size(displaySize.Width * TetrisMath.PieceSize.Width,
-                displaySize.Height * TetrisMath.PieceSize.Height);
-        _offset = offset;
+        super(displaySize, offset);
     }
 
     @Override
@@ -86,9 +88,38 @@ class TetrisBoarder implements TetrisDrawable{
         Graphics2D g2 = (Graphics2D)g;
         g2.setStroke(new BasicStroke(_width));
         g2.setColor(Color.black);
+
+        Size _pixelSize = new Size(_displaySize.Width * TetrisMath.PieceSize.Width,
+                _displaySize.Height * TetrisMath.PieceSize.Height);
         g2.drawRect(_offset.X - _width, _offset.Y - _width,
-                _displaySize.Width + _width * 2, _displaySize.Height + _width * 2);
+                _pixelSize.Width + _width * 2, _pixelSize.Height + _width * 2);
     }
 }
 
+class TetrisScore extends TetrisDrawAdapter implements TetrisDrawable{
+
+    private TetrisView _view;               // TetrisView
+
+    TetrisScore(Size displaySize, Point offset, TetrisView view)
+    {
+        super(displaySize, offset);
+        _view = view;
+    }
+
+    @Override
+    public void draw(Graphics g) {
+        int score = _view.ScoreOperation(0, true);
+
+        Graphics2D g2 = (Graphics2D)g;
+        g2.setColor(Color.black);
+        Point pos = _offset.Subtract(new Point(2, 12));
+        g2.setFont(new Font("Arial", Font.PLAIN, 14));
+
+        // Create the string
+        StringBuilder sb = new StringBuilder(100);
+        sb.append("Score: ");
+        sb.append(score);
+        g2.drawString(sb.toString(), pos.X, pos.Y);
+    }
+}
 

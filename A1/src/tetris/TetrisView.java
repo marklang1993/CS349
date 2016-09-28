@@ -14,21 +14,19 @@ import static java.awt.image.BufferedImage.TYPE_3BYTE_BGR;
  */
 public class TetrisView extends JPanel{
 
-    // basic parameters
+    // Basic parameters
     private int _fps;
 
-    // drawing data
-    private int[][] _displayMatrix;
-    private Size _displayArea;
+    // Drawing data
+    private int[][] _displayMatrix;     // Data matrix for displaying
+    private int _score;                 // Current Score
+    private Size _displayArea;          // Display area (unit: Block)
+    private Point _offset;  // Offset from (0, 0)
 
-    // timer
-    private Timer _viewUpdate;
-
-    // controller
-    private TetrisController _tetrisController;
-
-    // list of TetrisDrawable
-    LinkedList<TetrisDrawable> _drawableList;
+    private JFrame _parenFrame;         // Main JFrame
+    private Timer _viewUpdate;          // For view updating with exact FPS
+    private TetrisController _tetrisController; // Controller
+    LinkedList<TetrisDrawable> _drawableList;   // List of TetrisDrawable
 
     public TetrisView(int fps, Size displayArea, TetrisController tetrisController)
     {
@@ -45,11 +43,15 @@ public class TetrisView extends JPanel{
         // init. view update component
         _viewUpdate = new Timer(1000 / _fps, new ViewUpdateListener(this));
 
+        // init. pieceSize
+        TetrisMath.PieceSize = new Size(TetrisMath.MinPieceSize);
+
         // init. drawables
-        Point offset = new Point(32, 32);
+        _offset = new Point(32, 32);
         _drawableList = new LinkedList<TetrisDrawable>();
-        _drawableList.add(new TetrisPiece(this, _displayArea, offset));
-        _drawableList.add(new TetrisBoarder(_displayArea, offset));
+        _drawableList.add(new TetrisPiece(_displayArea, _offset, this));
+        _drawableList.add(new TetrisBoarder(_displayArea, _offset));
+        _drawableList.add(new TetrisScore(_displayArea, _offset, this));
     }
 
     protected void paintComponent(Graphics g)
@@ -62,15 +64,51 @@ public class TetrisView extends JPanel{
 
     }
 
-    public void Start(JFrame parentFrame)
+    public void BindFrame(JFrame parentFrame)
     {
-        // init Listeners
-        parentFrame.addKeyListener(new ViewKeyListener(_tetrisController));
-        parentFrame.addMouseListener(new ViewMouseListener(_tetrisController));
-        parentFrame.addMouseMotionListener(new ViewMouseMotionListener(_tetrisController));
-        parentFrame.addMouseWheelListener(new ViewMouseWheelListener(_tetrisController));
+        // Init
+        _parenFrame = parentFrame;
+        _parenFrame.addKeyListener(new ViewKeyListener(_tetrisController));
+        _parenFrame.addMouseListener(new ViewMouseListener(_tetrisController, _offset));
+        _parenFrame.addMouseMotionListener(new ViewMouseMotionListener(_tetrisController, _offset));
+        _parenFrame.addMouseWheelListener(new ViewMouseWheelListener(_tetrisController));
+        _parenFrame.addComponentListener(new ViewComponentListener(_tetrisController));
 
-        // Start to repaint the view
+        // Set Size
+        Insets insets = _parenFrame.getInsets();    // Get the size of boarder of JFrame
+        _parenFrame.setSize(new Dimension(
+                _displayArea.Width * TetrisMath.PieceSize.Width + _offset.X * 2 + insets.left + insets.right,
+                _displayArea.Height * TetrisMath.PieceSize.Height + _offset.Y * 2 + insets.top + insets.bottom
+        ));
+    }
+
+    public void ResizePieceSize()
+    {
+        Insets insets = _parenFrame.getInsets();    // Get the size of boarder of JFrame
+        Dimension frameSize = _parenFrame.getSize();    // Get the new size of JFrame
+        Size minFrameSize = new Size(
+                _displayArea.Width * TetrisMath.MinPieceSize.Width + _offset.X * 2 + insets.left + insets.right,
+                _displayArea.Height * TetrisMath.MinPieceSize.Height + _offset.Y * 2 + insets.top + insets.bottom
+        );
+
+        // Validate new size
+        if(frameSize.width >= minFrameSize.Width && frameSize.height >= minFrameSize.Height)
+        {
+            // Calculate new PieceSize
+            Size innerSize = new Size(
+                    frameSize.width - insets.left - insets.right - _offset.X * 2,
+                    frameSize.height - insets.top - insets.bottom - _offset.Y * 2
+            );
+            TetrisMath.PieceSize = new Size(
+                    innerSize.Width  / _displayArea.Width,
+                    innerSize.Height / _displayArea.Height
+            );
+        }
+    }
+
+    public void Start()
+    {
+        // Start the timer of repainting the view
         _viewUpdate.start();
     }
 
@@ -85,6 +123,18 @@ public class TetrisView extends JPanel{
         }
     }
 
+    public synchronized int ScoreOperation(int score, boolean isRead)
+    {
+        if(isRead)
+        {
+            return _score;
+        }
+        else
+        {
+            _score = score;
+            return 0;
+        }
+    }
 }
 
 // For drawing Timer
@@ -100,6 +150,37 @@ class ViewUpdateListener implements ActionListener
     @Override
     public void actionPerformed(ActionEvent e) {
         _tetrisView.repaint();
+    }
+}
+
+// ViewMouseClickedEvent
+class ViewMouseClickedEvent extends MouseEvent
+{
+    public enum MouseType {
+        CLICKED,
+        MOVE
+    };
+
+    private Point _innerPosition;      // Inner Position (in PlayArea, unit: Block)
+    private MouseType _type;           // MoveEvent Type
+
+    public ViewMouseClickedEvent(MouseEvent event,
+                                 Point innerPos,
+                                 MouseType type)
+    {
+        super((JFrame) event.getSource(), event.getID(), event.getWhen(), event.getModifiers(), event.getX(), event.getY(), event.getClickCount(), event.isPopupTrigger());
+        _innerPosition = new Point(innerPos);
+        _type = type;
+    }
+
+    public Point GetBlockPosition()
+    {
+        return _innerPosition;
+    }
+
+    public MouseType GetMouseEventType()
+    {
+        return _type;
     }
 }
 
@@ -120,37 +201,77 @@ class ViewKeyListener extends KeyAdapter
 
 class ViewMouseListener extends MouseAdapter
 {
-    TetrisController _tetrisController;
+    private TetrisController _tetrisController;
+    private Point _offset;
 
-    public ViewMouseListener(TetrisController tetrisController)
+    public ViewMouseListener(TetrisController tetrisController, Point offset)
     {
         _tetrisController = tetrisController;
+        _offset = offset;
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        _tetrisController.EventHandle(e);
+        Object src = e.getSource();
+        JFrame sourceFrame;
+        if(src instanceof JFrame)
+        {
+            sourceFrame = (JFrame) src;
+            Insets insets = sourceFrame.getInsets();    // Get the size of boarder of JFrame
+            Point innerPos; // unit: Block
+            innerPos = new Point(
+                    (e.getX() - insets.left - _offset.X) / TetrisMath.PieceSize.Width,
+                    (e.getY() - insets.top - _offset.Y) / TetrisMath.PieceSize.Height
+            );
+
+            ViewMouseClickedEvent event = new ViewMouseClickedEvent(
+                    e,
+                    innerPos,
+                    ViewMouseClickedEvent.MouseType.CLICKED
+            );
+            _tetrisController.EventHandle(event);
+        }
     }
 }
 
 class ViewMouseMotionListener extends MouseMotionAdapter
 {
-    TetrisController _tetrisController;
+    private TetrisController _tetrisController;
+    private Point _offset;
 
-    public ViewMouseMotionListener(TetrisController tetrisController)
+    public ViewMouseMotionListener(TetrisController tetrisController, Point offset)
     {
         _tetrisController = tetrisController;
+        _offset = offset;
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        _tetrisController.EventHandle(e);
+        Object src = e.getSource();
+        JFrame sourceFrame;
+        if(src instanceof JFrame)
+        {
+            sourceFrame = (JFrame) src;
+            Insets insets = sourceFrame.getInsets();    // Get the size of boarder of JFrame
+            Point innerPos; // unit: Block
+            innerPos = new Point(
+                    (e.getX() - insets.left - _offset.X) / TetrisMath.PieceSize.Width,
+                    (e.getY() - insets.top - _offset.Y) / TetrisMath.PieceSize.Height
+            );
+
+            ViewMouseClickedEvent event = new ViewMouseClickedEvent(
+                    e,
+                    innerPos,
+                    ViewMouseClickedEvent.MouseType.MOVE
+            );
+            _tetrisController.EventHandle(event);
+        }
     }
 }
 
 class ViewMouseWheelListener implements MouseWheelListener
 {
-    TetrisController _tetrisController;
+    private TetrisController _tetrisController;
 
     public ViewMouseWheelListener(TetrisController tetrisController)
     {
@@ -159,6 +280,21 @@ class ViewMouseWheelListener implements MouseWheelListener
 
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
+        _tetrisController.EventHandle(e);
+    }
+}
+
+class ViewComponentListener extends ComponentAdapter
+{
+    private TetrisController _tetrisController;
+
+    public ViewComponentListener(TetrisController tetrisController)
+    {
+        _tetrisController = tetrisController;
+    }
+
+    @Override
+    public void componentResized(ComponentEvent e) {
         _tetrisController.EventHandle(e);
     }
 }

@@ -1,5 +1,7 @@
 package tetris;
 
+import javafx.geometry.Pos;
+
 import java.util.Vector;
 
 /**
@@ -7,7 +9,8 @@ import java.util.Vector;
  */
 public class TetrisMath {
 
-    public static Size PieceSize = new Size(16, 16);
+    public static final Size MinPieceSize = new Size(16, 16);  // Fixed, Minimum size
+    public static Size PieceSize;
 
     // Generate the vector of all pieces
     public static Vector< Vector<TetrisModel.BlockStatus[][]> >GeneratePieces()
@@ -32,9 +35,25 @@ public class TetrisMath {
                         {TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY},
                         {TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY}
                 };
+        TetrisModel.BlockStatus[][] matrix_I2 = new TetrisModel.BlockStatus[][]
+                {
+                        {TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.ACTIVE, TetrisModel.BlockStatus.EMPTY},
+                        {TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.ACTIVE, TetrisModel.BlockStatus.EMPTY},
+                        {TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.ACTIVE, TetrisModel.BlockStatus.EMPTY},
+                        {TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.ACTIVE, TetrisModel.BlockStatus.EMPTY}
+                };
+        TetrisModel.BlockStatus[][] matrix_I3 = new TetrisModel.BlockStatus[][]
+                {
+                        {TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY},
+                        {TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY},
+                        {TetrisModel.BlockStatus.ACTIVE, TetrisModel.BlockStatus.ACTIVE, TetrisModel.BlockStatus.ACTIVE, TetrisModel.BlockStatus.ACTIVE},
+                        {TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY, TetrisModel.BlockStatus.EMPTY}
+                };
         Vector<TetrisModel.BlockStatus[][]> vector_I = new Vector<TetrisModel.BlockStatus[][]>();
         vector_I.add(matrix_I0);
         vector_I.add(matrix_I1);
+        vector_I.add(matrix_I2);
+        vector_I.add(matrix_I3);
         piecesDefinition.add(vector_I);
 
         // 1. L
@@ -495,5 +514,32 @@ public class TetrisMath {
                                         Size boundaryPlayAreaSize)
     {
         return CheckCollision(movingPieces, playArea, GetInitPosMoving(boundaryPlayAreaSize));
+    }
+
+    // Mouse related
+    public static boolean CheckMouseSelected(Point mousePos,
+                                             Point position,
+                                             TetrisModel.BlockStatus[][] movingPieces)
+    {
+        Point mousePos_Wall = mousePos.Add(1); // Add the offset of Wall
+
+        Point lowerBound = new Point(position);
+        Point upperBound = lowerBound.Add(4);
+
+        for(int i = lowerBound.X; i < upperBound.X; i++)
+        {
+            for(int j = lowerBound.Y; j < upperBound.Y; j++)
+            {
+                Point relativePos = (new Point(i, j)).Subtract(lowerBound);
+                if(movingPieces[relativePos.X][relativePos.Y] == TetrisModel.BlockStatus.ACTIVE)
+                {
+                    if(mousePos_Wall.X == i && mousePos_Wall.Y == j)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 }

@@ -19,6 +19,7 @@ public class Tetris {
     private TetrisController _tetrisController;
 
     public Tetris(int fps, double speed, String sequence) {
+        // Init. each component of MVC framework
         _tetrisModel = new TetrisModel(sequence);
         _tetrisController = new TetrisController(_tetrisModel, speed);
         _tetrisView = new TetrisView(fps, _tetrisModel.GetDrawArea(), _tetrisController, _tetrisModel);
@@ -32,7 +33,7 @@ public class Tetris {
         frame.setVisible(true);
         _tetrisView.BindFrame(frame);
 
-        // Start Timer
+        // Start Game Timer
         _tetrisView.Start();
         _tetrisController.Start();
     }

@@ -70,6 +70,7 @@ public class TetrisModel
         //Start from SPLASH
         _gameStatus.set(STATUS_SPLASH);
     }
+    // Internal newGame action processing
     private void newGame() {
         // initialize game parameters
         _playAreaMatrix = new BlockStatus[BoundaryPlayArea.Width][BoundaryPlayArea.Height];
@@ -96,6 +97,7 @@ public class TetrisModel
         _gameStatus.set(STATUS_PLAYING);
     }
 
+    // Update reference of View
     public void SetView(TetrisView tetrisView) {
         _tetrisView = tetrisView;
     }

@@ -1,0 +1,1 @@
+Add a class to show the next piece.

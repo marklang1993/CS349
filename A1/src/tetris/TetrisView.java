@@ -20,6 +20,7 @@ public class TetrisView extends JPanel{
     // Drawing data
     private int[][] _displayMatrix;     // Data matrix for displaying
     private int _score;                 // Current Score
+    private int _currentPieceIndex;     // Current Piece Index;
     private Size _displayArea;          // Display area (unit: Block)
     private Point _offset;              // Offset related to (0, 0)
 
@@ -53,6 +54,7 @@ public class TetrisView extends JPanel{
         _drawableList = new LinkedList<>();
         _drawableList.add(new TetrisBackGround(_displayArea, _offset));
         _drawableList.add(new TetrisPiece(_displayArea, _offset, this));
+        _drawableList.add(new TetrisNextPiece(_displayArea, _offset, this, _tetrisModel.GetPieceSequence()));
         _drawableList.add(new TetrisBoarder(_displayArea, _offset));
         _drawableList.add(new TetrisScore(_displayArea, _offset, this));
         _drawableList.add(new TetrisSplash(_displayArea, _offset));
@@ -138,6 +140,23 @@ public class TetrisView extends JPanel{
             _score = score;
             return 0;
         }
+    }
+
+    public synchronized int CurrentPieceOperation(int currentPieceIndex, boolean isRead) {
+        if(isRead)
+        {
+            return _currentPieceIndex;
+        }
+        else
+        {
+            _currentPieceIndex = currentPieceIndex;
+            return 0;
+        }
+    }
+
+    public TetrisModel.BlockStatus[][] GetPieceMatrix(int currentPieceIndex)
+    {
+        return _tetrisModel.GetPiecesData().elementAt(currentPieceIndex).elementAt(0);
     }
 }
 

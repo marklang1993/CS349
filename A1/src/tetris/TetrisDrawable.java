@@ -1,6 +1,7 @@
 package tetris;
 
 import java.awt.*;
+import java.io.SequenceInputStream;
 
 /**
  * Created by LangChen on 2016/9/26.
@@ -148,7 +149,7 @@ class TetrisBoarder extends TetrisDrawAdapter implements TetrisDrawable{
 
     TetrisBoarder(Size displaySize, Point offset)
     {
-        super(displaySize, offset);
+        super(displaySize, offset.Subtract(new Point(40, 0)));
     }
 
     @Override
@@ -171,7 +172,7 @@ class TetrisBoarder extends TetrisDrawAdapter implements TetrisDrawable{
 class TetrisPiece extends TetrisDrawAdapter implements TetrisDrawable{
 
     private TetrisView _view;               // TetrisView
-    private static Color[] _colorMap =      // Pieces color map
+    public static Color[] ColorMap =      // Pieces color map
             {
                     new Color(13, 132, 249),
                     new Color(242, 134, 25),
@@ -185,7 +186,7 @@ class TetrisPiece extends TetrisDrawAdapter implements TetrisDrawable{
 
     TetrisPiece(Size displaySize, Point offset, TetrisView view)
     {
-        super(displaySize, offset);
+        super(displaySize, offset.Subtract(new Point(40, 0)));
         _view = view;
     }
 
@@ -209,7 +210,7 @@ class TetrisPiece extends TetrisDrawAdapter implements TetrisDrawable{
                                     TetrisMath.PieceSize.Width,
                                     TetrisMath.PieceSize.Height);
                             // Fill with color
-                            g.setColor(_colorMap[_displayMatrix[i][j]]);
+                            g.setColor(ColorMap[_displayMatrix[i][j]]);
                             g.fillRect(_offset.X + i * TetrisMath.PieceSize.Width + 1,
                                     _offset.Y + j * TetrisMath.PieceSize.Height + 1,
                                     TetrisMath.PieceSize.Width - 1,
@@ -230,7 +231,7 @@ class TetrisScore extends TetrisDrawAdapter implements TetrisDrawable{
 
     TetrisScore(Size displaySize, Point offset, TetrisView view)
     {
-        super(displaySize, offset);
+        super(displaySize, offset.Subtract(new Point(44, 12)));
         _view = view;
     }
 
@@ -242,14 +243,69 @@ class TetrisScore extends TetrisDrawAdapter implements TetrisDrawable{
 
             Graphics2D g2 = (Graphics2D)g;
             g2.setColor(Color.black);
-            Point pos = _offset.Subtract(new Point(2, 12));
             g2.setFont(new Font("Arial", Font.PLAIN, 14));
 
             // Create the string
             StringBuilder sb = new StringBuilder(100);
             sb.append("Score: ");
             sb.append(score);
-            g2.drawString(sb.toString(), pos.X, pos.Y);
+            g2.drawString(sb.toString(), _offset.X, _offset.Y);
+        }
+    }
+}
+
+// Next Piece
+class TetrisNextPiece extends TetrisDrawAdapter implements TetrisDrawable{
+
+    private TetrisView _view;               // TetrisView
+    private String _sequence;               // Pieces Sequence
+
+    TetrisNextPiece(Size displaySize, Point offset, TetrisView view, String sequence)
+    {
+        super(displaySize, offset.Add(new Point(150, 20)));
+        _view = view;
+        _sequence = sequence;
+    }
+
+    @Override
+    public void draw(Graphics g, int gameStatus) {
+
+        if(gameStatus == TetrisModel.STATUS_PLAYING || gameStatus == TetrisModel.STATUS_PAUSE) {
+            int nextPieceIndex = TetrisMath.GetCurrentPieceType(_sequence,
+                    TetrisMath.GetNextPieceIndex(_sequence, _view.CurrentPieceOperation(0, true)));
+            TetrisModel.BlockStatus[][] _piecesMatrix = _view.GetPieceMatrix(nextPieceIndex);
+
+            if(_piecesMatrix != null)
+            {
+                for (int i = 0; i < 4; i++)
+                {
+                    for(int j = 0; j < 4; j++)
+                    {
+                        if(_piecesMatrix[i][j] == TetrisModel.BlockStatus.ACTIVE)
+                        {
+                            // Draw text
+                            Graphics2D g2 = (Graphics2D)g;
+                            g2.setColor(Color.black);
+                            g2.setFont(new Font("Arial", Font.PLAIN, 14));
+                            g2.drawString("Next Piece", _offset.X - 10, _offset.Y - 16);
+
+
+                            // Draw boarder
+                            g.setColor(Color.gray);
+                            g.drawRect(_offset.X + i * TetrisMath.PieceSize.Width,
+                                    _offset.Y+ j * TetrisMath.PieceSize.Height,
+                                    TetrisMath.PieceSize.Width,
+                                    TetrisMath.PieceSize.Height);
+                            // Fill with color
+                            g.setColor(TetrisPiece.ColorMap[nextPieceIndex]);
+                            g.fillRect(_offset.X + i * TetrisMath.PieceSize.Width + 1,
+                                    _offset.Y + j * TetrisMath.PieceSize.Height + 1,
+                                    TetrisMath.PieceSize.Width - 1,
+                                    TetrisMath.PieceSize.Height - 1);
+                        }
+                    }
+                }
+            }
         }
     }
 }

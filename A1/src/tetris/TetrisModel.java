@@ -70,6 +70,7 @@ public class TetrisModel
         //Start from SPLASH
         _gameStatus.set(STATUS_SPLASH);
     }
+    // Internal newGame action processing
     private void newGame() {
         // initialize game parameters
         _playAreaMatrix = new BlockStatus[BoundaryPlayArea.Width][BoundaryPlayArea.Height];
@@ -96,6 +97,7 @@ public class TetrisModel
         _gameStatus.set(STATUS_PLAYING);
     }
 
+    // Update reference of View
     public void SetView(TetrisView tetrisView) {
         _tetrisView = tetrisView;
     }
@@ -105,6 +107,8 @@ public class TetrisModel
         return PlayArea;
     }
     public int GetStatus() { return _gameStatus.get();}
+    public String GetPieceSequence() { return _sequence; }
+    public Vector< Vector<BlockStatus[][]> > GetPiecesData() { return _piecesData; }
 
     // Common Actions
     public void NewGame(){
@@ -353,5 +357,7 @@ public class TetrisModel
         _tetrisView.DataOpeartion(displayMatrix, false);
         // Pass the current score to View
         _tetrisView.ScoreOperation(_score, false);
+        // Pass the next pieces to View
+        _tetrisView.CurrentPieceOperation(_indexMovingPiece, false);
     }
 }

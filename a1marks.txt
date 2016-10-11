@@ -1,0 +1,67 @@
+CS349 A1 Marking Scheme
+
+TA: (Gustavo)
+Email: (gfortest@uwaterloo.ca)
+
+
+== CatsEyes [5]  ==
+
+5/1 - The program animates smoothly.
+
+5/1 - The program displays at 30 FPS.
+
+5/1 - The program responds to events on a timely basis (the eyes follow the mouse without noticeable lag).
+
+5/1 - The program does not use too much CPU (soft limit of around 20%).
+
+5/1 - The above goals were achieved by making the correct modifications to the eventLoop method (the student kept using the provided event queue, did not user timers, and used a explicit call to paintComponent).
+
+
+== Tetris Technical Requirements [5]  ==
+
+5/5 - Makefile exists [1], `make tetris` [2] works successfully (compiles and runs the game), and README [2] is included and describes any non-obvious functionality, enhancements and the development environment.
+
+
+== Tetris Event Handling [30]  ==
+
+10/10 - The pieces can be moved [4], rotated [4], and dropped [2] using the keyboard as described in the requirements.
+
+4/10 - The pieces can be moved [4], rotated [4], and dropped [2] using the mouse as described in the requirements. - Can't move or drop with the mouse.
+
+5/5 - The implementations uses appropriate listeners to handle keyboard and mouse events.
+
+5/5 - Key presses and/or mouse events are handled in a timely manner without affecting the repaint interval (i.e. the game should not stutter when handling action events).
+
+
+== Tetris Visuals [30]  ==
+
+10/10 - The game displays a splash screen when initially launched [5], with instructions for gameplay [3]. The application should switch cleanly from the splash screen to the game screen when the game starts [2].
+
+5/5 - The game correctly draws the pieces.
+
+8/10 - The implementations uses timers to animate the falling pieces and repaint the screen. - The speed is not implemented correctly. The speed variable should be the amount of seconds that the piece needs to fall from top to bottom, not the amount of seconds to fire the timer for each line down.
+
+3/5 - The game can be paused [1] and window resize events are adequately handled while the game is paused [4] (the pieces are redrawn with an appropriate size). - When resizing, pieces don't keep the aspect ratio; additionally, the next piece box does not move.
+
+
+== Tetris Tuning [5]  ==
+
+0/5 - The game allows for adjusting the frame rate [1] through a command line argument (must work from 1-60 fps) and the speed of falling blocks [1] (must work from 2-20 s). Both settings work independently [3]. - Commnand line arguments not working.
+
+
+== Tetris Game Mechanics [15] ==
+
+6/6 - Piece intersection detection works reasonably well, as the pieces stop falling when they collide with already existing pieces.
+
+6/6 - Completed rows are removed from screen [3] and the remaining pieces are repositioned accordingly [3]. 
+
+3/3 - The game displays and updates a score as appropriate.
+
+
+== Tetris Enhancements [10] ==
+
+10/10 - Game incorporates one or more enhancements as described in the requirements section.
+
+
+Total:
+85/100

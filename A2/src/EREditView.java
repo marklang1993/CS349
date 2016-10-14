@@ -250,18 +250,18 @@ public class EREditView extends JFrame {
         _drawPanel.setLayout(null);
 
         // compute preferred size
-        Dimension preferredSize = new Dimension();
-        for (int i = 0; i < _drawPanel.getComponentCount(); i++) {
-            Rectangle bounds = _drawPanel.getComponent(i).getBounds();
-            preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
-            preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
-
-            Insets insets = _drawPanel.getInsets();
-            preferredSize.width += insets.right;
-            preferredSize.height += insets.bottom;
-            _drawPanel.setMinimumSize(preferredSize);
-            _drawPanel.setPreferredSize(preferredSize);
-        }
+//        Dimension preferredSize = new Dimension();
+//        for (int i = 0; i < _drawPanel.getComponentCount(); i++) {
+//            Rectangle bounds = _drawPanel.getComponent(i).getBounds();
+//            preferredSize.width = Math.max(bounds.x + bounds.width, preferredSize.width);
+//            preferredSize.height = Math.max(bounds.y + bounds.height, preferredSize.height);
+//
+//            Insets insets = _drawPanel.getInsets();
+//            preferredSize.width += insets.right;
+//            preferredSize.height += insets.bottom;
+//            _drawPanel.setMinimumSize(preferredSize);
+//            _drawPanel.setPreferredSize(preferredSize);
+//        }
         EREMainFrame.add(_drawPanel, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 5, 5), 0, 0));
@@ -293,7 +293,7 @@ public class EREditView extends JFrame {
     }
 
     public Size GetDisplayPaneSize(){
-        return new Size(_drawPanel.getWidth(), getHeight());
+        return new Size(_drawPanel.getWidth(), _drawPanel.getHeight());
     }
 }
 

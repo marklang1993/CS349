@@ -12,13 +12,15 @@ public class EREdit {
 
     public static void main(String[] args) {
 //        System.out.println("Hello, world!");
-        EREditView view = new EREditView(null);
+
+        EREditController controller = new EREditController();
+        EREditView view = new EREditView(controller);
         EREditModel model = new EREditModel(view);
-        EREditController controller = new EREditController(model);
-        JFrame frame = new EREditView(controller);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.pack();
-        frame.setTitle("Entity-Relationship Diagram Editor");
-        frame.setVisible(true);
+        controller.SetModel(model);
+
+        view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        view.pack();
+        view.setTitle("Entity-Relationship Diagram Editor");
+        view.setVisible(true);
     }
 }

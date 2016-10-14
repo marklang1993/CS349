@@ -7,7 +7,7 @@ public class EREditController {
 
     private EREditModel _model;
 
-    public EREditController(EREditModel model){
+    public void SetModel(EREditModel model){
         _model = model;
     }
 

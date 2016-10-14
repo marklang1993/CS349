@@ -1,5 +1,3 @@
-package EREditor;
-
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -244,6 +242,7 @@ public class EREditView extends JFrame {
 
         //3. _drawPanel
         _drawPanel.addMouseListener(new DrawPanelClickListener(_controller));
+        _drawPanel.addMouseMotionListener(new DrawPanelMotionListener(_controller));
         _drawPanel.addMouseWheelListener(new DrawPanelWheelListener(_controller));
         _drawPanel.setFont(new Font("Times New Roman", Font.PLAIN, 12));
         _drawPanel.setForeground(null);
@@ -292,6 +291,10 @@ public class EREditView extends JFrame {
 
         this.add(EREMainFrame);
     }
+
+    public Size GetDisplayPaneSize(){
+        return new Size(_drawPanel.getWidth(), getHeight());
+    }
 }
 
 class ButtonActionListener implements ActionListener{
@@ -336,7 +339,9 @@ class ScrollBarAdjustListener implements AdjustmentListener{
     @Override
     public void adjustmentValueChanged(AdjustmentEvent e) {
         JScrollBar scrollBar = (JScrollBar) e.getSource();
-        _controller.ScrollBarEventHandler(scrollBar.getName(), scrollBar.getValue());
+        double percentage = (scrollBar.getValue()  - scrollBar.getMinimum()) /
+                (double)(scrollBar.getMaximum() - scrollBar.getMinimum());
+        _controller.ScrollBarEventHandler(scrollBar.getName(), percentage);
     }
 }
 
@@ -350,6 +355,30 @@ class DrawPanelClickListener extends MouseAdapter{
     @Override
     public void mouseClicked(MouseEvent e) {
         _controller.DrawPanelClickEventHandler(new Point(e.getX(), e.getY()), e.getClickCount() == 2);
+    }
+
+    @Override
+    public void mousePressed(MouseEvent e) {
+        _controller.DrawPanelPressedEventHandler(new Point(e.getX(), e.getY()));
+    }
+
+    @Override
+    public void mouseReleased(MouseEvent e) {
+        _controller.DrawPanelReleasedEventHandler();
+    }
+}
+
+class DrawPanelMotionListener extends MouseMotionAdapter{
+
+    private EREditController _controller;
+
+    public DrawPanelMotionListener(EREditController controller){
+        _controller = controller;
+    }
+
+    @Override
+    public void mouseDragged(MouseEvent e) {
+        _controller.DrawPanelDragEventHandler(new Point(e.getX(), e.getY()));
     }
 }
 

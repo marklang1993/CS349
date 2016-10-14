@@ -1,5 +1,3 @@
-package EREditor;
-
 /**
  * Created by LangChen on 2016/9/26.
  */

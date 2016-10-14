@@ -1,5 +1,3 @@
-package EREditor;
-
 /**
  * Created by LangChen on 2016/9/26.
  */
@@ -18,6 +16,8 @@ public class Size
         Width = width;
         Height = height;
     }
+
+    Size Add(int offset) { return new Size(Width + offset, Height + offset); }
 
     Size Multiply(double multiplicity) { return new Size ((int)(Width * multiplicity), (int)(Height * multiplicity)); }
 }

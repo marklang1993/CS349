@@ -1,5 +1,3 @@
-package EREditor;
-
 import java.awt.*;
 
 /**

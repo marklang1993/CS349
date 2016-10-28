@@ -33,22 +33,21 @@ public class EREditMainView extends JPanel implements EREditIView{
     private EREditController _controller;
 
     // Table Data
-    private DefaultTableModel _boxTableModel;
-    private DefaultTableModel _arrowTableModel;
+    private EREditTableModel<EREditEntity> _boxTableModel;
+    private EREditTableModel<EREditArrow> _arrowTableModel;
 
     // List of IView
     private ArrayList<EREditIView> _listIView;
 
-    public EREditMainView(EREditController controller) {
+    public EREditMainView(EREditController controller,
+                          ArrayList<EREditEntity> entityList,
+                          ArrayList<EREditArrow> arrowList) {
         _controller = controller;
 
-        initializeWidgets();
-
-        String _boxTableData[] = new String[]{"Test"};
-        _boxTableModel.addRow(_boxTableData);
+        initializeWidgets(entityList, arrowList);
     }
 
-    private void initializeWidgets() {
+    private void initializeWidgets(ArrayList<EREditEntity> entityList, ArrayList<EREditArrow> arrowList) {
         _btnPanel = new JPanel();
         _newBtn = new JButton();
         _boxBtn = new JButton();
@@ -67,8 +66,7 @@ public class EREditMainView extends JPanel implements EREditIView{
         DefaultTableCellRenderer cellRender = new DefaultTableCellRenderer();
 
         _boxDisplayPane = new JScrollPane();
-        String _boxTableTitle[] = new String[]{"Entity"};
-        _boxTableModel = new DefaultTableModel(null, _boxTableTitle);
+        _boxTableModel = new EREditTableModel<>(entityList, "Entity");
         _boxDisplayList = new JTable(_boxTableModel) {
             @Override
             public boolean isCellEditable(int row, int coloum) //Set Table uneditable
@@ -85,8 +83,7 @@ public class EREditMainView extends JPanel implements EREditIView{
         mainColumn.setCellRenderer(cellRender);
 
         _arrowDisplayPane = new JScrollPane();
-        String _arrowTableTitle[] = new String[]{"Relationship"};
-        _arrowTableModel = new DefaultTableModel(null, _arrowTableTitle);
+        _arrowTableModel = new EREditTableModel<>(arrowList, "Relationship");
         _arrowDisplayList = new JTable(_arrowTableModel) {
             @Override
             public boolean isCellEditable(int row, int coloum) //Set Table uneditable
@@ -303,12 +300,16 @@ public class EREditMainView extends JPanel implements EREditIView{
     @Override
     public void draw(Graphics g) {
         Graphics2D g2 = (Graphics2D) _drawPanel.getGraphics();
+
+        // Draw elements
         if(g2 != null){
+            _boxTableModel.fireTableDataChanged();
+            _arrowTableModel.fireTableDataChanged();
+
             g2.setColor(Color.WHITE);
             g2.fillRect(0, 0, _drawPanel.getWidth(), _drawPanel.getHeight());
 
-            if(_listIView != null)
-            {
+            if(_listIView != null) {
                 // Draw
                 for (EREditIView drawable: _listIView) {
                     drawable.draw(g2);
@@ -316,6 +317,42 @@ public class EREditMainView extends JPanel implements EREditIView{
             }
         }
     }
+}
+
+class EREditTableModel<T> extends AbstractTableModel {
+
+    private ArrayList<T> _dataList;
+    private String _title;
+
+    public EREditTableModel(ArrayList<T> dataList, String title){
+        _dataList = dataList;
+        _title = title;
+    }
+
+    public String getColumnName(int columnIndex){
+        return _title;
+    }
+
+    @Override
+    public boolean isCellEditable(int rowIndex, int columnIndex) {
+        return false;
+    }
+
+    @Override
+    public int getRowCount() { return _dataList.size(); }
+
+    @Override
+    public int getColumnCount() {
+        return 1;
+    }
+
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        return ((EREditExport)_dataList.get(rowIndex)).GetText();
+    }
+
+    @Override
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {;}
 }
 
 class ButtonActionListener implements ActionListener{

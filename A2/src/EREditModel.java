@@ -24,12 +24,12 @@ public class EREditModel {
     private EREditIView _mainView;      // MainView
     private int _dragEntityIndex;       // Dragged Entity Index
 
-    public EREditModel(EREditIView view){
-        _mainView = view;
 
-        NewGraph();
+    public EREditModel(){
+        _entityList = new ArrayList<>();
+        _arrowList = new ArrayList<>();
+        _listIView = new ArrayList<>();
     }
-
     // Actions handlers
 //    public int ClickOnGraphText(Point mousePos, String text){
 //        // Coordinates system transformation
@@ -66,6 +66,7 @@ public class EREditModel {
 //
 //        return index;
 //    }
+
     public void ClickEntityList(int index){
         // Unselect other objects first
         _unselectOthers();
@@ -188,9 +189,9 @@ public class EREditModel {
     }
 
     public void NewGraph() {
-        _entityList = new ArrayList<>();
-        _arrowList = new ArrayList<>();
-        _listIView = new ArrayList<>();
+        _entityList.clear();
+        _arrowList.clear();
+        _listIView.clear();
         ((EREditMainView)_mainView).SetIViewList(_listIView);
 
         _offset = new Point(0, 0);
@@ -208,6 +209,7 @@ public class EREditModel {
 
     public void AddBox(Point rawPos){
         _entityList.add(new EREditEntity(rawPos));
+
         CursorMode();
     }
     public void AddArrow(Point rawPos){
@@ -351,6 +353,7 @@ public class EREditModel {
     }
 
     // Accessors
+    public void SetMainView(EREditIView mainView) { _mainView = mainView; }
     public Point GetOffset() { return _offset; }
     public double GetMultiplicity() { return _multiplicity; }
     public EDIT_MODE GetEditMode() { return _editMode; }
@@ -360,8 +363,9 @@ public class EREditModel {
     public ArrayList<EREditArrow> GetArrowList() { return _arrowList; }
 }
 
-interface EREditExport
-{
+interface EREditExport{
+    String GetText();
+
     void Select(boolean relatedSelected);
     void Unselect(boolean relatedUnselected);
     boolean IsSelected();
@@ -387,8 +391,9 @@ class EREditEntity implements EREditExport{
         _id = EREditMath.GetId("ENTITY");
     }
 
-    public String GetText(){ return _text;}
     public void SetText(String text){ _text = text; }
+    @Override
+    public String GetText(){ return _text;}
     @Override
     public void Select(boolean relatedSelected) {
         _selected = true;
@@ -468,6 +473,14 @@ class EREditArrow implements EREditExport{
         _id = EREditMath.GetId("ARROW");
     }
 
+    @Override
+    public String GetText(){
+        StringBuilder sb = new StringBuilder();
+        sb.append(_startEntity.GetText());
+        sb.append("->");
+        sb.append(_endEntity.GetText());
+        return sb.toString();
+    }
     @Override
     public void Select(boolean relatedSelected) {
         _selected = true;

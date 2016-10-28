@@ -14,9 +14,12 @@ public class EREdit {
 //        System.out.println("Hello, world!");
 
         EREditController controller = new EREditController();
-        EREditMainView mainView = new EREditMainView(controller);
-        EREditModel model = new EREditModel(mainView);
+        EREditModel model = new EREditModel();
         controller.SetModel(model);
+        EREditMainView mainView = new EREditMainView(controller, model.GetEntityList(), model.GetArrowList());
+        model.SetMainView(mainView);
+        model.NewGraph();
+
 
         SwingUtilities.invokeLater(
             new Runnable() {

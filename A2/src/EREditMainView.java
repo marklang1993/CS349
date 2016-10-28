@@ -295,7 +295,7 @@ public class EREditMainView extends JPanel implements EREditIView{
     public Graphics GetDrawingGraphics() { return _drawPanel.getGraphics(); }
 
     @Override
-    public void draw(Graphics g, Point offset, double multiplicity) {
+    public void draw(Graphics g) {
         repaint();
     }
 }
@@ -357,17 +357,23 @@ class DrawPanelClickListener extends MouseAdapter{
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        _controller.DrawPanelClickEventHandler(new Point(e.getX(), e.getY()), e.getClickCount() == 2);
+        if(e.getButton() == MouseEvent.BUTTON1) {
+            _controller.DrawPanelClickEventHandler(new Point(e.getX(), e.getY()), e.getClickCount() == 2);
+        }
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        _controller.DrawPanelPressedEventHandler(new Point(e.getX(), e.getY()));
+        if(e.getButton() == MouseEvent.BUTTON3) {
+            _controller.DrawPanelPressedEventHandler(new Point(e.getX(), e.getY()));
+        }
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        _controller.DrawPanelReleasedEventHandler();
+        if(e.getButton() == MouseEvent.BUTTON3) {
+            _controller.DrawPanelReleasedEventHandler();
+        }
     }
 }
 

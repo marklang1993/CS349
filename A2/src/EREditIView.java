@@ -5,7 +5,7 @@ import java.awt.*;
  * Created by LangChen on 2016/10/10.
  */
 public interface EREditIView {
-    void draw(Graphics g, Point offset, double multiplicity);
+    void draw(Graphics g);
 }
 
 class EREditDrawBox extends JComponent implements EREditIView{
@@ -16,18 +16,24 @@ class EREditDrawBox extends JComponent implements EREditIView{
     private String _text;       // The text shown inside
     private boolean _selected;  // Selected by Mouse
 
-    public EREditDrawBox(Point startPos, String text, boolean selected) {
+    private Point _offset;          // Offset
+    private double _multiplicity;   // Multiplicity
+
+    public EREditDrawBox(Point startPos, String text, boolean selected, Point offset, double multiplicity) {
         _startPos = startPos;
         _text = text;
         _selected = selected;
+
+        _offset = offset;
+        _multiplicity = multiplicity;
     }
 
     @Override
-    public void draw(Graphics g, Point offset, double multiplicity) {
+    public void draw(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
 
-        Point displayPos = EREditMath.RawToDisplay(_startPos, offset, multiplicity);
-        Size displaySize = EREditMath.RawToDisplay(SIZE, multiplicity);
+        Point displayPos = EREditMath.RawToDisplay(_startPos, _offset, _multiplicity);
+        Size displaySize = EREditMath.RawToDisplay(SIZE, _multiplicity);
 
         // Draw Box
         g2.setColor(_selected ? Color.BLUE : Color.BLACK);
@@ -69,10 +75,16 @@ class EREditDrawArrow extends JComponent implements EREditIView{
 
     private boolean _selected;  // Selected by Mouse
 
-    public EREditDrawArrow(EREditDrawBox startBox, EREditDrawBox endBox, boolean selected){
+    private Point _offset;          // Offset
+    private double _multiplicity;   // Multiplicity
+
+    public EREditDrawArrow(EREditDrawBox startBox, EREditDrawBox endBox, boolean selected, Point offset, double multiplicity){
         _startBox = startBox;
         _endBox = endBox;
         _selected = selected;
+
+        _offset = offset;
+        _multiplicity = multiplicity;
 
         // Test
         _startBoxDirection = DIRECTION.UP;
@@ -80,7 +92,7 @@ class EREditDrawArrow extends JComponent implements EREditIView{
     }
 
     @Override
-    public void draw(Graphics g, Point offset, double multiplicity) {
+    public void draw(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
 
         // Check null
@@ -90,8 +102,8 @@ class EREditDrawArrow extends JComponent implements EREditIView{
         Point startPos = _startBox.GetArrowPosition(_startBoxDirection);
         Point endPos = _endBox.GetArrowPosition(_endBoxDirection);
 
-        startPos = EREditMath.RawToDisplay(startPos, offset, multiplicity);
-        endPos = EREditMath.RawToDisplay(endPos, offset, multiplicity);
+        startPos = EREditMath.RawToDisplay(startPos, _offset, _multiplicity);
+        endPos = EREditMath.RawToDisplay(endPos, _offset, _multiplicity);
 
         _drawArrowLine(g2, startPos, endPos);
     }

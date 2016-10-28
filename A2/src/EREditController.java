@@ -106,7 +106,7 @@ public class EREditController {
     }
 
     public void DrawPanelReleasedEventHandler() {
-        if (_model.GetEditMode() == EREditModel.EDIT_MODE.CURSOR) {
+        if (_model.GetEditMode() == EREditModel.EDIT_MODE.DRAGGING) {
             // # CURSOR Mode
             _model.ReleaseMove();
         }
@@ -114,7 +114,7 @@ public class EREditController {
     }
 
     public void DrawPanelDragEventHandler(Point displayPos){
-        if (_model.GetEditMode() == EREditModel.EDIT_MODE.CURSOR) {
+        if (_model.GetEditMode() == EREditModel.EDIT_MODE.DRAGGING) {
             // # CURSOR Mode
             _model.Move(displayPos);
         }

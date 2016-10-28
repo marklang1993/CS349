@@ -292,12 +292,12 @@ public class EREditModel {
 
         // Get All drawable Boxes
         for (EREditEntity drawBox : _entityList){
-            _listIView.add(drawBox.Export());
+            _listIView.add(drawBox.Export(_offset, _multiplicity));
         }
 
         // Get All drawable Arrows
         for (EREditArrow drawArrow : _arrowList){
-            _listIView.add(drawArrow.Export());
+            _listIView.add(drawArrow.Export(_offset, _multiplicity));
         }
     }
     private void _updateView(){
@@ -310,7 +310,7 @@ public class EREditModel {
         {
             // Draw
             for (EREditIView drawable: _listIView) {
-                drawable.draw(drawingGraphics, _offset, _multiplicity);
+                drawable.draw(drawingGraphics);
             }
         }
     }
@@ -371,7 +371,7 @@ interface EREditExport
     void Unselect(boolean relatedUnselected);
     boolean IsSelected();
 
-    EREditIView Export();
+    EREditIView Export(Point offset, double multiplicity);
 }
 
 class EREditEntity implements EREditExport{
@@ -450,8 +450,8 @@ class EREditEntity implements EREditExport{
     }
 
     @Override
-    public EREditIView Export(){
-        _drawBox = new EREditDrawBox(_position, _text, _selected);
+    public EREditIView Export(Point offset, double multiplicity){
+        _drawBox = new EREditDrawBox(_position, _text, _selected, offset, multiplicity);
         return _drawBox;
     }
 
@@ -497,8 +497,9 @@ class EREditArrow implements EREditExport{
     public boolean IsSelected(){ return _selected; }
 
     @Override
-    public EREditIView Export() {
-        return new EREditDrawArrow(_startEntity.ExportDrawBox(), _endEntity.ExportDrawBox(), _selected);
+    public EREditIView Export(Point offset, double multiplicity) {
+        return new EREditDrawArrow(_startEntity.ExportDrawBox(), _endEntity.ExportDrawBox(),
+                _selected, offset, multiplicity);
     }
 
     public void RemoveBothEntities(){

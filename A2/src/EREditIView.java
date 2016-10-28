@@ -42,7 +42,9 @@ class EREditDrawBox extends JComponent implements EREditIView{
         // Draw Text inside
         g2.setColor(Color.BLACK);
         g2.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 12));
-        g2.drawString(_text, displayPos.X + displaySize.Width / 2 - 15, displayPos.Y + displaySize.Height / 2 + 2);
+        g2.drawString(_text,
+                displayPos.X + displaySize.Width  / 2 - 3 * _text.length(),
+                displayPos.Y + displaySize.Height / 2 + 4);
     }
 
     public Point GetArrowPosition(EREditDrawArrow.DIRECTION direction){

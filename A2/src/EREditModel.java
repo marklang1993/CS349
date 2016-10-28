@@ -196,7 +196,7 @@ public class EREditModel {
 
         _offset = new Point(0, 0);
         _graphSize = new Size(600, 600);        // Default JPanel Size is (450, 450)
-        _multiplicity = 1.0d;
+        _multiplicity = 2.0d;
         _dragEntityIndex = -1;
 
         CursorMode();
@@ -381,12 +381,15 @@ class EREditEntity implements EREditExport{
 
     private EREditDrawBox _drawBox;
 
+    private static int _entityGlobalIndex = 0;
+
     private LinkedList<EREditArrow> _arrowList;
 
     public EREditEntity(Point position){
         _position = position;
         _selected = false;
-        _text = "Entity";
+        _text = "Entity" + _entityGlobalIndex;
+        ++_entityGlobalIndex;
         _arrowList = new LinkedList<>();
         _id = EREditMath.GetId("ENTITY");
     }

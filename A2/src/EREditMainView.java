@@ -66,12 +66,12 @@ public class EREditMainView extends JPanel implements EREditIView{
         DefaultTableCellRenderer cellRender = new DefaultTableCellRenderer();
 
         _boxDisplayPane = new JScrollPane();
-        _boxTableModel = new EREditTableModel<>(entityList, "Entity");
+        _boxTableModel = new EREditTableModel<>(entityList, "Entity", _controller);
         _boxDisplayList = new JTable(_boxTableModel) {
             @Override
             public boolean isCellEditable(int row, int coloum) //Set Table uneditable
             {
-                return false;
+                return true;
             }
         };
         _boxDisplayList.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
@@ -83,8 +83,8 @@ public class EREditMainView extends JPanel implements EREditIView{
         mainColumn.setCellRenderer(cellRender);
 
         _arrowDisplayPane = new JScrollPane();
-        _arrowTableModel = new EREditTableModel<>(arrowList, "Relationship");
-        _arrowDisplayList = new JTable(_arrowTableModel) {
+        _arrowTableModel = new EREditTableModel<>(arrowList, "Relationship", _controller);
+        _arrowDisplayList = new JTable(_arrowTableModel){
             @Override
             public boolean isCellEditable(int row, int coloum) //Set Table uneditable
             {
@@ -323,19 +323,16 @@ class EREditTableModel<T> extends AbstractTableModel {
 
     private ArrayList<T> _dataList;
     private String _title;
+    private EREditController _mainController;
 
-    public EREditTableModel(ArrayList<T> dataList, String title){
+    public EREditTableModel(ArrayList<T> dataList, String title, EREditController mainController){
         _dataList = dataList;
         _title = title;
+        _mainController = mainController;
     }
 
     public String getColumnName(int columnIndex){
         return _title;
-    }
-
-    @Override
-    public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return false;
     }
 
     @Override
@@ -352,7 +349,13 @@ class EREditTableModel<T> extends AbstractTableModel {
     }
 
     @Override
-    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {;}
+    public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+        T element = _dataList.get(rowIndex);
+        if(element instanceof EREditEntity){
+            ((EREditEntity)element).SetText((String)aValue);
+            _mainController.JTableUpdateViewHandler();
+        }
+    }
 }
 
 class ButtonActionListener implements ActionListener{

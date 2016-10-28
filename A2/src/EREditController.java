@@ -133,6 +133,10 @@ public class EREditController {
         }
     }
 
+    public void JTableUpdateViewHandler(){
+        _model.CursorMode();
+    }
+
 //    public void WindowResizeEventHandler(AWTEvent event){
 //
 //    }

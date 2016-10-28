@@ -14,13 +14,26 @@ public class EREdit {
 //        System.out.println("Hello, world!");
 
         EREditController controller = new EREditController();
-        EREditView view = new EREditView(controller);
-        EREditModel model = new EREditModel(view);
+        EREditModel model = new EREditModel();
         controller.SetModel(model);
+        EREditMainView mainView = new EREditMainView(controller, model.GetEntityList(), model.GetArrowList());
+        model.SetMainView(mainView);
+        model.NewGraph();
 
-        view.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        view.pack();
-        view.setTitle("Entity-Relationship Diagram Editor");
-        view.setVisible(true);
+
+        SwingUtilities.invokeLater(
+            new Runnable() {
+                @Override
+                public void run() {
+                    JFrame frame = new JFrame();
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    frame.add(mainView);
+                    frame.pack();
+                    frame.setTitle("Entity-Relationship Diagram Editor");
+                    frame.setVisible(true);
+                }
+            }
+        );
+
     }
 }

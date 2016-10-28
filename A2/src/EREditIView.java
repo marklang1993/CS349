@@ -1,41 +1,50 @@
+import javax.swing.*;
 import java.awt.*;
 
 /**
  * Created by LangChen on 2016/10/10.
  */
-public interface EREditDrawable {
-    void draw(Graphics g, Point offset, double multiplicity);
+public interface EREditIView {
+    void draw(Graphics g);
 }
 
-class EREditDrawBox implements EREditDrawable{
+class EREditDrawBox extends JComponent implements EREditIView{
 
     public final static Size SIZE = new Size(50, 30);   // Size for each Box (multiplicity = 1.0f)
 
-    private Point _startPos;    // The most top-left position (Unit: Pixel)
+    private Point _startPos;    // The most top-left position (Unit: Pixel, RAW Position)
     private String _text;       // The text shown inside
     private boolean _selected;  // Selected by Mouse
 
-    public EREditDrawBox(Point startPos, String text) {
+    private Point _offset;          // Offset
+    private double _multiplicity;   // Multiplicity
+
+    public EREditDrawBox(Point startPos, String text, boolean selected, Point offset, double multiplicity) {
         _startPos = startPos;
         _text = text;
-        _selected = false;
+        _selected = selected;
+
+        _offset = offset;
+        _multiplicity = multiplicity;
     }
 
     @Override
-    public void draw(Graphics g, Point offset, double multiplicity) {
+    public void draw(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
 
-        Point displayPos = EREditMath.RawToDisplay(_startPos, offset, multiplicity);
-        Size displaySize = EREditMath.RawToDisplay(SIZE, multiplicity);
+        Point displayPos = EREditMath.RawToDisplay(_startPos, _offset, _multiplicity);
+        Size displaySize = EREditMath.RawToDisplay(SIZE, _multiplicity);
 
         // Draw Box
-        g2.setColor(_selected ? Color.BLACK : Color.BLUE);
+        g2.setColor(_selected ? Color.BLUE : Color.BLACK);
         g2.drawRect(displayPos.X, displayPos.Y, displaySize.Width, displaySize.Height);
 
         // Draw Text inside
         g2.setColor(Color.BLACK);
         g2.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 12));
-        g2.drawString(_text, displayPos.X, displayPos.Y);
+        g2.drawString(_text,
+                displayPos.X + displaySize.Width  / 2 - 3 * _text.length(),
+                displayPos.Y + displaySize.Height / 2 + 4);
     }
 
     public Point GetArrowPosition(EREditDrawArrow.DIRECTION direction){
@@ -57,7 +66,7 @@ class EREditDrawBox implements EREditDrawable{
     }
 }
 
-class EREditDrawArrow implements EREditDrawable{
+class EREditDrawArrow extends JComponent implements EREditIView{
 
     public enum DIRECTION {UP, DOWN, LEFT, RIGHT}
 
@@ -68,8 +77,24 @@ class EREditDrawArrow implements EREditDrawable{
 
     private boolean _selected;  // Selected by Mouse
 
+    private Point _offset;          // Offset
+    private double _multiplicity;   // Multiplicity
+
+    public EREditDrawArrow(EREditDrawBox startBox, EREditDrawBox endBox, boolean selected, Point offset, double multiplicity){
+        _startBox = startBox;
+        _endBox = endBox;
+        _selected = selected;
+
+        _offset = offset;
+        _multiplicity = multiplicity;
+
+        // Test
+        _startBoxDirection = DIRECTION.DOWN;
+        _endBoxDirection = DIRECTION.UP;
+    }
+
     @Override
-    public void draw(Graphics g, Point offset, double multiplicity) {
+    public void draw(Graphics g) {
         Graphics2D g2 = (Graphics2D)g;
 
         // Check null
@@ -79,15 +104,15 @@ class EREditDrawArrow implements EREditDrawable{
         Point startPos = _startBox.GetArrowPosition(_startBoxDirection);
         Point endPos = _endBox.GetArrowPosition(_endBoxDirection);
 
-        startPos = EREditMath.RawToDisplay(startPos, offset, multiplicity);
-        endPos = EREditMath.RawToDisplay(endPos, offset, multiplicity);
+        startPos = EREditMath.RawToDisplay(startPos, _offset, _multiplicity);
+        endPos = EREditMath.RawToDisplay(endPos, _offset, _multiplicity);
 
         _drawArrowLine(g2, startPos, endPos);
     }
 
     private void _drawArrowLine(Graphics2D g2, Point startPos, Point endPos){
         // Draw ArrowLine
-        g2.setColor(_selected ? Color.BLACK : Color.BLUE);
+        g2.setColor(_selected ? Color.BLUE : Color.BLACK);
         g2.drawLine(startPos.X, startPos.Y, endPos.X, endPos.Y);
 
     }

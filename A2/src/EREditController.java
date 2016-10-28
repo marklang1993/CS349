@@ -1,4 +1,4 @@
-import java.awt.*;
+import java.awt.event.ComponentEvent;
 
 /**
  * Created by LangChen on 2016/10/11.
@@ -68,10 +68,28 @@ public class EREditController {
     public void DrawPanelClickEventHandler(Point displayPos, boolean doubleClicked){
         System.out.println("X: " + displayPos.X + "; Y: "+ displayPos.Y + "; " + doubleClicked);
 
+        // Coordinates system transformation
+        Point rawPos = EREditMath.DisplayToRaw(displayPos, _model.GetOffset(), _model.GetMultiplicity());
+        EREditModel.EDIT_MODE edit_mode = _model.GetEditMode();
         if(!doubleClicked)
         {
             // Click: Box selecting
-            _model.ClickOnGraph(displayPos);
+            if(edit_mode == EREditModel.EDIT_MODE.BOX) {
+                // # Create Box
+                _model.AddBox(rawPos);
+            }
+            else if(edit_mode == EREditModel.EDIT_MODE.ARROW) {
+                // # Create Arrow from the SELECTED Box to the CURRENT Box
+                _model.AddArrow(rawPos);
+            }
+            else if(edit_mode == EREditModel.EDIT_MODE.ERASER) {
+                // # Remove Entity
+                _model.RemoveBox(rawPos);
+            }
+            else if (edit_mode == EREditModel.EDIT_MODE.CURSOR){
+                // # CURSOR Mode
+                _model.ClickCursor(rawPos);
+            }
         }
         else
         {
@@ -79,11 +97,29 @@ public class EREditController {
         }
     }
 
-    public void DrawPanelPressedEventHandler(Point displayPos) { _model.StartMove(displayPos); System.out.println("START MOVE"); }
+    public void DrawPanelPressedEventHandler(Point displayPos) {
+        if (_model.GetEditMode() == EREditModel.EDIT_MODE.CURSOR) {
+            // # CURSOR Mode
+            _model.StartMove(displayPos);
+        }
+        System.out.println("START MOVE");
+    }
 
-    public void DrawPanelReleasedEventHandler() { _model.ReleaseMove(); System.out.println("STOP MOVE");}
+    public void DrawPanelReleasedEventHandler() {
+        if (_model.GetEditMode() == EREditModel.EDIT_MODE.DRAGGING) {
+            // # CURSOR Mode
+            _model.ReleaseMove();
+        }
+        System.out.println("STOP MOVE");
+    }
 
-    public void DrawPanelDragEventHandler(Point displayPos){ _model.Move(displayPos); System.out.println("MOVE: " + displayPos.X + ", " +displayPos.Y);}
+    public void DrawPanelDragEventHandler(Point displayPos){
+        if (_model.GetEditMode() == EREditModel.EDIT_MODE.DRAGGING) {
+            // # CURSOR Mode
+            _model.Move(displayPos);
+        }
+        System.out.println("MOVE: " + displayPos.X + ", " +displayPos.Y);
+    }
 
     public void DrawPanelWheelEventHandler(boolean zoomIn){
 //        System.out.println(zoomIn ? "+" : "-");
@@ -97,7 +133,11 @@ public class EREditController {
         }
     }
 
-//    public void WindowResizeEventHandler(AWTEvent event){
-//
-//    }
+    public void JTableUpdateViewHandler(){
+        _model.CursorMode();
+    }
+
+    public void WindowResizeEventHandler(ComponentEvent event){
+        _model.CursorMode();
+    }
 }

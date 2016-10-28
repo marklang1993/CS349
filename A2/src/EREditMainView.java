@@ -286,7 +286,10 @@ public class EREditMainView extends JPanel implements EREditIView{
         _adjustBtn.setBackground(Color.red);
         this.add(_adjustBtn, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                new Insets(0, 0, 0, 0), 0, 0));;
+                new Insets(0, 0, 0, 0), 0, 0));
+
+        //7. Resize Window
+        this.addComponentListener(new EREditMainViewListner(_controller));
     }
 
     public Size GetDisplayPaneSize(){
@@ -460,5 +463,19 @@ class DrawPanelWheelListener implements MouseWheelListener{
     @Override
     public void mouseWheelMoved(MouseWheelEvent e) {
         _controller.DrawPanelWheelEventHandler(e.getWheelRotation() > 0);
+    }
+}
+
+class EREditMainViewListner extends ComponentAdapter{
+    private EREditController _controller;
+
+    public EREditMainViewListner(EREditController controller)
+    {
+        _controller = controller;
+    }
+
+    @Override
+    public void componentResized(ComponentEvent e) {
+        _controller.WindowResizeEventHandler(e);
     }
 }

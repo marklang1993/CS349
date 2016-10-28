@@ -1,4 +1,4 @@
-import java.awt.*;
+import java.awt.event.ComponentEvent;
 
 /**
  * Created by LangChen on 2016/10/11.
@@ -137,7 +137,7 @@ public class EREditController {
         _model.CursorMode();
     }
 
-//    public void WindowResizeEventHandler(AWTEvent event){
-//
-//    }
+    public void WindowResizeEventHandler(ComponentEvent event){
+        _model.CursorMode();
+    }
 }

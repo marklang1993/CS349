@@ -68,10 +68,28 @@ public class EREditController {
     public void DrawPanelClickEventHandler(Point displayPos, boolean doubleClicked){
         System.out.println("X: " + displayPos.X + "; Y: "+ displayPos.Y + "; " + doubleClicked);
 
+        // Coordinates system transformation
+        Point rawPos = EREditMath.DisplayToRaw(displayPos, _model.GetOffset(), _model.GetMultiplicity());
+        EREditModel.EDIT_MODE edit_mode = _model.GetEditMode();
         if(!doubleClicked)
         {
             // Click: Box selecting
-            _model.ClickOnGraph(displayPos);
+            if(edit_mode == EREditModel.EDIT_MODE.BOX) {
+                // # Create Box
+                _model.AddBox(rawPos);
+            }
+            else if(edit_mode == EREditModel.EDIT_MODE.ARROW) {
+                // # Create Arrow from the SELECTED Box to the CURRENT Box
+                _model.AddArrow(rawPos);
+            }
+            else if(edit_mode == EREditModel.EDIT_MODE.ERASER) {
+                // # Remove Entity
+                _model.RemoveBox(rawPos);
+            }
+            else if (edit_mode == EREditModel.EDIT_MODE.CURSOR){
+                // # CURSOR Mode
+                _model.ClickCursor(rawPos);
+            }
         }
         else
         {

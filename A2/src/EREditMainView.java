@@ -6,10 +6,9 @@ import javax.swing.table.*;
 /**
  * Created by LangChen on 2016/10/5.
  */
-public class EREditView extends JFrame {
+public class EREditMainView extends JPanel implements EREditIView{
 
     // Widgets
-    private JPanel EREMainFrame;
     private JPanel _btnPanel;
     private JButton _newBtn;
     private JButton _boxBtn;
@@ -24,7 +23,7 @@ public class EREditView extends JFrame {
     private JTable _boxDisplayList;
     private JScrollPane _arrowDisplayPane;
     private JTable _arrowDisplayList;
-    private EREditDrawPanel _drawPanel;
+    private JPanel _drawPanel;
     private JScrollBar _vSrcollBar;
     private JScrollBar _hSrcollBar;
     private JButton _adjustBtn;
@@ -36,7 +35,7 @@ public class EREditView extends JFrame {
     private DefaultTableModel _boxTableModel;
     private DefaultTableModel _arrowTableModel;
 
-    public EREditView(EREditController controller) {
+    public EREditMainView(EREditController controller) {
         _controller = controller;
 
         initializeWidgets();
@@ -46,7 +45,6 @@ public class EREditView extends JFrame {
     }
 
     private void initializeWidgets() {
-        EREMainFrame = new JPanel();
         _btnPanel = new JPanel();
         _newBtn = new JButton();
         _boxBtn = new JButton();
@@ -57,7 +55,7 @@ public class EREditView extends JFrame {
         _zoomInBtn = new JButton();
         _zoomOutBtn = new JButton();
         _displayPanel = new JPanel();
-        _drawPanel = new EREditDrawPanel();
+        _drawPanel = new JPanel();
         _vSrcollBar = new JScrollBar(Adjustable.VERTICAL, 0, 0, 0, 100);
         _hSrcollBar = new JScrollBar(Adjustable.HORIZONTAL, 0, 0, 0, 100);
         _adjustBtn = new JButton();
@@ -100,13 +98,13 @@ public class EREditView extends JFrame {
         cellRender.setHorizontalAlignment(SwingConstants.CENTER);
         mainColumn.setCellRenderer(cellRender);
 
-        //EREMainFrame
-        EREMainFrame.setMinimumSize(new Dimension(16, 32));
-        EREMainFrame.setLayout(new GridBagLayout());
-        ((GridBagLayout) EREMainFrame.getLayout()).columnWidths = new int[]{166, 429, 20, 0};
-        ((GridBagLayout) EREMainFrame.getLayout()).rowHeights = new int[]{26, 460, 20, 0};
-        ((GridBagLayout) EREMainFrame.getLayout()).columnWeights = new double[]{0.0, 1.0, 0.0, 1.0E-4};
-        ((GridBagLayout) EREMainFrame.getLayout()).rowWeights = new double[]{0.0, 1.0, 0.0, 1.0E-4};
+        //This Panel
+        this.setMinimumSize(new Dimension(16, 32));
+        this.setLayout(new GridBagLayout());
+        ((GridBagLayout) this.getLayout()).columnWidths = new int[]{166, 429, 20, 0};
+        ((GridBagLayout) this.getLayout()).rowHeights = new int[]{26, 460, 20, 0};
+        ((GridBagLayout) this.getLayout()).columnWeights = new double[]{0.0, 1.0, 0.0, 1.0E-4};
+        ((GridBagLayout) this.getLayout()).rowWeights = new double[]{0.0, 1.0, 0.0, 1.0E-4};
 
         //1. _btnPanel
         _btnPanel.setFont(_btnPanel.getFont().deriveFont(_btnPanel.getFont().getSize() - 14f));
@@ -211,7 +209,7 @@ public class EREditView extends JFrame {
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 5), 0, 0));
 
-        EREMainFrame.add(_btnPanel, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
+        this.add(_btnPanel, new GridBagConstraints(0, 0, 2, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 5, 5), 0, 0));
 
@@ -236,7 +234,7 @@ public class EREditView extends JFrame {
         _arrowDisplayPane.setViewportView(_arrowDisplayList);
         _displayPanel.add(_arrowDisplayPane);
 
-        EREMainFrame.add(_displayPanel, new GridBagConstraints(0, 1, 1, 2, 0.0, 0.0,
+        this.add(_displayPanel, new GridBagConstraints(0, 1, 1, 2, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 5), 0, 0));
 
@@ -262,21 +260,21 @@ public class EREditView extends JFrame {
 //            _drawPanel.setMinimumSize(preferredSize);
 //            _drawPanel.setPreferredSize(preferredSize);
 //        }
-        EREMainFrame.add(_drawPanel, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
+        this.add(_drawPanel, new GridBagConstraints(1, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 5, 5), 0, 0));
 
         //4. _vSrcollBar
         _vSrcollBar.setName("VScrollBar");
         _vSrcollBar.addAdjustmentListener(new ScrollBarAdjustListener(_controller));
-        EREMainFrame.add(_vSrcollBar, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
+        this.add(_vSrcollBar, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 5, 0), 0, 0));
 
         //5. _hSrcollBar
         _hSrcollBar.setName("HScrollBar");
         _hSrcollBar.addAdjustmentListener(new ScrollBarAdjustListener(_controller));
-        EREMainFrame.add(_hSrcollBar, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+        this.add(_hSrcollBar, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 5), 0, 0));
 
@@ -285,15 +283,20 @@ public class EREditView extends JFrame {
         _adjustBtn.setMaximumSize(new Dimension(20, 20));
         _adjustBtn.setMinimumSize(new Dimension(20, 20));
         _adjustBtn.setBackground(Color.red);
-        EREMainFrame.add(_adjustBtn, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
+        this.add(_adjustBtn, new GridBagConstraints(2, 2, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                new Insets(0, 0, 0, 0), 0, 0));
-
-        this.add(EREMainFrame);
+                new Insets(0, 0, 0, 0), 0, 0));;
     }
 
     public Size GetDisplayPaneSize(){
         return new Size(_drawPanel.getWidth(), _drawPanel.getHeight());
+    }
+
+    public Graphics GetDrawingGraphics() { return _displayPanel.getGraphics(); }
+
+    @Override
+    public void draw(Graphics g, Point offset, double multiplicity) {
+        repaint();
     }
 }
 

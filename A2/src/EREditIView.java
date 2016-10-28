@@ -3,11 +3,11 @@ import java.awt.*;
 /**
  * Created by LangChen on 2016/10/10.
  */
-public interface EREditDrawable {
+public interface EREditIView {
     void draw(Graphics g, Point offset, double multiplicity);
 }
 
-class EREditDrawBox implements EREditDrawable{
+class EREditDrawBox implements EREditIView{
 
     public final static Size SIZE = new Size(50, 30);   // Size for each Box (multiplicity = 1.0f)
 
@@ -57,7 +57,7 @@ class EREditDrawBox implements EREditDrawable{
     }
 }
 
-class EREditDrawArrow implements EREditDrawable{
+class EREditDrawArrow implements EREditIView{
 
     public enum DIRECTION {UP, DOWN, LEFT, RIGHT}
 

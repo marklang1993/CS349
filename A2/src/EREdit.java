@@ -18,11 +18,19 @@ public class EREdit {
         EREditModel model = new EREditModel(mainView);
         controller.SetModel(model);
 
-        JFrame frame = new JFrame();
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.add(mainView);
-        frame.pack();
-        frame.setTitle("Entity-Relationship Diagram Editor");
-        frame.setVisible(true);
+        SwingUtilities.invokeLater(
+            new Runnable() {
+                @Override
+                public void run() {
+                    JFrame frame = new JFrame();
+                    frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+                    frame.add(mainView);
+                    frame.pack();
+                    frame.setTitle("Entity-Relationship Diagram Editor");
+                    frame.setVisible(true);
+                }
+            }
+        );
+
     }
 }

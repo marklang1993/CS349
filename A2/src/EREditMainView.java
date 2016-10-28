@@ -296,8 +296,6 @@ public class EREditMainView extends JPanel implements EREditIView{
         return new Size(_drawPanel.getWidth(), _drawPanel.getHeight());
     }
 
-    //public Graphics GetGraphics() { return _drawPanel.getGraphics(); }
-
     public void SetIViewList(ArrayList<EREditIView> listIView){
         _listIView = listIView;
     }
@@ -305,14 +303,16 @@ public class EREditMainView extends JPanel implements EREditIView{
     @Override
     public void draw(Graphics g) {
         Graphics2D g2 = (Graphics2D) _drawPanel.getGraphics();
-        g2.setColor(Color.WHITE);
-        g2.fillRect(0, 0, _drawPanel.getWidth(), _drawPanel.getHeight());
+        if(g2 != null){
+            g2.setColor(Color.WHITE);
+            g2.fillRect(0, 0, _drawPanel.getWidth(), _drawPanel.getHeight());
 
-        if(_listIView != null)
-        {
-            // Draw
-            for (EREditIView drawable: _listIView) {
-                drawable.draw(g2);
+            if(_listIView != null)
+            {
+                // Draw
+                for (EREditIView drawable: _listIView) {
+                    drawable.draw(g2);
+                }
             }
         }
     }

@@ -196,8 +196,9 @@ public class EREditModel {
         _offset = new Point(0, 0);
         _graphSize = new Size(600, 600);        // Default JPanel Size is (450, 450)
         _multiplicity = 1.0d;
-        _editMode = EDIT_MODE.CURSOR;
         _dragEntityIndex = -1;
+
+        CursorMode();
     }
     public void CursorMode() { _editMode = EDIT_MODE.CURSOR; _updateView(); }
     public void BoxMode() { _editMode = EDIT_MODE.BOX; _updateView();}

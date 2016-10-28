@@ -5,14 +5,12 @@ public class Point {
     public int X;
     public int Y;
 
-    Point(int x, int y)
-    {
+    Point(int x, int y) {
         X = x;
         Y = y;
     }
 
-    Point(Point point)
-    {
+    Point(Point point) {
         X = point.X;
         Y = point.Y;
     }

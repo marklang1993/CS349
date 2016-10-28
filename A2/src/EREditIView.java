@@ -87,8 +87,8 @@ class EREditDrawArrow extends JComponent implements EREditIView{
         _multiplicity = multiplicity;
 
         // Test
-        _startBoxDirection = DIRECTION.UP;
-        _endBoxDirection = DIRECTION.DOWN;
+        _startBoxDirection = DIRECTION.DOWN;
+        _endBoxDirection = DIRECTION.UP;
     }
 
     @Override
@@ -110,7 +110,7 @@ class EREditDrawArrow extends JComponent implements EREditIView{
 
     private void _drawArrowLine(Graphics2D g2, Point startPos, Point endPos){
         // Draw ArrowLine
-        g2.setColor(_selected ? Color.BLACK : Color.BLUE);
+        g2.setColor(_selected ? Color.BLUE : Color.BLACK);
         g2.drawLine(startPos.X, startPos.Y, endPos.X, endPos.Y);
 
     }

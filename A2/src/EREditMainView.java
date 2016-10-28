@@ -1,5 +1,6 @@
 import java.awt.*;
 import java.awt.event.*;
+import java.util.ArrayList;
 import javax.swing.*;
 import javax.swing.table.*;
 
@@ -34,6 +35,9 @@ public class EREditMainView extends JPanel implements EREditIView{
     // Table Data
     private DefaultTableModel _boxTableModel;
     private DefaultTableModel _arrowTableModel;
+
+    // List of IView
+    private ArrayList<EREditIView> _listIView;
 
     public EREditMainView(EREditController controller) {
         _controller = controller;
@@ -292,11 +296,25 @@ public class EREditMainView extends JPanel implements EREditIView{
         return new Size(_drawPanel.getWidth(), _drawPanel.getHeight());
     }
 
-    public Graphics GetDrawingGraphics() { return _drawPanel.getGraphics(); }
+    //public Graphics GetGraphics() { return _drawPanel.getGraphics(); }
+
+    public void SetIViewList(ArrayList<EREditIView> listIView){
+        _listIView = listIView;
+    }
 
     @Override
     public void draw(Graphics g) {
-        repaint();
+        Graphics2D g2 = (Graphics2D) _drawPanel.getGraphics();
+        g2.setColor(Color.WHITE);
+        g2.fillRect(0, 0, _drawPanel.getWidth(), _drawPanel.getHeight());
+
+        if(_listIView != null)
+        {
+            // Draw
+            for (EREditIView drawable: _listIView) {
+                drawable.draw(g2);
+            }
+        }
     }
 }
 

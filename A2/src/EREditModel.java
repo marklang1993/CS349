@@ -191,6 +191,7 @@ public class EREditModel {
         _entityList = new ArrayList<>();
         _arrowList = new ArrayList<>();
         _listIView = new ArrayList<>();
+        ((EREditMainView)_mainView).SetIViewList(_listIView);
 
         _offset = new Point(0, 0);
         _graphSize = new Size(600, 600);        // Default JPanel Size is (450, 450)
@@ -305,14 +306,7 @@ public class EREditModel {
         _updateViewList();
 
         // Draw everything
-        Graphics drawingGraphics = ((EREditMainView)_mainView).GetDrawingGraphics();
-        if(_listIView != null && _offset != null)
-        {
-            // Draw
-            for (EREditIView drawable: _listIView) {
-                drawable.draw(drawingGraphics);
-            }
-        }
+       _mainView.draw(null);
     }
 
     // Helper functions

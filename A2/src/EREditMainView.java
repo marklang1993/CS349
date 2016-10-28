@@ -292,7 +292,7 @@ public class EREditMainView extends JPanel implements EREditIView{
         return new Size(_drawPanel.getWidth(), _drawPanel.getHeight());
     }
 
-    public Graphics GetDrawingGraphics() { return _displayPanel.getGraphics(); }
+    public Graphics GetDrawingGraphics() { return _drawPanel.getGraphics(); }
 
     @Override
     public void draw(Graphics g, Point offset, double multiplicity) {

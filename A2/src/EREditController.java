@@ -97,11 +97,29 @@ public class EREditController {
         }
     }
 
-    public void DrawPanelPressedEventHandler(Point displayPos) { _model.StartMove(displayPos); System.out.println("START MOVE"); }
+    public void DrawPanelPressedEventHandler(Point displayPos) {
+        if (_model.GetEditMode() == EREditModel.EDIT_MODE.CURSOR) {
+            // # CURSOR Mode
+            _model.StartMove(displayPos);
+        }
+        System.out.println("START MOVE");
+    }
 
-    public void DrawPanelReleasedEventHandler() { _model.ReleaseMove(); System.out.println("STOP MOVE");}
+    public void DrawPanelReleasedEventHandler() {
+        if (_model.GetEditMode() == EREditModel.EDIT_MODE.CURSOR) {
+            // # CURSOR Mode
+            _model.ReleaseMove();
+        }
+        System.out.println("STOP MOVE");
+    }
 
-    public void DrawPanelDragEventHandler(Point displayPos){ _model.Move(displayPos); System.out.println("MOVE: " + displayPos.X + ", " +displayPos.Y);}
+    public void DrawPanelDragEventHandler(Point displayPos){
+        if (_model.GetEditMode() == EREditModel.EDIT_MODE.CURSOR) {
+            // # CURSOR Mode
+            _model.Move(displayPos);
+        }
+        System.out.println("MOVE: " + displayPos.X + ", " +displayPos.Y);
+    }
 
     public void DrawPanelWheelEventHandler(boolean zoomIn){
 //        System.out.println(zoomIn ? "+" : "-");

@@ -287,8 +287,24 @@ public class EREditModel {
     }
 
     // Update View
-    private void _updateView()
-    {
+    private void _updateViewList(){
+        _listIView.clear();
+
+        // Get All drawable Boxes
+        for (EREditEntity drawBox : _entityList){
+            _listIView.add(drawBox.Export());
+        }
+
+        // Get All drawable Arrows
+        for (EREditArrow drawArrow : _arrowList){
+            _listIView.add(drawArrow.Export());
+        }
+    }
+    private void _updateView(){
+        // Update Drawing List
+        _updateViewList();
+
+        // Draw everything
         Graphics drawingGraphics = ((EREditMainView)_mainView).GetDrawingGraphics();
         if(_listIView != null && _offset != null)
         {
@@ -340,20 +356,31 @@ public class EREditModel {
     }
 
     // Accessors
-    public Size GetGraphSize() { return _graphSize; }
     public Point GetOffset() { return _offset; }
     public double GetMultiplicity() { return _multiplicity; }
     public EDIT_MODE GetEditMode() { return _editMode; }
+    public Size GetGraphSize() { return _graphSize; }
     public int GetDragEntityIndex() { return _dragEntityIndex; }
     public ArrayList<EREditEntity> GetEntityList() { return _entityList; }
     public ArrayList<EREditArrow> GetArrowList() { return _arrowList; }
 }
 
-class EREditEntity{
+interface EREditExport
+{
+    void Select(boolean relatedSelected);
+    void Unselect(boolean relatedUnselected);
+    boolean IsSelected();
+
+    EREditIView Export();
+}
+
+class EREditEntity implements EREditExport{
     private final String _id;
     private Point _position;
     private boolean _selected;
     private String _text;
+
+    private EREditDrawBox _drawBox;
 
     private LinkedList<EREditArrow> _arrowList;
 
@@ -367,6 +394,7 @@ class EREditEntity{
 
     public String GetText(){ return _text;}
     public void SetText(String text){ _text = text; }
+    @Override
     public void Select(boolean relatedSelected) {
         _selected = true;
 
@@ -376,6 +404,7 @@ class EREditEntity{
             }
         }
     }
+    @Override
     public void Unselect(boolean relatedUnselected) {
         _selected = false;
 
@@ -385,6 +414,7 @@ class EREditEntity{
             }
         }
     }
+    @Override
     public boolean IsSelected(){ return _selected; }
     public void Move( Point position ) { _position = position; }
 
@@ -418,9 +448,19 @@ class EREditEntity{
         Rectangle rect = new Rectangle(_position.X, _position.Y, EREditDrawBox.SIZE.Width, EREditDrawBox.SIZE.Height);
         return rect.contains(rawCursorPosition.X, rawCursorPosition.Y);
     }
+
+    @Override
+    public EREditIView Export(){
+        _drawBox = new EREditDrawBox(_position, _text, _selected);
+        return _drawBox;
+    }
+
+    public EREditDrawBox ExportDrawBox(){
+        return _drawBox;
+    }
 }
 
-class EREditArrow{
+class EREditArrow implements EREditExport{
     private final String _id;
     private boolean _selected;
 
@@ -433,6 +473,7 @@ class EREditArrow{
         _id = EREditMath.GetId("ARROW");
     }
 
+    @Override
     public void Select(boolean relatedSelected) {
         _selected = true;
 
@@ -442,6 +483,7 @@ class EREditArrow{
             _endEntity.Select(false);
         }
     }
+    @Override
     public void Unselect(boolean relatedUnselected) {
         _selected = false;
 
@@ -451,7 +493,13 @@ class EREditArrow{
             _endEntity.Unselect(false);
         }
     }
+    @Override
     public boolean IsSelected(){ return _selected; }
+
+    @Override
+    public EREditIView Export() {
+        return new EREditDrawArrow(_startEntity.ExportDrawBox(), _endEntity.ExportDrawBox(), _selected);
+    }
 
     public void RemoveBothEntities(){
         _startEntity.RemoveArrow(this);

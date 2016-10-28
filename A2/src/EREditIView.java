@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 
 /**
@@ -7,18 +8,18 @@ public interface EREditIView {
     void draw(Graphics g, Point offset, double multiplicity);
 }
 
-class EREditDrawBox implements EREditIView{
+class EREditDrawBox extends JComponent implements EREditIView{
 
     public final static Size SIZE = new Size(50, 30);   // Size for each Box (multiplicity = 1.0f)
 
-    private Point _startPos;    // The most top-left position (Unit: Pixel)
+    private Point _startPos;    // The most top-left position (Unit: Pixel, RAW Position)
     private String _text;       // The text shown inside
     private boolean _selected;  // Selected by Mouse
 
-    public EREditDrawBox(Point startPos, String text) {
+    public EREditDrawBox(Point startPos, String text, boolean selected) {
         _startPos = startPos;
         _text = text;
-        _selected = false;
+        _selected = selected;
     }
 
     @Override
@@ -29,13 +30,13 @@ class EREditDrawBox implements EREditIView{
         Size displaySize = EREditMath.RawToDisplay(SIZE, multiplicity);
 
         // Draw Box
-        g2.setColor(_selected ? Color.BLACK : Color.BLUE);
+        g2.setColor(_selected ? Color.BLUE : Color.BLACK);
         g2.drawRect(displayPos.X, displayPos.Y, displaySize.Width, displaySize.Height);
 
         // Draw Text inside
         g2.setColor(Color.BLACK);
         g2.setFont(new Font("Arial", Font.BOLD | Font.ITALIC, 12));
-        g2.drawString(_text, displayPos.X, displayPos.Y);
+        g2.drawString(_text, displayPos.X + displaySize.Width / 2 - 15, displayPos.Y + displaySize.Height / 2 + 2);
     }
 
     public Point GetArrowPosition(EREditDrawArrow.DIRECTION direction){
@@ -57,7 +58,7 @@ class EREditDrawBox implements EREditIView{
     }
 }
 
-class EREditDrawArrow implements EREditIView{
+class EREditDrawArrow extends JComponent implements EREditIView{
 
     public enum DIRECTION {UP, DOWN, LEFT, RIGHT}
 
@@ -67,6 +68,16 @@ class EREditDrawArrow implements EREditIView{
     private DIRECTION _endBoxDirection;
 
     private boolean _selected;  // Selected by Mouse
+
+    public EREditDrawArrow(EREditDrawBox startBox, EREditDrawBox endBox, boolean selected){
+        _startBox = startBox;
+        _endBox = endBox;
+        _selected = selected;
+
+        // Test
+        _startBoxDirection = DIRECTION.UP;
+        _endBoxDirection = DIRECTION.DOWN;
+    }
 
     @Override
     public void draw(Graphics g, Point offset, double multiplicity) {

@@ -15,17 +15,31 @@ class EREditDrawBox extends JComponent implements EREditIView{
     private Point _startPos;    // The most top-left position (Unit: Pixel, RAW Position)
     private String _text;       // The text shown inside
     private boolean _selected;  // Selected by Mouse
+    private final String _id;   // Id
 
     private Point _offset;          // Offset
     private double _multiplicity;   // Multiplicity
 
-    public EREditDrawBox(Point startPos, String text, boolean selected, Point offset, double multiplicity) {
+    // For arrows
+    private int _upArrowCount;
+    private int _rightArrowCount;
+    private int _downArrowCount;
+    private int _leftArrowCount;
+
+    public EREditDrawBox(Point startPos, String text, boolean selected,
+                         Point offset, double multiplicity, String id) {
         _startPos = startPos;
         _text = text;
         _selected = selected;
 
         _offset = offset;
         _multiplicity = multiplicity;
+        _id = id;
+
+        _upArrowCount = 0;
+        _rightArrowCount = 0;
+        _downArrowCount = 0;
+        _leftArrowCount = 0;
     }
 
     @Override
@@ -47,11 +61,50 @@ class EREditDrawBox extends JComponent implements EREditIView{
                 displayPos.Y + displaySize.Height / 2 + 4);
     }
 
-    public Point GetArrowPosition(EREditDrawArrow.DIRECTION direction){
-        return EREditMath.GetArrowPosition(direction, _startPos);
+    public Point GetArrowPosition(EREditDrawArrow.DIRECTION direction, int count, int index){
+        return EREditMath.GetArrowPosition(direction, _startPos, count, index);
     }
 
     public Point GetStartPos() { return _startPos; }
+
+    @Override
+    public boolean equals(Object box){
+        return ((EREditDrawBox)box)._id == _id;
+    }
+
+    public int GetArrowCount(EREditDrawArrow.DIRECTION direction){
+        if(direction == EREditDrawArrow.DIRECTION.UP){
+            return _upArrowCount;
+        }
+        else if (direction == EREditDrawArrow.DIRECTION.RIGHT){
+            return _rightArrowCount;
+        }
+        else if (direction == EREditDrawArrow.DIRECTION.DOWN){
+            return _downArrowCount;
+        }
+        else{
+            return _leftArrowCount;
+        }
+    }
+
+    public int IncGetCurrentArrowIndex(EREditDrawArrow.DIRECTION direction){
+        if(direction == EREditDrawArrow.DIRECTION.UP){
+            ++_upArrowCount;
+            return _upArrowCount - 1;
+        }
+        else if (direction == EREditDrawArrow.DIRECTION.RIGHT){
+            ++_rightArrowCount;
+            return  _rightArrowCount - 1;
+        }
+        else if (direction == EREditDrawArrow.DIRECTION.DOWN){
+            ++_downArrowCount;
+            return _downArrowCount - 1;
+        }
+        else{
+            ++_leftArrowCount;
+            return _leftArrowCount - 1;
+        }
+    }
 }
 
 class EREditDrawArrow extends JComponent implements EREditIView{
@@ -70,19 +123,27 @@ class EREditDrawArrow extends JComponent implements EREditIView{
 
     private Point _offset;          // Offset
     private double _multiplicity;   // Multiplicity
+    private int _startBoxArrowIndex;
+    private int _endBoxArrowIndex;
+    private final String _id;       // Id
 
     public EREditDrawArrow(EREditDrawBox startBox, EREditDrawBox endBox,
                            DIRECTION startBoxDirection, DIRECTION endBoxDirection,
-                           boolean selected, Point offset, double multiplicity){
+                           int startBoxArrowIndex, int endBoxArrowIndex,
+                           boolean selected, Point offset, double multiplicity,
+                           String id){
         _startBox = startBox;
         _endBox = endBox;
+        _startBoxDirection = startBoxDirection;
+        _endBoxDirection = endBoxDirection;
+        _startBoxArrowIndex = startBoxArrowIndex;
+        _endBoxArrowIndex = endBoxArrowIndex;
+
         _selected = selected;
 
         _offset = offset;
         _multiplicity = multiplicity;
-
-        _startBoxDirection = startBoxDirection;
-        _endBoxDirection = endBoxDirection;
+        _id = id;
     }
 
     @Override
@@ -93,8 +154,10 @@ class EREditDrawArrow extends JComponent implements EREditIView{
         if(_startBox == null || _endBox == null) return;
         if(_startBoxDirection == null || _endBoxDirection == null) return;
 
-        Point startPos = _startBox.GetArrowPosition(_startBoxDirection);
-        Point endPos = _endBox.GetArrowPosition(_endBoxDirection);
+        Point startPos = _startBox.GetArrowPosition(_startBoxDirection,
+                _startBox.GetArrowCount( _startBoxDirection), _startBoxArrowIndex);
+        Point endPos = _endBox.GetArrowPosition(_endBoxDirection,
+                _endBox.GetArrowCount(_endBoxDirection), _endBoxArrowIndex);
 
         startPos = EREditMath.RawToDisplay(startPos, _offset, _multiplicity);
         endPos = EREditMath.RawToDisplay(endPos, _offset, _multiplicity);
@@ -167,6 +230,11 @@ class EREditDrawArrow extends JComponent implements EREditIView{
                 EREditMath.DecompositePoints(pointList, true),
                 EREditMath.DecompositePoints(pointList, false),
                 pointList.length);
+    }
+
+    @Override
+    public boolean equals(Object arrow){
+        return ((EREditDrawArrow)arrow)._id == _id;
     }
 }
 

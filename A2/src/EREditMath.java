@@ -127,16 +127,16 @@ public class EREditMath {
         // Return Raw Position
         Point offset;
         if (direction == EREditDrawArrow.DIRECTION.UP){
-            offset = new Point((int)(EREditDrawBox.SIZE.Width / (double)((count + 1) / (index + 1))), 0);
+            offset = new Point((int)(EREditDrawBox.SIZE.Width / ((double)(count + 1) / (index + 1))), 0);
         }
         else if (direction == EREditDrawArrow.DIRECTION.DOWN){
-            offset = new Point((int)(EREditDrawBox.SIZE.Width / (double)((count + 1) / (index + 1))), EREditDrawBox.SIZE.Height);
+            offset = new Point((int)(EREditDrawBox.SIZE.Width / ((double)(count + 1) / (index + 1))), EREditDrawBox.SIZE.Height);
         }
         else if (direction == EREditDrawArrow.DIRECTION.LEFT){
-            offset = new Point(0, (int)(EREditDrawBox.SIZE.Height / (double)((count + 1)/ (index + 1))));
+            offset = new Point(0, (int)(EREditDrawBox.SIZE.Height / ((double)(count + 1)/ (index + 1))));
         }
         else {
-            offset = new Point(EREditDrawBox.SIZE.Width, (int)(EREditDrawBox.SIZE.Height / (double)((count + 1)/ (index + 1))));
+            offset = new Point(EREditDrawBox.SIZE.Width, (int)(EREditDrawBox.SIZE.Height / ((double)(count + 1)/ (index + 1))));
         }
         return startPos.Add(offset);
     }

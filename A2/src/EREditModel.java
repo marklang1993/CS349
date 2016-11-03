@@ -238,7 +238,7 @@ public class EREditModel {
             CursorMode();
             return;
         }
-        if(startEntity.IsEqual(endEntity))
+        if(startEntity.equals(endEntity))
         {
             // Should not be same
             CursorMode();
@@ -345,7 +345,7 @@ public class EREditModel {
     private void _removeArrow(EREditArrow removedArrow) {
         int index = 0;
         for (EREditArrow arrow: _arrowList) {
-            if(arrow.IsEqual(removedArrow)) {
+            if(arrow.equals(removedArrow)) {
                 _arrowList.remove(index);
                 return;
             }
@@ -436,7 +436,7 @@ class EREditEntity implements EREditExport{
     }
     public void RemoveArrow(EREditArrow arrow){
         for(int i = 0; i < _arrowList.size(); ++i){
-            if(_arrowList.get(i).IsEqual(arrow))
+            if(_arrowList.get(i).equals(arrow))
             {
                 _arrowList.remove(i);
                 break;
@@ -444,8 +444,8 @@ class EREditEntity implements EREditExport{
         }
     }
 
-    public boolean IsEqual(EREditEntity entity){
-        return entity._id == _id;
+    public boolean equals(Object entity){
+        return ((EREditEntity)entity)._id == _id;
     }
     public boolean IsContained(Point rawCursorPosition){
         Rectangle rect = new Rectangle(_position.X, _position.Y, EREditDrawBox.SIZE.Width, EREditDrawBox.SIZE.Height);
@@ -454,7 +454,7 @@ class EREditEntity implements EREditExport{
 
     @Override
     public EREditIView Export(Point offset, double multiplicity){
-        _drawBox = new EREditDrawBox(_position, _text, _selected, offset, multiplicity);
+        _drawBox = new EREditDrawBox(_position, _text, _selected, offset, multiplicity, _id);
         return _drawBox;
     }
 
@@ -521,9 +521,10 @@ class EREditArrow implements EREditExport{
 
 
         return new EREditDrawArrow(
-                _startEntity.ExportDrawBox(), _endEntity.ExportDrawBox(),
+                startDrawBox, endDrawBox,
                 startBoxDirection, endBoxDirection,
-                _selected, offset, multiplicity
+                startDrawBox.IncGetCurrentArrowIndex(startBoxDirection), endDrawBox.IncGetCurrentArrowIndex(endBoxDirection),
+                _selected, offset, multiplicity, _id
         );
     }
 
@@ -532,8 +533,9 @@ class EREditArrow implements EREditExport{
         _endEntity.RemoveArrow(this);
     }
 
-    public boolean IsEqual(EREditArrow arrow){
-        return arrow._id == _id;
+    @Override
+    public boolean equals(Object arrow){
+        return ((EREditArrow)arrow)._id == _id;
     }
 }
 

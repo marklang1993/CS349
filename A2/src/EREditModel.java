@@ -434,10 +434,13 @@ class EREditEntity implements EREditExport{
     public LinkedList<EREditArrow> RemoveAllArrow() {
         LinkedList<EREditArrow> removedArrowList = new LinkedList<>();
 
-        for (EREditArrow linkedArrow : _arrowList) {
+        // Return the arrowList where all entities in each arrow are removed
+        while(!_arrowList.isEmpty()){
+            EREditArrow linkedArrow = _arrowList.getFirst();
             removedArrowList.add(linkedArrow);
             linkedArrow.RemoveBothEntities();
         }
+
         return removedArrowList;
     }
     public void RemoveArrow(EREditArrow arrow){

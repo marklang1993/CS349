@@ -199,18 +199,18 @@ public class EREditMath {
         int Ydifference = endBoxPos.Y - startBoxPos.Y;
 
         EREditDrawArrow.DIRECTION startDirection;
-        EREditDrawArrow.DIRECTION endDirection;
+//        EREditDrawArrow.DIRECTION endDirection;
 
         // 1st Step: Approx. Get Directions
         if(Math.abs(Xdifference) > Math.abs(Ydifference)){
             // Choose Left & Right
             if(Xdifference >= 0){
                 startDirection = EREditDrawArrow.DIRECTION.RIGHT;
-                endDirection = EREditDrawArrow.DIRECTION.LEFT;
+//                endDirection = EREditDrawArrow.DIRECTION.LEFT;
             }
             else{
                 startDirection = EREditDrawArrow.DIRECTION.LEFT;
-                endDirection = EREditDrawArrow.DIRECTION.RIGHT;
+//                endDirection = EREditDrawArrow.DIRECTION.RIGHT;
             }
 
         }
@@ -218,11 +218,11 @@ public class EREditMath {
             // Choose Top & Bottom
             if(Ydifference >= 0){
                 startDirection = EREditDrawArrow.DIRECTION.DOWN;
-                endDirection = EREditDrawArrow.DIRECTION.UP;
+//                endDirection = EREditDrawArrow.DIRECTION.UP;
             }
             else {
                 startDirection = EREditDrawArrow.DIRECTION.UP;
-                endDirection = EREditDrawArrow.DIRECTION.DOWN;
+//                endDirection = EREditDrawArrow.DIRECTION.DOWN;
             }
         }
 

@@ -38,8 +38,8 @@ public class EREditMath {
 
     public static Point DisplayToRaw(Point displayPosition, Point offset, double multiplicity) {
         // Coordinates system transfer - Position
-        displayPosition = displayPosition.Add(offset);
         displayPosition = displayPosition.Multiply(1.0d / multiplicity);
+        displayPosition = displayPosition.Add(offset);
         return displayPosition;
     }
 

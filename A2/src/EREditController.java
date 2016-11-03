@@ -138,7 +138,11 @@ public class EREditController {
         _model.CursorMode();
     }
 
-    public void WindowResizeEventHandler(ComponentEvent event){
+    public void WindowResizeEventHandler(){
+        // Update
+        _model.UpdateGraphHorizontal();
+        _model.UpdateGraphVertical();
+
         _model.CursorMode();
     }
 

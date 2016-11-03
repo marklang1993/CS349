@@ -18,12 +18,15 @@ public class EREditModel {
     private final double MIN_Multiplicity = 0.5d;
 
     private Size _graphSize;            // Size of whole graph
-    private Point _offset;              // Current offset
+    private Point _offset;              // Current offset (Raw Position)
     private double _multiplicity;       // Current multiplicity for Zooming
     private EDIT_MODE _editMode;        // Current Edit Mode
     private EREditIView _mainView;      // MainView
     private int _dragEntityIndex;       // Dragged Entity Index
     private Point _dragMousePosOffset;  // Offset between cursor position and the entity position when dragging
+
+    private double _hPercentage;        // Horizontal Percentage of Scrollbar
+    private double _vPercentage;        // Vertical Percentage of Scrollbar
 
 
     public EREditModel(){
@@ -95,26 +98,36 @@ public class EREditModel {
         _updateView();
     }
     public void MoveGraphHorizontal(double percentage) {
-        int _surplus = _graphSize.Width - ((EREditMainView)_mainView).GetDisplayPaneSize().Width;
+        _hPercentage = percentage;
+        UpdateGraphHorizontal();
+    }
+    public void UpdateGraphHorizontal(){
+        Size rawSize = EREditMath.DisplayToRaw(((EREditMainView)_mainView).GetDisplayPaneSize(), _multiplicity);
+        int _surplus = _graphSize.Width - rawSize.Width;
         if(_surplus <= 0)
         {
             _offset.X = 0;
         }
         else
         {
-            _offset.X = (int)(_surplus * percentage);
+            _offset.X = (int)(_surplus * _hPercentage);
         }
         _updateView();
     }
     public void MoveGraphVertical(double percentage) {
-        int _surplus = _graphSize.Height - ((EREditMainView)_mainView).GetDisplayPaneSize().Height;
+        _vPercentage = percentage;
+        UpdateGraphVertical();
+    }
+    public void UpdateGraphVertical(){
+        Size rawSize = EREditMath.DisplayToRaw(((EREditMainView)_mainView).GetDisplayPaneSize(), _multiplicity);
+        int _surplus = _graphSize.Height - rawSize.Height;
         if(_surplus <= 0)
         {
             _offset.Y = 0;
         }
         else
         {
-            _offset.Y = (int)(_surplus * percentage);
+            _offset.Y = (int)(_surplus * _vPercentage);
         }
         _updateView();
     }
@@ -201,6 +214,10 @@ public class EREditModel {
         _graphSize = new Size(600, 600);        // Default JPanel Size is (450, 450)
         _multiplicity = 2.0d;
         _dragEntityIndex = -1;
+        _dragMousePosOffset = new Point(0, 0);
+
+        _hPercentage = 0.0d;
+        _vPercentage = 0.0d;
 
         CursorMode();
     }

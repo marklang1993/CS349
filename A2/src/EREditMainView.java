@@ -503,7 +503,7 @@ class EREditMainViewListener extends ComponentAdapter{
 
     @Override
     public void componentResized(ComponentEvent e) {
-        _controller.WindowResizeEventHandler(e);
+        _controller.WindowResizeEventHandler();
     }
 }
 

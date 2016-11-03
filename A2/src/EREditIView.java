@@ -64,6 +64,8 @@ class EREditDrawBox extends JComponent implements EREditIView{
         }
         return _startPos.Add(offset);
     }
+
+    public Point GetStartPos() { return _startPos; }
 }
 
 class EREditDrawArrow extends JComponent implements EREditIView{
@@ -83,7 +85,9 @@ class EREditDrawArrow extends JComponent implements EREditIView{
     private Point _offset;          // Offset
     private double _multiplicity;   // Multiplicity
 
-    public EREditDrawArrow(EREditDrawBox startBox, EREditDrawBox endBox, boolean selected, Point offset, double multiplicity){
+    public EREditDrawArrow(EREditDrawBox startBox, EREditDrawBox endBox,
+                           // DIRECTION startBoxDirection, DIRECTION endBoxDirection,
+                           boolean selected, Point offset, double multiplicity){
         _startBox = startBox;
         _endBox = endBox;
         _selected = selected;
@@ -92,8 +96,8 @@ class EREditDrawArrow extends JComponent implements EREditIView{
         _multiplicity = multiplicity;
 
         // Test
-        _startBoxDirection = DIRECTION.DOWN;
-        _endBoxDirection = DIRECTION.UP;
+        _startBoxDirection = EREditMath.DetermineDirection(_startBox.GetStartPos(), _endBox.GetStartPos(), true);
+        _endBoxDirection = EREditMath.DetermineDirection(_startBox.GetStartPos(), _endBox.GetStartPos(), false);
     }
 
     @Override

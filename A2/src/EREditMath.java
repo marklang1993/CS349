@@ -1,3 +1,5 @@
+import java.util.Map;
+
 /**
  * Created by LangChen on 2016/10/10.
  */
@@ -101,5 +103,31 @@ public class EREditMath {
         }
 
         return posList;
+    }
+
+    public static EREditDrawArrow.DIRECTION DetermineDirection(Point startBoxPos, Point endBoxPos, boolean isStart){
+        int Xdifference = endBoxPos.X - startBoxPos.X;
+        int Ydifference = endBoxPos.Y - startBoxPos.Y;
+
+        if(Math.abs(Xdifference) > Math.abs(Ydifference)){
+            // Choose Left & Right
+            if(Xdifference >= 0){
+                return (isStart) ? EREditDrawArrow.DIRECTION.RIGHT : EREditDrawArrow.DIRECTION.LEFT;
+            }
+            else{
+                return (isStart) ? EREditDrawArrow.DIRECTION.LEFT : EREditDrawArrow.DIRECTION.RIGHT;
+            }
+
+        }
+        else {
+            // Choose Top & Bottom
+            if(Ydifference >= 0){
+                return isStart ? EREditDrawArrow.DIRECTION.DOWN : EREditDrawArrow.DIRECTION.UP;
+            }
+            else {
+                return isStart ? EREditDrawArrow.DIRECTION.UP : EREditDrawArrow.DIRECTION.DOWN;
+            }
+
+        }
     }
 }

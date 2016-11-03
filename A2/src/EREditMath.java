@@ -1,6 +1,3 @@
-import javax.swing.*;
-import java.util.Map;
-
 /**
  * Created by LangChen on 2016/10/10.
  */
@@ -9,7 +6,6 @@ public class EREditMath {
     public static class DirectionPair{
         public EREditDrawArrow.DIRECTION StartDirection;
         public EREditDrawArrow.DIRECTION EndDirection;
-        public double Length;
     }
 
     public static class BoxVertex{
@@ -120,32 +116,6 @@ public class EREditMath {
         return posList;
     }
 
-    public static EREditDrawArrow.DIRECTION[] GetAdjecentDirections(EREditDrawArrow.DIRECTION reference){
-        EREditDrawArrow.DIRECTION adjecentDirections[] = new EREditDrawArrow.DIRECTION[3];
-
-        if(reference == EREditDrawArrow.DIRECTION.UP){
-            adjecentDirections[0] = EREditDrawArrow.DIRECTION.LEFT;
-            adjecentDirections[1] = EREditDrawArrow.DIRECTION.UP;
-            adjecentDirections[2] = EREditDrawArrow.DIRECTION.RIGHT;
-        }
-        else if(reference == EREditDrawArrow.DIRECTION.RIGHT){
-            adjecentDirections[0] = EREditDrawArrow.DIRECTION.UP;
-            adjecentDirections[1] = EREditDrawArrow.DIRECTION.RIGHT;
-            adjecentDirections[2] = EREditDrawArrow.DIRECTION.DOWN;
-        }
-        else if(reference == EREditDrawArrow.DIRECTION.DOWN){
-            adjecentDirections[0] = EREditDrawArrow.DIRECTION.RIGHT;
-            adjecentDirections[1] = EREditDrawArrow.DIRECTION.DOWN;
-            adjecentDirections[2] = EREditDrawArrow.DIRECTION.LEFT;
-        }
-        else {
-            adjecentDirections[0] = EREditDrawArrow.DIRECTION.UP;
-            adjecentDirections[1] = EREditDrawArrow.DIRECTION.LEFT;
-            adjecentDirections[2] = EREditDrawArrow.DIRECTION.DOWN;
-        }
-        return adjecentDirections;
-    }
-
     public static Point GetArrowPosition(EREditDrawArrow.DIRECTION direction, Point startPos){
         // Return Raw Position
         Point offset;
@@ -175,15 +145,61 @@ public class EREditMath {
         return boxVertex;
     }
 
+    public static EREditDrawArrow.DIRECTION DetermineDirectionEx(BoxVertex targetBoxVertex, Point startPos, EREditDrawArrow.DIRECTION startDirection){
+        Point arrowPos = GetArrowPosition(startDirection, startPos);
+
+        if(startDirection == EREditDrawArrow.DIRECTION.UP){
+            if (arrowPos.X >= targetBoxVertex.DownLeft.X && arrowPos.X <= targetBoxVertex.DownRight.X){
+                return EREditDrawArrow.DIRECTION.DOWN;
+            }
+            else if(arrowPos.X < targetBoxVertex.DownLeft.X){
+                return EREditDrawArrow.DIRECTION.LEFT;
+            }
+            else{
+                return EREditDrawArrow.DIRECTION.RIGHT;
+            }
+        }
+        else if(startDirection == EREditDrawArrow.DIRECTION.RIGHT){
+            if(arrowPos.Y >= targetBoxVertex.UpLeft.Y && arrowPos.Y <= targetBoxVertex.DownLeft.Y){
+                return EREditDrawArrow.DIRECTION.LEFT;
+            }
+            else if(arrowPos.Y < targetBoxVertex.UpLeft.Y){
+                return EREditDrawArrow.DIRECTION.UP;
+            }
+            else{
+                return EREditDrawArrow.DIRECTION.DOWN;
+            }
+        }
+        else if(startDirection == EREditDrawArrow.DIRECTION.DOWN){
+            if(arrowPos.X >= targetBoxVertex.UpLeft.X && arrowPos.X <= targetBoxVertex.UpRight.X){
+                return EREditDrawArrow.DIRECTION.UP;
+            }
+            else if(arrowPos.X < targetBoxVertex.UpLeft.X){
+                return EREditDrawArrow.DIRECTION.LEFT;
+            }
+            else{
+                return EREditDrawArrow.DIRECTION.RIGHT;
+            }
+        }
+        else{
+            if(arrowPos.Y >= targetBoxVertex.UpRight.Y && arrowPos.Y <= targetBoxVertex.DownRight.Y){
+                return EREditDrawArrow.DIRECTION.RIGHT;
+            }
+            else if(arrowPos.Y < targetBoxVertex.UpLeft.Y){
+                return EREditDrawArrow.DIRECTION.UP;
+            }
+            else{
+                return EREditDrawArrow.DIRECTION.DOWN;
+            }
+        }
+    }
+
     public static DirectionPair DetermineDirection(Point startBoxPos, Point endBoxPos){
         int Xdifference = endBoxPos.X - startBoxPos.X;
         int Ydifference = endBoxPos.Y - startBoxPos.Y;
 
         EREditDrawArrow.DIRECTION startDirection;
         EREditDrawArrow.DIRECTION endDirection;
-
-
-
 
         // 1st Step: Approx. Get Directions
         if(Math.abs(Xdifference) > Math.abs(Ydifference)){
@@ -211,35 +227,13 @@ public class EREditMath {
         }
 
         // 2nd Step
-        EREditDrawArrow.DIRECTION[] startDirectionAdjecentList = GetAdjecentDirections(startDirection);
-        EREditDrawArrow.DIRECTION[] endDirectionAdjecentList = GetAdjecentDirections(endDirection);
+        BoxVertex endBoxVertex = GetBoxVertex(endBoxPos);
 
-        DirectionPair[] possibleDirectionList = new DirectionPair[9];
+        DirectionPair directionPair = new DirectionPair();
+        directionPair.StartDirection = startDirection;
+        directionPair.EndDirection = DetermineDirectionEx(endBoxVertex, startBoxPos, startDirection);
 
-        for(int i = 0; i < 3; ++i){
-            for(int j = 0; j < 3; ++j){
-                int index = i * 3 + j;
-                possibleDirectionList[index] = new DirectionPair();
-                possibleDirectionList[index].StartDirection = startDirectionAdjecentList[i];
-                possibleDirectionList[index].EndDirection = endDirectionAdjecentList[j];
-
-                Point startArrowPosition = GetArrowPosition(possibleDirectionList[index].StartDirection, startBoxPos);
-                Point endArrowPosition = GetArrowPosition(possibleDirectionList[index].EndDirection, endBoxPos);
-                possibleDirectionList[index].Length = CalculateLength(startArrowPosition, endArrowPosition);
-            }
-        }
-
-        // Find the tuple with minimum length
-        double minLength = possibleDirectionList[0].Length;
-        int minIndex = 0;
-        for(int i = 1; i < 9; ++i){
-            if(possibleDirectionList[i].Length < minLength){
-                minLength = possibleDirectionList[i].Length;
-                minIndex = i;
-            }
-        }
-
-        return possibleDirectionList[minIndex];
+        return directionPair;
     }
 
 }

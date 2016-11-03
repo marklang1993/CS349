@@ -146,7 +146,6 @@ class EREditDrawArrow extends JComponent implements EREditIView{
             g2.drawLine(turningPointX, endPos.Y, endPos.X, endPos.Y);
             startPos = new Point(turningPointX, endPos.Y);      // update for angle calculation
         }
-//        g2.drawLine(startPos.X, startPos.Y, endPos.X, endPos.Y);
 
         // #2 Draw Arrow
         // Calculate angle
@@ -168,7 +167,6 @@ class EREditDrawArrow extends JComponent implements EREditIView{
                 EREditMath.DecompositePoints(pointList, true),
                 EREditMath.DecompositePoints(pointList, false),
                 pointList.length);
-
     }
 }
 

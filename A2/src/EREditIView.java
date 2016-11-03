@@ -70,6 +70,9 @@ class EREditDrawArrow extends JComponent implements EREditIView{
 
     public enum DIRECTION {UP, DOWN, LEFT, RIGHT}
 
+    private final int ArrowLength = 15;
+    private final double ArrowAngle = 0.5236d;
+
     private EREditDrawBox _startBox;
     private DIRECTION _startBoxDirection;
     private EREditDrawBox _endBox;
@@ -114,6 +117,26 @@ class EREditDrawArrow extends JComponent implements EREditIView{
         // Draw ArrowLine
         g2.setColor(_selected ? Color.BLUE : Color.BLACK);
         g2.drawLine(startPos.X, startPos.Y, endPos.X, endPos.Y);
+
+        // Calculate angle
+        double lineLength = EREditMath.CalculateLength(startPos, endPos);
+        double lineAngle = EREditMath.CalculateAngle(startPos, endPos);
+        if(lineAngle < 0.0d) return;    // Error
+
+        // Calculate Point List
+        Point[] pointList;
+        if(lineLength < ArrowLength){
+            pointList = EREditMath.CalculateArrowPoints(lineAngle, ArrowAngle, lineLength, endPos);
+        }
+        else {
+            pointList = EREditMath.CalculateArrowPoints(lineAngle, ArrowAngle, ArrowLength, endPos);
+        }
+
+        // Decomposite
+        g2.fillPolygon(
+                EREditMath.DecompositePoints(pointList, true),
+                EREditMath.DecompositePoints(pointList, false),
+                pointList.length);
 
     }
 }

@@ -48,21 +48,7 @@ class EREditDrawBox extends JComponent implements EREditIView{
     }
 
     public Point GetArrowPosition(EREditDrawArrow.DIRECTION direction){
-        // Return Raw Position
-        Point offset;
-        if (direction == EREditDrawArrow.DIRECTION.UP){
-            offset = new Point(SIZE.Width / 2, 0);
-        }
-        else if (direction == EREditDrawArrow.DIRECTION.DOWN){
-            offset = new Point(SIZE.Width / 2, SIZE.Height);
-        }
-        else if (direction == EREditDrawArrow.DIRECTION.LEFT){
-            offset = new Point(0, SIZE.Height / 2);
-        }
-        else {
-            offset = new Point(SIZE.Width, SIZE.Height / 2);
-        }
-        return _startPos.Add(offset);
+        return EREditMath.GetArrowPosition(direction, _startPos);
     }
 
     public Point GetStartPos() { return _startPos; }
@@ -86,7 +72,7 @@ class EREditDrawArrow extends JComponent implements EREditIView{
     private double _multiplicity;   // Multiplicity
 
     public EREditDrawArrow(EREditDrawBox startBox, EREditDrawBox endBox,
-                           // DIRECTION startBoxDirection, DIRECTION endBoxDirection,
+                           DIRECTION startBoxDirection, DIRECTION endBoxDirection,
                            boolean selected, Point offset, double multiplicity){
         _startBox = startBox;
         _endBox = endBox;
@@ -95,9 +81,8 @@ class EREditDrawArrow extends JComponent implements EREditIView{
         _offset = offset;
         _multiplicity = multiplicity;
 
-        // Test
-        _startBoxDirection = EREditMath.DetermineDirection(_startBox.GetStartPos(), _endBox.GetStartPos(), true);
-        _endBoxDirection = EREditMath.DetermineDirection(_startBox.GetStartPos(), _endBox.GetStartPos(), false);
+        _startBoxDirection = startBoxDirection;
+        _endBoxDirection = endBoxDirection;
     }
 
     @Override

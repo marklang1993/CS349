@@ -14,8 +14,8 @@ public class EREditModel {
 
     // Graphics Related
     public enum EDIT_MODE { CURSOR, DRAGGING, BOX, ARROW, TEXT, TEXT_EDIT, ERASER}
-    private final double MAX_Multiplicity = 8.0d;
-    private final double MIN_Multiplicity = 0.25d;
+    private final double MAX_Multiplicity = 4.0d;
+    private final double MIN_Multiplicity = 0.1d;
 
     private Size _graphSize;            // Size of whole graph
     private Point _offset;              // Current offset
@@ -118,7 +118,7 @@ public class EREditModel {
         _updateView();
     }
     public void ZoomIn() {
-        double tmp = _multiplicity * 2.0d;
+        double tmp = _multiplicity + 0.1d;
         if(tmp <= MAX_Multiplicity)
         {
             _multiplicity = tmp;
@@ -131,7 +131,7 @@ public class EREditModel {
         _updateView();
     }
     public void ZoomOut() {
-        double tmp = _multiplicity / 2.0d;
+        double tmp = _multiplicity - 0.1d;
         if(tmp >= MIN_Multiplicity)
         {
             _multiplicity = tmp;
@@ -509,8 +509,22 @@ class EREditArrow implements EREditExport{
 
     @Override
     public EREditIView Export(Point offset, double multiplicity) {
-        return new EREditDrawArrow(_startEntity.ExportDrawBox(), _endEntity.ExportDrawBox(),
-                _selected, offset, multiplicity);
+        EREditDrawBox startDrawBox = _startEntity.ExportDrawBox();
+        EREditDrawBox endDrawBox = _endEntity.ExportDrawBox();
+
+        EREditMath.DirectionPair directionPair = EREditMath.DetermineDirection(
+                startDrawBox.GetStartPos(),
+                endDrawBox.GetStartPos());
+
+        EREditDrawArrow.DIRECTION startBoxDirection = directionPair.StartDirection;
+        EREditDrawArrow.DIRECTION endBoxDirection = directionPair.EndDirection;
+
+
+        return new EREditDrawArrow(
+                _startEntity.ExportDrawBox(), _endEntity.ExportDrawBox(),
+                startBoxDirection, endBoxDirection,
+                _selected, offset, multiplicity
+        );
     }
 
     public void RemoveBothEntities(){

@@ -25,8 +25,8 @@ public class EREditMainView extends JPanel implements EREditIView{
     private JScrollPane _arrowDisplayPane;
     private JTable _arrowDisplayList;
     private JPanel _drawPanel;
-    private JScrollBar _vSrcollBar;
-    private JScrollBar _hSrcollBar;
+    private JScrollBar _vScrollBar;
+    private JScrollBar _hScrollBar;
     private JButton _adjustBtn;
 
     // Controller
@@ -59,8 +59,8 @@ public class EREditMainView extends JPanel implements EREditIView{
         _zoomOutBtn = new JButton();
         _displayPanel = new JPanel();
         _drawPanel = new JPanel();
-        _vSrcollBar = new JScrollBar(Adjustable.VERTICAL, 0, 0, 0, 100);
-        _hSrcollBar = new JScrollBar(Adjustable.HORIZONTAL, 0, 0, 0, 100);
+        _vScrollBar = new JScrollBar(Adjustable.VERTICAL, 0, 0, 0, 100);
+        _hScrollBar = new JScrollBar(Adjustable.HORIZONTAL, 0, 0, 0, 100);
         _adjustBtn = new JButton();
 
         DefaultTableCellRenderer cellRender = new DefaultTableCellRenderer();
@@ -240,7 +240,7 @@ public class EREditMainView extends JPanel implements EREditIView{
                 new Insets(0, 0, 0, 5), 0, 0));
 
         //3. _drawPanel
-        _drawPanel.addMouseListener(new DrawPanelClickListener(_controller));
+        _drawPanel.addMouseListener(new DrawPanelClickListener(_controller, this));
         _drawPanel.addMouseMotionListener(new DrawPanelMotionListener(_controller));
         _drawPanel.addMouseWheelListener(new DrawPanelWheelListener(_controller));
         _drawPanel.setFont(new Font("Times New Roman", Font.PLAIN, 12));
@@ -265,17 +265,17 @@ public class EREditMainView extends JPanel implements EREditIView{
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 5, 5), 0, 0));
 
-        //4. _vSrcollBar
-        _vSrcollBar.setName("VScrollBar");
-        _vSrcollBar.addAdjustmentListener(new ScrollBarAdjustListener(_controller));
-        this.add(_vSrcollBar, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
+        //4. _vScrollBar
+        _vScrollBar.setName("VScrollBar");
+        _vScrollBar.addAdjustmentListener(new ScrollBarAdjustListener(_controller));
+        this.add(_vScrollBar, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 5, 0), 0, 0));
 
-        //5. _hSrcollBar
-        _hSrcollBar.setName("HScrollBar");
-        _hSrcollBar.addAdjustmentListener(new ScrollBarAdjustListener(_controller));
-        this.add(_hSrcollBar, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+        //5. _hScrollBar
+        _hScrollBar.setName("HScrollBar");
+        _hScrollBar.addAdjustmentListener(new ScrollBarAdjustListener(_controller));
+        this.add(_hScrollBar, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 5), 0, 0));
 
@@ -289,7 +289,12 @@ public class EREditMainView extends JPanel implements EREditIView{
                 new Insets(0, 0, 0, 0), 0, 0));
 
         //7. Resize Window
-        this.addComponentListener(new EREditMainViewListner(_controller));
+        this.addComponentListener(new EREditMainViewListener(_controller));
+
+        //8. KeyEvent
+        this.setFocusable(true);
+        this.requestFocusInWindow();
+        this.addKeyListener(new EREditMainViewKeyListener(_controller));
     }
 
     public Size GetDisplayPaneSize(){
@@ -411,13 +416,19 @@ class ScrollBarAdjustListener implements AdjustmentListener{
 
 class DrawPanelClickListener extends MouseAdapter{
     private EREditController _controller;
+    private EREditMainView _view;
 
-    public DrawPanelClickListener(EREditController controller){
+    public DrawPanelClickListener(EREditController controller, EREditMainView view){
         _controller = controller;
+        _view = view;
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        // Get Focus For KeyEventListener
+        _view.setFocusable(true);
+        _view.requestFocusInWindow();
+
         if(e.getButton() == MouseEvent.BUTTON1) {
             _controller.DrawPanelClickEventHandler(new Point(e.getX(), e.getY()), e.getClickCount() == 2);
         }
@@ -466,10 +477,26 @@ class DrawPanelWheelListener implements MouseWheelListener{
     }
 }
 
-class EREditMainViewListner extends ComponentAdapter{
+class EREditMainViewKeyListener extends KeyAdapter{
+
     private EREditController _controller;
 
-    public EREditMainViewListner(EREditController controller)
+    public EREditMainViewKeyListener(EREditController controller)
+    {
+        _controller = controller;
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        _controller.WindowKeyEventHandler(e.getKeyCode());
+    }
+}
+
+class EREditMainViewListener extends ComponentAdapter{
+
+    private EREditController _controller;
+
+    public EREditMainViewListener(EREditController controller)
     {
         _controller = controller;
     }
@@ -479,3 +506,4 @@ class EREditMainViewListner extends ComponentAdapter{
         _controller.WindowResizeEventHandler(e);
     }
 }
+

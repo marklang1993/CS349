@@ -1,4 +1,5 @@
 import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
 
 /**
  * Created by LangChen on 2016/10/11.
@@ -139,5 +140,16 @@ public class EREditController {
 
     public void WindowResizeEventHandler(ComponentEvent event){
         _model.CursorMode();
+    }
+
+    public void WindowKeyEventHandler(int keyCode){
+        switch (keyCode) {
+            case KeyEvent.VK_OPEN_BRACKET:
+                _model.ZoomOut();
+                break;
+            case KeyEvent.VK_CLOSE_BRACKET:
+                _model.ZoomIn();
+                break;
+        }
     }
 }

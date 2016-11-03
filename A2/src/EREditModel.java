@@ -15,7 +15,7 @@ public class EREditModel {
     // Graphics Related
     public enum EDIT_MODE { CURSOR, DRAGGING, BOX, ARROW, TEXT, TEXT_EDIT, ERASER}
     private final double MAX_Multiplicity = 4.0d;
-    private final double MIN_Multiplicity = 0.1d;
+    private final double MIN_Multiplicity = 0.5d;
 
     private Size _graphSize;            // Size of whole graph
     private Point _offset;              // Current offset
@@ -430,7 +430,7 @@ class EREditEntity implements EREditExport{
     public boolean IsSelected(){ return _selected; }
     public Point GetPositon() { return _position; }
     public void Move( Point position, Point dragMousePosOffset) {
-        _position = position.Subtract(dragMousePosOffset); 
+        _position = position.Subtract(dragMousePosOffset);
     }
 
     public void AddArrow(EREditArrow arrow)

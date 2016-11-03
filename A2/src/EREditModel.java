@@ -23,6 +23,7 @@ public class EREditModel {
     private EDIT_MODE _editMode;        // Current Edit Mode
     private EREditIView _mainView;      // MainView
     private int _dragEntityIndex;       // Dragged Entity Index
+    private Point _dragMousePosOffset;  // Offset between cursor position and the entity position when dragging
 
 
     public EREditModel(){
@@ -155,9 +156,11 @@ public class EREditModel {
                 // Find new select entity
                 if(entity.IsContained(rawPos)){
                     ++index;
+                    // Entity found, change STATE & record entity index & mouse position offset
                     _dragEntityIndex = index;
-                    // Entity found, change STATE
                     _editMode = EDIT_MODE.DRAGGING;
+                    _dragMousePosOffset = new Point(rawPos.X - entity.GetPositon().X,
+                                                rawPos.Y - entity.GetPositon().Y);
                     return;
                 }
                 ++index;
@@ -176,7 +179,7 @@ public class EREditModel {
             // Dragging
             if(_dragEntityIndex != -1 && _dragEntityIndex < _entityList.size())
             {
-                _entityList.get(_dragEntityIndex).Move(rawPos);
+                _entityList.get(_dragEntityIndex).Move(rawPos, _dragMousePosOffset);
                 _updateView();
             }
         }
@@ -267,7 +270,7 @@ public class EREditModel {
                 ++index;
                 // Delete Entity
                 LinkedList<EREditArrow> removedArrowList =
-                        _entityList.get(index).RemoveAllArrow();
+                        _entityList.get(index).RemoveAllArrows();
                 _entityList.remove(index);
                 // Delete All related Arrows
                 for (EREditArrow arrow: removedArrowList) { _removeArrow(arrow); }
@@ -425,13 +428,16 @@ class EREditEntity implements EREditExport{
     }
     @Override
     public boolean IsSelected(){ return _selected; }
-    public void Move( Point position ) { _position = position; }
+    public Point GetPositon() { return _position; }
+    public void Move( Point position, Point dragMousePosOffset) {
+        _position = position.Subtract(dragMousePosOffset); 
+    }
 
     public void AddArrow(EREditArrow arrow)
     {
         _arrowList.add(arrow);
     }
-    public LinkedList<EREditArrow> RemoveAllArrow() {
+    public LinkedList<EREditArrow> RemoveAllArrows() {
         LinkedList<EREditArrow> removedArrowList = new LinkedList<>();
 
         // Return the arrowList where all entities in each arrow are removed

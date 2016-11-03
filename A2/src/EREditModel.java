@@ -238,11 +238,17 @@ public class EREditModel {
             CursorMode();
             return;
         }
-        if(startEntity.equals(endEntity))
-        {
-            // Should not be same
+        if(startEntity.equals(endEntity)) {
+            // Should not be same entity (Cannot Connect to itself)
             CursorMode();
             return;
+        }
+        for (EREditArrow arrow: _arrowList) {
+            if(arrow.isSameArrow(startEntity, endEntity)){
+                // Cannot add repeated arrow
+                CursorMode();
+                return;
+            }
         }
 
         // Add
@@ -536,6 +542,10 @@ class EREditArrow implements EREditExport{
     @Override
     public boolean equals(Object arrow){
         return ((EREditArrow)arrow)._id == _id;
+    }
+
+    public boolean isSameArrow(EREditEntity startEntity, EREditEntity endEntity){
+        return _startEntity.equals(startEntity) && _endEntity.equals(endEntity);
     }
 }
 

@@ -1,0 +1,48 @@
+CS349 A2.2 Marking Scheme
+
+TA: Gustavo
+Email: gfortest@uwaterloo.ca
+
+
+Entity Relationship Model
+
+1/3	Includes MVC infrastructure or extends Observable
+	0/1	List of objects implementing IView (or extends ...)
+	0/1	Method to add views to the list
+	1/1	Update all views at end of public methods
+		that change the model
+                -- You should use an interface to refer to the view from the model, not the EREditView class itself.
+
+4/4	Methods needed by controllers
+	1/1	Add a new entity
+	1/1	Give an entity a name
+	1/1	Specify a relationship between two entities
+	1/1	Specify a new position for an entity
+
+
+4/4	Methods needed by views
+	1/1	Get a list of entities 
+		(or some way of iterating through them)
+	1/1	Given an entity, get a list of related entities
+	1/1	Given an entity, get information such as
+		name, location
+	1/1	Given a relationship (arrow), get the entities
+		it connects
+
+4/4	Tests
+	One mark for each of four tests that:
+	-	Is different from the others
+	-	Runs and "passes"
+	-	Is of the form (a) create a new object, (b) call
+		one or more methods that change state, and (c) 
+		verify the expected results.
+
+Note: Although you did not loose marks in this part of the assignment, your division of responsibilities
+between Model and Controller is not right. You are giving to the Model responsibilities that should be on the
+Controller. The Model should just give information about it to the Controller/View or update the information 
+as requested by the Controller. However, the Model should never <decide what to do>: that's a control function.
+For example; the Model should not decide if a click should activate an addition, selection, or edition.
+That's the Controller's job. Move all this decision logic to your Controller.
+
+Total:
+13/15

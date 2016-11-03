@@ -6,5 +6,7 @@
 
 2. Can edit name of entity in the "List of Entity"
 
+3. Move entities by pressing the right button of mouse, moving the cursor, and releasing.
+
 
 Not Finish: Functions of buttons "Text" and "Resize" are not available.

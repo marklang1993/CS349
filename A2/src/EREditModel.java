@@ -365,6 +365,30 @@ public class EREditModel {
         _updateView();
     }
 
+    public void AdjustCrossBar(boolean isInc){
+        EREditArrow adjustArrow = null;
+        int selectedCount = 0;
+
+        for (EREditArrow curArrow: _arrowList) {
+            if(curArrow.IsSelected()){
+                adjustArrow = curArrow;
+                ++selectedCount;
+            }
+        }
+
+        // Adjust crossbar position when only one arrow is selected
+        if(selectedCount == 1){
+            if (isInc){
+                adjustArrow.IncTurningPointRatio();
+            }
+            else{
+                adjustArrow.DecTurningPointRatio();
+            }
+        }
+
+        _updateView();
+    }
+
     // Update View
     private void _updateViewList(){
         _listIView.clear();
@@ -571,6 +595,7 @@ class EREditEntity implements EREditExport{
 }
 
 class EREditArrow implements EREditExport{
+    private double _ratioTurningPoint;  // Turning Point Ratio (0.05~0.95)
     private final String _id;
     private boolean _selected;
 
@@ -580,6 +605,7 @@ class EREditArrow implements EREditExport{
     public EREditArrow(EREditEntity startEntity, EREditEntity endEntity){
         _startEntity = startEntity;
         _endEntity = endEntity;
+        _ratioTurningPoint = 0.5;
         _id = EREditMath.GetId("ARROW");
     }
 
@@ -614,6 +640,26 @@ class EREditArrow implements EREditExport{
     @Override
     public boolean IsSelected(){ return _selected; }
 
+    public void IncTurningPointRatio(){
+        double tmp = _ratioTurningPoint + 0.01d;
+        if(tmp > 0.99){
+            _ratioTurningPoint = 0.99d;
+        }
+        else {
+            _ratioTurningPoint = tmp;
+        }
+    }
+
+    public void DecTurningPointRatio(){
+        double tmp = _ratioTurningPoint - 0.01d;
+        if(tmp < 0.01){
+            _ratioTurningPoint = 0.01d;
+        }
+        else {
+            _ratioTurningPoint = tmp;
+        }
+    }
+
     @Override
     public EREditIView Export(Point offset, double multiplicity) {
         EREditDrawBox startDrawBox = _startEntity.ExportDrawBox();
@@ -631,7 +677,7 @@ class EREditArrow implements EREditExport{
                 startDrawBox, endDrawBox,
                 startBoxDirection, endBoxDirection,
                 startDrawBox.IncGetCurrentArrowIndex(startBoxDirection), endDrawBox.IncGetCurrentArrowIndex(endBoxDirection),
-                _selected, offset, multiplicity, _id
+                _selected, offset, multiplicity, _ratioTurningPoint, _id
         );
     }
 

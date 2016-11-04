@@ -123,6 +123,7 @@ class EREditDrawArrow extends JComponent implements EREditIView{
 
     private Point _offset;          // Offset
     private double _multiplicity;   // Multiplicity
+    private double _ratioTurningPoint;
     private int _startBoxArrowIndex;
     private int _endBoxArrowIndex;
     private final String _id;       // Id
@@ -131,7 +132,7 @@ class EREditDrawArrow extends JComponent implements EREditIView{
                            DIRECTION startBoxDirection, DIRECTION endBoxDirection,
                            int startBoxArrowIndex, int endBoxArrowIndex,
                            boolean selected, Point offset, double multiplicity,
-                           String id){
+                           double ratioTurningPoint, String id){
         _startBox = startBox;
         _endBox = endBox;
         _startBoxDirection = startBoxDirection;
@@ -143,6 +144,7 @@ class EREditDrawArrow extends JComponent implements EREditIView{
 
         _offset = offset;
         _multiplicity = multiplicity;
+        _ratioTurningPoint = ratioTurningPoint;
         _id = id;
     }
 
@@ -181,8 +183,8 @@ class EREditDrawArrow extends JComponent implements EREditIView{
 
         if(_isVDirection(_startBoxDirection) && _isVDirection(_endBoxDirection)){
             // double V
-            double halfLengthLine = (endPos.Y - startPos.Y) / 2.0d;
-            int turningPointY = (int)(startPos.Y + halfLengthLine);
+            double partialLengthLine = (endPos.Y - startPos.Y) * _ratioTurningPoint;
+            int turningPointY = (int)(startPos.Y + partialLengthLine);
             g2.drawLine(startPos.X, startPos.Y, startPos.X, turningPointY);
             g2.drawLine(startPos.X, turningPointY, endPos.X, turningPointY);
             g2.drawLine(endPos.X, turningPointY, endPos.X, endPos.Y);
@@ -202,8 +204,8 @@ class EREditDrawArrow extends JComponent implements EREditIView{
         }
         else {
             // double H
-            double halfLengthLine = (endPos.X - startPos.X) / 2.0d;
-            int turningPointX = (int)(startPos.X + halfLengthLine);
+            double partialLengthLine = (endPos.X - startPos.X) * _ratioTurningPoint;
+            int turningPointX = (int)(startPos.X + partialLengthLine);
             g2.drawLine(startPos.X, startPos.Y, turningPointX, startPos.Y);
             g2.drawLine(turningPointX, startPos.Y, turningPointX, endPos.Y);
             g2.drawLine(turningPointX, endPos.Y, endPos.X, endPos.Y);

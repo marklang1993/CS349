@@ -16,7 +16,7 @@ public class EREditController {
             _model.NewGraph(true);
         }
         else if(buttonName.equals("Resize")){
-
+            _model.ResizeCanvas();
         }
         else if(buttonName.equals("Zoom+")){
             _model.ZoomIn();

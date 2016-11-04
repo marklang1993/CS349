@@ -23,6 +23,7 @@ public class EREditModel {
     private double _multiplicity;       // Current multiplicity for Zooming
     private EDIT_MODE _editMode;        // Current Edit Mode
     private EREditIView _mainView;      // MainView
+    private JFrame _mainFrame;          // MainFrame
     private int _dragEntityIndex;       // Dragged Entity Index
     private Point _dragMousePosOffset;  // Offset between cursor position and the entity position when dragging
 
@@ -202,6 +203,11 @@ public class EREditModel {
         _vPercentage = 0.0d;
 
         CursorMode();
+    }
+    public void ResizeCanvas(){
+        EREditResizeDialog resizeDialog = new EREditResizeDialog(_mainFrame, _graphSize);
+        resizeDialog.setVisible(true);
+
     }
     public void CursorMode() { _editMode = EDIT_MODE.CURSOR; _updateView(); }
     public void BoxMode() { _editMode = EDIT_MODE.BOX; _updateView();}
@@ -396,6 +402,7 @@ public class EREditModel {
 
     // Accessors
     public void SetMainView(EREditIView mainView) { _mainView = mainView; }
+    public void SetMainFrame(JFrame mainFrame) { _mainFrame = mainFrame; }
     public Point GetOffset() { return _offset; }
     public double GetMultiplicity() { return _multiplicity; }
     public EDIT_MODE GetEditMode() { return _editMode; }

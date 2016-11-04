@@ -159,7 +159,8 @@ public class EREditModel {
             if(_dragEntityIndex != -1 && _dragEntityIndex < _entityList.size())
             {
                 Point newPosition = rawPos.Subtract(_dragMousePosOffset);
-                if(_isEntityInCanvas(newPosition)){
+                if(_isEntityInCanvas(newPosition) &&
+                        newPosition.X >= 0 && newPosition.Y >= 0) {
                     _entityList.get(_dragEntityIndex).Move(newPosition);
                 }
                 _updateView();

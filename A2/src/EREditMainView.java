@@ -38,6 +38,9 @@ public class EREditMainView extends JPanel implements EREditIView{
     // List of IView
     private ArrayList<EREditIView> _listIView;
 
+    // CurrentCanvasSize
+    private Size _canvasSize;
+
     public EREditMainView(EREditController controller,
                           ArrayList<EREditEntity> entityList,
                           ArrayList<EREditArrow> arrowList) {
@@ -56,7 +59,25 @@ public class EREditMainView extends JPanel implements EREditIView{
         _zoomInBtn = new JButton();
         _zoomOutBtn = new JButton();
         _displayPanel = new JPanel();
-        _drawPanel = new JPanel();
+        _drawPanel = new JPanel(){
+            @Override
+            protected void paintComponent(Graphics g){
+                super.paintComponent(g);
+
+                if(_canvasSize == null){
+                    _canvasSize = new Size(_drawPanel.getWidth(), _drawPanel.getHeight());
+                }
+                g.setColor(Color.WHITE);
+                g.fillRect(0, 0, _canvasSize.Width, _canvasSize.Height);
+
+                if(_listIView != null) {
+                    // Draw
+                    for (EREditIView drawable: _listIView) {
+                        drawable.draw(g);
+                    }
+                }
+            }
+        };
         _vScrollBar = new JScrollBar(Adjustable.VERTICAL, 0, 0, 0, 100);
         _hScrollBar = new JScrollBar(Adjustable.HORIZONTAL, 0, 0, 0, 100);
         _adjustBtn = new JButton();
@@ -67,7 +88,7 @@ public class EREditMainView extends JPanel implements EREditIView{
         _boxTableModel = new EREditTableModel<>(entityList, "Entity", _controller);
         _boxDisplayList = new HighLightJTable(_boxTableModel) {
             @Override
-            public boolean isCellEditable(int row, int coloum) //Set Table uneditable
+            public boolean isCellEditable(int row, int column) //Set Table uneditable
             {
                 return true;
             }
@@ -84,7 +105,7 @@ public class EREditMainView extends JPanel implements EREditIView{
         _arrowTableModel = new EREditTableModel<>(arrowList, "Relationship", _controller);
         _arrowDisplayList = new HighLightJTable(_arrowTableModel){
             @Override
-            public boolean isCellEditable(int row, int coloum) //Set Table uneditable
+            public boolean isCellEditable(int row, int column) //Set Table uneditable
             {
                 return false;
             }
@@ -231,7 +252,7 @@ public class EREditMainView extends JPanel implements EREditIView{
         _drawPanel.addMouseWheelListener(new DrawPanelWheelListener(_controller));
         _drawPanel.setFont(new Font("Times New Roman", Font.PLAIN, 12));
         _drawPanel.setForeground(null);
-        _drawPanel.setBackground(Color.white);
+        _drawPanel.setBackground(Color.gray);
         _drawPanel.setLayout(null);
 
         // compute preferred size
@@ -287,33 +308,21 @@ public class EREditMainView extends JPanel implements EREditIView{
         return new Size(_drawPanel.getWidth(), _drawPanel.getHeight());
     }
 
+    // Data Pushing Accessors
     public void SetIViewList(ArrayList<EREditIView> listIView){
         _listIView = listIView;
     }
-
+    public void SetCanvasSize(Size canvasSize){ _canvasSize = canvasSize; }
     public void SetPressedBoxBtn(boolean isPressed){ _boxBtn.setPressed(isPressed);}
     public void SetPressedArrowBtn(boolean isPressed){ _arrowBtn.setPressed(isPressed);}
     public void SetPressedEraserBtn(boolean isPressed){ _eraserBtn.setPressed(isPressed);}
 
     @Override
     public void draw(Graphics g) {
-        Graphics2D g2 = (Graphics2D) _drawPanel.getGraphics();
+        _boxTableModel.fireTableDataChanged();
+        _arrowTableModel.fireTableDataChanged();
 
-        // Draw elements
-        if(g2 != null){
-            _boxTableModel.fireTableDataChanged();
-            _arrowTableModel.fireTableDataChanged();
-
-            g2.setColor(Color.WHITE);
-            g2.fillRect(0, 0, _drawPanel.getWidth(), _drawPanel.getHeight());
-
-            if(_listIView != null) {
-                // Draw
-                for (EREditIView drawable: _listIView) {
-                    drawable.draw(g2);
-                }
-            }
-        }
+        repaint();
     }
 }
 

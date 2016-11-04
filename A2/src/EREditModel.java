@@ -197,7 +197,7 @@ public class EREditModel {
         ((EREditMainView)_mainView).SetIViewList(_listIView);
 
         _offset = new Point(0, 0);
-        _graphSize = new Size(600, 600);        // Default JPanel Size is (450, 450)
+        _graphSize = new Size(600, 400);        // Default JPanel Size is (450, 450)
         _multiplicity = 2.0d;
         _dragEntityIndex = -1;
         _dragMousePosOffset = new Point(0, 0);
@@ -215,6 +215,7 @@ public class EREditModel {
 
         // Check larger
         if(_graphSize.Width >= formerGraphSize.Width && _graphSize.Height >= formerGraphSize.Height) {
+            _updateView();
             return;
         }
 
@@ -385,6 +386,12 @@ public class EREditModel {
         ((EREditMainView)_mainView).SetPressedBoxBtn(_editMode == EDIT_MODE.BOX);
         ((EREditMainView)_mainView).SetPressedArrowBtn(_editMode == EDIT_MODE.ARROW);
         ((EREditMainView)_mainView).SetPressedEraserBtn(_editMode == EDIT_MODE.ERASER);
+
+        // Update Canvas Size
+        Size newCanvasSize = EREditMath.RawToDisplay(
+                new Size(_graphSize.Width - _offset.X, _graphSize.Height - _offset.Y),
+                _multiplicity);
+        ((EREditMainView)_mainView).SetCanvasSize(newCanvasSize);
 
         // Draw everything
        _mainView.draw(null);

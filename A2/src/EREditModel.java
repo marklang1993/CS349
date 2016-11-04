@@ -158,7 +158,10 @@ public class EREditModel {
             // Dragging
             if(_dragEntityIndex != -1 && _dragEntityIndex < _entityList.size())
             {
-                _entityList.get(_dragEntityIndex).Move(rawPos, _dragMousePosOffset);
+                Point newPosition = rawPos.Subtract(_dragMousePosOffset);
+                if(_isEntityInCanvas(newPosition)){
+                    _entityList.get(_dragEntityIndex).Move(newPosition);
+                }
                 _updateView();
             }
         }
@@ -205,9 +208,26 @@ public class EREditModel {
         CursorMode();
     }
     public void ResizeCanvas(){
+        // Record the former size
+        Size formerGraphSize = new Size(_graphSize.Width, _graphSize.Height);
         EREditResizeDialog resizeDialog = new EREditResizeDialog(_mainFrame, _graphSize);
         resizeDialog.setVisible(true);
 
+        // Check larger
+        if(_graphSize.Width >= formerGraphSize.Width && _graphSize.Height >= formerGraphSize.Height) {
+            return;
+        }
+
+        // Smaller
+        // Remove the rectangles which are out of the new range
+        for ( int i = 0; i < _entityList.size(); ++i) {
+            if(!_isEntityInCanvas(_entityList.get(i).GetPositon())){
+                _removeBoxWithIndex(i);
+                --i;
+            }
+        }
+
+        _updateView();
     }
     public void CursorMode() { _editMode = EDIT_MODE.CURSOR; _updateView(); }
     public void BoxMode() { _editMode = EDIT_MODE.BOX; _updateView();}
@@ -237,7 +257,17 @@ public class EREditModel {
     public void EraserMode() { _editMode = EDIT_MODE.ERASER; _updateView();}
 
     public void AddBox(Point rawPos){
-        _entityList.add(new EREditEntity(rawPos));
+
+        if(_isEntityInCanvas(rawPos)){
+            _entityList.add(new EREditEntity(rawPos));
+        }
+        else {
+            // Out of Range
+            JOptionPane.showMessageDialog((JComponent)_mainView,
+                    "Cannot create entity out of the canvas!",
+                    "Error!",
+                    JOptionPane.ERROR_MESSAGE);
+        }
 
         CursorMode();
     }
@@ -399,6 +429,20 @@ public class EREditModel {
             }
         }
     }
+    private void _removeBoxWithIndex(int index){
+        // Delete Entity
+        LinkedList<EREditArrow> removedArrowList =
+                _entityList.get(index).RemoveAllArrows();
+        _entityList.remove(index);
+        // Delete All related Arrows
+        for (EREditArrow arrow: removedArrowList) { _removeArrow(arrow); }
+
+        CursorMode();
+    }
+    private boolean _isEntityInCanvas(Point rawStartPos){
+        Point rawEndPos = rawStartPos.Add(new Point(EREditDrawBox.SIZE.Width, EREditDrawBox.SIZE.Height));
+        return !(rawEndPos.X > _graphSize.Width || rawEndPos.Y > _graphSize.Height);
+    }
 
     // Accessors
     public void SetMainView(EREditIView mainView) { _mainView = mainView; }
@@ -469,8 +513,8 @@ class EREditEntity implements EREditExport{
     @Override
     public boolean IsSelected(){ return _selected; }
     public Point GetPositon() { return _position; }
-    public void Move( Point position, Point dragMousePosOffset) {
-        _position = position.Subtract(dragMousePosOffset);
+    public void Move(Point position) {
+        _position = position;
     }
 
     public void AddArrow(EREditArrow arrow)

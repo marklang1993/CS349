@@ -345,6 +345,11 @@ public class EREditModel {
         // Update Drawing List
         _updateViewList();
 
+        // Update Buttons
+        ((EREditMainView)_mainView).SetPressedBoxBtn(_editMode == EDIT_MODE.BOX);
+        ((EREditMainView)_mainView).SetPressedArrowBtn(_editMode == EDIT_MODE.ARROW);
+        ((EREditMainView)_mainView).SetPressedEraserBtn(_editMode == EDIT_MODE.ERASER);
+
         // Draw everything
        _mainView.draw(null);
     }

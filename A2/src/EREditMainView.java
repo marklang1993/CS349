@@ -12,9 +12,9 @@ public class EREditMainView extends JPanel implements EREditIView{
     // Widgets
     private JPanel _btnPanel;
     private JButton _newBtn;
-    private JButton _boxBtn;
-    private JButton _arrowBtn;
-    private JButton _eraserBtn;
+    private HighLightJButton _boxBtn;
+    private HighLightJButton _arrowBtn;
+    private HighLightJButton _eraserBtn;
     private JButton _resizeBtn;
     private JButton _zoomInBtn;
     private JButton _zoomOutBtn;
@@ -49,9 +49,9 @@ public class EREditMainView extends JPanel implements EREditIView{
     private void initializeWidgets(ArrayList<EREditEntity> entityList, ArrayList<EREditArrow> arrowList) {
         _btnPanel = new JPanel();
         _newBtn = new JButton();
-        _boxBtn = new JButton();
-        _arrowBtn = new JButton();
-        _eraserBtn = new JButton();
+        _boxBtn = new HighLightJButton();
+        _arrowBtn = new HighLightJButton();
+        _eraserBtn = new HighLightJButton();
         _resizeBtn = new JButton();
         _zoomInBtn = new JButton();
         _zoomOutBtn = new JButton();
@@ -291,6 +291,10 @@ public class EREditMainView extends JPanel implements EREditIView{
         _listIView = listIView;
     }
 
+    public void SetPressedBoxBtn(boolean isPressed){ _boxBtn.setPressed(isPressed);}
+    public void SetPressedArrowBtn(boolean isPressed){ _arrowBtn.setPressed(isPressed);}
+    public void SetPressedEraserBtn(boolean isPressed){ _eraserBtn.setPressed(isPressed);}
+
     @Override
     public void draw(Graphics g) {
         Graphics2D g2 = (Graphics2D) _drawPanel.getGraphics();
@@ -376,6 +380,31 @@ class HighLightJTable extends JTable{
             c.setBackground(getBackground());
         }
         return c;
+    }
+}
+
+class HighLightJButton extends JButton{
+
+    private boolean _isPressed;
+
+    HighLightJButton() {
+        super();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g){
+        super.paintComponent(g);
+
+        if(_isPressed){
+            Dimension size = getSize();
+            g.setColor(new Color(255, 0, 0, 70));
+            g.fillRect(-1, -1, size.width + 2, size.height + 2);
+        }
+    }
+
+    public void setPressed(boolean isPressed){
+        _isPressed = isPressed;
+        repaint();
     }
 }
 

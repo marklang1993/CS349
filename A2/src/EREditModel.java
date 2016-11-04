@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 
@@ -13,16 +14,21 @@ public class EREditModel {
     private ArrayList<EREditIView> _listIView;
 
     // Graphics Related
-    public enum EDIT_MODE { CURSOR, DRAGGING, BOX, ARROW, TEXT, TEXT_EDIT, ERASER}
-    private final double MAX_Multiplicity = 8.0d;
-    private final double MIN_Multiplicity = 0.25d;
+    public enum EDIT_MODE { CURSOR, DRAGGING, BOX, ARROW, ERASER}
+    private final double MAX_Multiplicity = 4.0d;
+    private final double MIN_Multiplicity = 0.5d;
 
     private Size _graphSize;            // Size of whole graph
-    private Point _offset;              // Current offset
+    private Point _offset;              // Current offset (Raw Position)
     private double _multiplicity;       // Current multiplicity for Zooming
     private EDIT_MODE _editMode;        // Current Edit Mode
     private EREditIView _mainView;      // MainView
+    private JFrame _mainFrame;          // MainFrame
     private int _dragEntityIndex;       // Dragged Entity Index
+    private Point _dragMousePosOffset;  // Offset between cursor position and the entity position when dragging
+
+    private double _hPercentage;        // Horizontal Percentage of Scrollbar
+    private double _vPercentage;        // Vertical Percentage of Scrollbar
 
 
     public EREditModel(){
@@ -30,42 +36,6 @@ public class EREditModel {
         _arrowList = new ArrayList<>();
         _listIView = new ArrayList<>();
     }
-    // Actions handlers
-//    public int ClickOnGraphText(Point mousePos, String text){
-//        // Coordinates system transformation
-//        Point rawPos = EREditMath.DisplayToRaw(mousePos, _offset, _multiplicity);
-//
-//        // Find correct entity
-//        int index = -1;
-//        for ( EREditEntity entity: _entityList) {
-//            // Find new select entity
-//            if(entity.IsContained(rawPos)){ ++index; break; }
-//            ++index;
-//        }
-//        if(index == -1) {
-//            // Entity not found
-//            CursorMode();
-//            return index;
-//        }
-//
-//        // Entity found
-//        return ClickOnGraphText(index, text);
-//    }
-//    public int ClickOnGraphText(int index, String text){
-//
-//        if (_editMode == EDIT_MODE.TEXT){
-//            // Start Editing
-//            _editMode = EDIT_MODE.TEXT_EDIT;
-//            _updateView();
-//        }
-//        else if (_editMode == EDIT_MODE.TEXT_EDIT) {
-//            // Finish Editing
-//            _entityList.get(index).SetText(text);
-//            CursorMode();
-//        }
-//
-//        return index;
-//    }
 
     public void ClickEntityList(int index){
         // Unselect other objects first
@@ -94,31 +64,41 @@ public class EREditModel {
         _updateView();
     }
     public void MoveGraphHorizontal(double percentage) {
-        int _surplus = _graphSize.Width - ((EREditMainView)_mainView).GetDisplayPaneSize().Width;
+        _hPercentage = percentage;
+        UpdateGraphHorizontal();
+    }
+    public void UpdateGraphHorizontal(){
+        Size rawSize = EREditMath.DisplayToRaw(((EREditMainView)_mainView).GetDisplayPaneSize(), _multiplicity);
+        int _surplus = _graphSize.Width - rawSize.Width;
         if(_surplus <= 0)
         {
             _offset.X = 0;
         }
         else
         {
-            _offset.X = (int)(_surplus * percentage);
+            _offset.X = (int)(_surplus * _hPercentage);
         }
         _updateView();
     }
     public void MoveGraphVertical(double percentage) {
-        int _surplus = _graphSize.Height - ((EREditMainView)_mainView).GetDisplayPaneSize().Height;
+        _vPercentage = percentage;
+        UpdateGraphVertical();
+    }
+    public void UpdateGraphVertical(){
+        Size rawSize = EREditMath.DisplayToRaw(((EREditMainView)_mainView).GetDisplayPaneSize(), _multiplicity);
+        int _surplus = _graphSize.Height - rawSize.Height;
         if(_surplus <= 0)
         {
             _offset.Y = 0;
         }
         else
         {
-            _offset.Y = (int)(_surplus * percentage);
+            _offset.Y = (int)(_surplus * _vPercentage);
         }
         _updateView();
     }
     public void ZoomIn() {
-        double tmp = _multiplicity * 2.0d;
+        double tmp = _multiplicity + 0.1d;
         if(tmp <= MAX_Multiplicity)
         {
             _multiplicity = tmp;
@@ -131,7 +111,7 @@ public class EREditModel {
         _updateView();
     }
     public void ZoomOut() {
-        double tmp = _multiplicity / 2.0d;
+        double tmp = _multiplicity - 0.1d;
         if(tmp >= MIN_Multiplicity)
         {
             _multiplicity = tmp;
@@ -155,9 +135,11 @@ public class EREditModel {
                 // Find new select entity
                 if(entity.IsContained(rawPos)){
                     ++index;
+                    // Entity found, change STATE & record entity index & mouse position offset
                     _dragEntityIndex = index;
-                    // Entity found, change STATE
                     _editMode = EDIT_MODE.DRAGGING;
+                    _dragMousePosOffset = new Point(rawPos.X - entity.GetPositon().X,
+                                                rawPos.Y - entity.GetPositon().Y);
                     return;
                 }
                 ++index;
@@ -176,7 +158,11 @@ public class EREditModel {
             // Dragging
             if(_dragEntityIndex != -1 && _dragEntityIndex < _entityList.size())
             {
-                _entityList.get(_dragEntityIndex).Move(rawPos);
+                Point newPosition = rawPos.Subtract(_dragMousePosOffset);
+                if(_isEntityInCanvas(newPosition) &&
+                        newPosition.X >= 0 && newPosition.Y >= 0) {
+                    _entityList.get(_dragEntityIndex).Move(newPosition);
+                }
                 _updateView();
             }
         }
@@ -188,27 +174,102 @@ public class EREditModel {
         }
     }
 
-    public void NewGraph() {
+    public void NewGraph(boolean isButtonEvent) {
+
+        if(isButtonEvent){
+            String[] btnNames = {"Yes", "No"};
+            int ret = JOptionPane.showOptionDialog(
+                    (JComponent)_mainView,
+                    "Do you want to create a new diagram?",
+                    "New diagram",
+                    JOptionPane.YES_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null, btnNames, btnNames[0]);
+
+            if (ret == 1) {
+                _updateView();
+                return; // No
+            }
+        }
+
         _entityList.clear();
         _arrowList.clear();
         _listIView.clear();
         ((EREditMainView)_mainView).SetIViewList(_listIView);
 
         _offset = new Point(0, 0);
-        _graphSize = new Size(600, 600);        // Default JPanel Size is (450, 450)
+        _graphSize = new Size(600, 400);        // Default JPanel Size is (450, 450)
         _multiplicity = 2.0d;
         _dragEntityIndex = -1;
+        _dragMousePosOffset = new Point(0, 0);
+
+        _hPercentage = 0.0d;
+        _vPercentage = 0.0d;
 
         CursorMode();
     }
+    public void ResizeCanvas(){
+        // Record the former size
+        Size formerGraphSize = new Size(_graphSize.Width, _graphSize.Height);
+        EREditResizeDialog resizeDialog = new EREditResizeDialog(_mainFrame, _graphSize);
+        resizeDialog.setVisible(true);
+
+        // Check larger
+        if(_graphSize.Width >= formerGraphSize.Width && _graphSize.Height >= formerGraphSize.Height) {
+            _updateView();
+            return;
+        }
+
+        // Smaller
+        // Remove the rectangles which are out of the new range
+        for ( int i = 0; i < _entityList.size(); ++i) {
+            if(!_isEntityInCanvas(_entityList.get(i).GetPositon())){
+                _removeBoxWithIndex(i);
+                --i;
+            }
+        }
+
+        _updateView();
+    }
     public void CursorMode() { _editMode = EDIT_MODE.CURSOR; _updateView(); }
     public void BoxMode() { _editMode = EDIT_MODE.BOX; _updateView();}
-    public void ArrowMode(){ _editMode = EDIT_MODE.ARROW; _updateView();}
-    public void TextMode(){ _editMode = EDIT_MODE.TEXT; _updateView();}
+    public void ArrowMode(){
+        EREditEntity selectedEntity = null;
+        // Find a selected entity
+        for ( EREditEntity entity: _entityList) {
+            if(entity.IsSelected()){
+                selectedEntity = entity;
+                break;
+            }
+        }
+
+        // Check
+        if(selectedEntity == null){
+            JOptionPane.showMessageDialog((JComponent)_mainView,
+                    "Create relationship error! Please select an entity first.",
+                    "Error!",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+            _editMode = EDIT_MODE.ARROW;
+        }
+
+        _updateView();
+    }
     public void EraserMode() { _editMode = EDIT_MODE.ERASER; _updateView();}
 
     public void AddBox(Point rawPos){
-        _entityList.add(new EREditEntity(rawPos));
+
+        if(_isEntityInCanvas(rawPos)){
+            _entityList.add(new EREditEntity(rawPos));
+        }
+        else {
+            // Out of Range
+            JOptionPane.showMessageDialog((JComponent)_mainView,
+                    "Cannot create entity out of the canvas!",
+                    "Error!",
+                    JOptionPane.ERROR_MESSAGE);
+        }
 
         CursorMode();
     }
@@ -238,11 +299,25 @@ public class EREditModel {
             CursorMode();
             return;
         }
-        if(startEntity.IsEqual(endEntity))
-        {
-            // Should not be same
+        if(startEntity.equals(endEntity)) {
+            // Should not be same entity (Cannot Connect to itself)
+            JOptionPane.showMessageDialog((JComponent)_mainView,
+                    "Cannot create relationship with an entity itself!",
+                    "Error!",
+                    JOptionPane.ERROR_MESSAGE);
             CursorMode();
             return;
+        }
+        for (EREditArrow arrow: _arrowList) {
+            if(arrow.isSameArrow(startEntity, endEntity)){
+                // Cannot add repeated arrow
+                JOptionPane.showMessageDialog((JComponent)_mainView,
+                        "Cannot create repeated relationship!",
+                        "Error!",
+                        JOptionPane.ERROR_MESSAGE);
+                CursorMode();
+                return;
+            }
         }
 
         // Add
@@ -261,7 +336,7 @@ public class EREditModel {
                 ++index;
                 // Delete Entity
                 LinkedList<EREditArrow> removedArrowList =
-                        _entityList.get(index).RemoveAllArrow();
+                        _entityList.get(index).RemoveAllArrows();
                 _entityList.remove(index);
                 // Delete All related Arrows
                 for (EREditArrow arrow: removedArrowList) { _removeArrow(arrow); }
@@ -308,6 +383,17 @@ public class EREditModel {
         // Update Drawing List
         _updateViewList();
 
+        // Update Buttons
+        ((EREditMainView)_mainView).SetPressedBoxBtn(_editMode == EDIT_MODE.BOX);
+        ((EREditMainView)_mainView).SetPressedArrowBtn(_editMode == EDIT_MODE.ARROW);
+        ((EREditMainView)_mainView).SetPressedEraserBtn(_editMode == EDIT_MODE.ERASER);
+
+        // Update Canvas Size
+        Size newCanvasSize = EREditMath.RawToDisplay(
+                new Size(_graphSize.Width - _offset.X, _graphSize.Height - _offset.Y),
+                _multiplicity);
+        ((EREditMainView)_mainView).SetCanvasSize(newCanvasSize);
+
         // Draw everything
        _mainView.draw(null);
     }
@@ -345,15 +431,30 @@ public class EREditModel {
     private void _removeArrow(EREditArrow removedArrow) {
         int index = 0;
         for (EREditArrow arrow: _arrowList) {
-            if(arrow.IsEqual(removedArrow)) {
+            if(arrow.equals(removedArrow)) {
                 _arrowList.remove(index);
                 return;
             }
         }
     }
+    private void _removeBoxWithIndex(int index){
+        // Delete Entity
+        LinkedList<EREditArrow> removedArrowList =
+                _entityList.get(index).RemoveAllArrows();
+        _entityList.remove(index);
+        // Delete All related Arrows
+        for (EREditArrow arrow: removedArrowList) { _removeArrow(arrow); }
+
+        CursorMode();
+    }
+    private boolean _isEntityInCanvas(Point rawStartPos){
+        Point rawEndPos = rawStartPos.Add(new Point(EREditDrawBox.SIZE.Width, EREditDrawBox.SIZE.Height));
+        return !(rawEndPos.X > _graphSize.Width || rawEndPos.Y > _graphSize.Height);
+    }
 
     // Accessors
     public void SetMainView(EREditIView mainView) { _mainView = mainView; }
+    public void SetMainFrame(JFrame mainFrame) { _mainFrame = mainFrame; }
     public Point GetOffset() { return _offset; }
     public double GetMultiplicity() { return _multiplicity; }
     public EDIT_MODE GetEditMode() { return _editMode; }
@@ -419,24 +520,30 @@ class EREditEntity implements EREditExport{
     }
     @Override
     public boolean IsSelected(){ return _selected; }
-    public void Move( Point position ) { _position = position; }
+    public Point GetPositon() { return _position; }
+    public void Move(Point position) {
+        _position = position;
+    }
 
     public void AddArrow(EREditArrow arrow)
     {
         _arrowList.add(arrow);
     }
-    public LinkedList<EREditArrow> RemoveAllArrow() {
+    public LinkedList<EREditArrow> RemoveAllArrows() {
         LinkedList<EREditArrow> removedArrowList = new LinkedList<>();
 
-        for (EREditArrow linkedArrow : _arrowList) {
+        // Return the arrowList where all entities in each arrow are removed
+        while(!_arrowList.isEmpty()){
+            EREditArrow linkedArrow = _arrowList.getFirst();
             removedArrowList.add(linkedArrow);
             linkedArrow.RemoveBothEntities();
         }
+
         return removedArrowList;
     }
     public void RemoveArrow(EREditArrow arrow){
         for(int i = 0; i < _arrowList.size(); ++i){
-            if(_arrowList.get(i).IsEqual(arrow))
+            if(_arrowList.get(i).equals(arrow))
             {
                 _arrowList.remove(i);
                 break;
@@ -444,8 +551,8 @@ class EREditEntity implements EREditExport{
         }
     }
 
-    public boolean IsEqual(EREditEntity entity){
-        return entity._id == _id;
+    public boolean equals(Object entity){
+        return ((EREditEntity)entity)._id == _id;
     }
     public boolean IsContained(Point rawCursorPosition){
         Rectangle rect = new Rectangle(_position.X, _position.Y, EREditDrawBox.SIZE.Width, EREditDrawBox.SIZE.Height);
@@ -454,7 +561,7 @@ class EREditEntity implements EREditExport{
 
     @Override
     public EREditIView Export(Point offset, double multiplicity){
-        _drawBox = new EREditDrawBox(_position, _text, _selected, offset, multiplicity);
+        _drawBox = new EREditDrawBox(_position, _text, _selected, offset, multiplicity, _id);
         return _drawBox;
     }
 
@@ -509,8 +616,23 @@ class EREditArrow implements EREditExport{
 
     @Override
     public EREditIView Export(Point offset, double multiplicity) {
-        return new EREditDrawArrow(_startEntity.ExportDrawBox(), _endEntity.ExportDrawBox(),
-                _selected, offset, multiplicity);
+        EREditDrawBox startDrawBox = _startEntity.ExportDrawBox();
+        EREditDrawBox endDrawBox = _endEntity.ExportDrawBox();
+
+        EREditMath.DirectionPair directionPair = EREditMath.DetermineDirection(
+                startDrawBox.GetStartPos(),
+                endDrawBox.GetStartPos());
+
+        EREditDrawArrow.DIRECTION startBoxDirection = directionPair.StartDirection;
+        EREditDrawArrow.DIRECTION endBoxDirection = directionPair.EndDirection;
+
+
+        return new EREditDrawArrow(
+                startDrawBox, endDrawBox,
+                startBoxDirection, endBoxDirection,
+                startDrawBox.IncGetCurrentArrowIndex(startBoxDirection), endDrawBox.IncGetCurrentArrowIndex(endBoxDirection),
+                _selected, offset, multiplicity, _id
+        );
     }
 
     public void RemoveBothEntities(){
@@ -518,8 +640,13 @@ class EREditArrow implements EREditExport{
         _endEntity.RemoveArrow(this);
     }
 
-    public boolean IsEqual(EREditArrow arrow){
-        return arrow._id == _id;
+    @Override
+    public boolean equals(Object arrow){
+        return ((EREditArrow)arrow)._id == _id;
+    }
+
+    public boolean isSameArrow(EREditEntity startEntity, EREditEntity endEntity){
+        return _startEntity.equals(startEntity) && _endEntity.equals(endEntity);
     }
 }
 

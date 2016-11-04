@@ -1,4 +1,4 @@
-import java.awt.event.ComponentEvent;
+import java.awt.event.KeyEvent;
 
 /**
  * Created by LangChen on 2016/10/11.
@@ -13,10 +13,10 @@ public class EREditController {
 
     public void ButtonEventHandler(String buttonName){
         if(buttonName.equals("New") ){
-            _model.NewGraph();
+            _model.NewGraph(true);
         }
         else if(buttonName.equals("Resize")){
-
+            _model.ResizeCanvas();
         }
         else if(buttonName.equals("Zoom+")){
             _model.ZoomIn();
@@ -29,9 +29,6 @@ public class EREditController {
         }
         else if(buttonName.equals("Arrow")){
             _model.ArrowMode();
-        }
-        else if(buttonName.equals("Text")){
-            _model.TextMode();
         }
         else if(buttonName.equals("Eraser")){
             _model.EraserMode();
@@ -137,7 +134,22 @@ public class EREditController {
         _model.CursorMode();
     }
 
-    public void WindowResizeEventHandler(ComponentEvent event){
+    public void WindowResizeEventHandler(){
+        // Update
+        _model.UpdateGraphHorizontal();
+        _model.UpdateGraphVertical();
+
         _model.CursorMode();
+    }
+
+    public void WindowKeyEventHandler(int keyCode){
+        switch (keyCode) {
+            case KeyEvent.VK_OPEN_BRACKET:
+                _model.ZoomOut();
+                break;
+            case KeyEvent.VK_CLOSE_BRACKET:
+                _model.ZoomIn();
+                break;
+        }
     }
 }

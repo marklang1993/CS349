@@ -12,21 +12,20 @@ public class EREditMainView extends JPanel implements EREditIView{
     // Widgets
     private JPanel _btnPanel;
     private JButton _newBtn;
-    private JButton _boxBtn;
-    private JButton _arrowBtn;
-    private JButton _textBtn;
-    private JButton _eraserBtn;
+    private HighLightJButton _boxBtn;
+    private HighLightJButton _arrowBtn;
+    private HighLightJButton _eraserBtn;
     private JButton _resizeBtn;
     private JButton _zoomInBtn;
     private JButton _zoomOutBtn;
     private JPanel _displayPanel;
     private JScrollPane _boxDisplayPane;
-    private JTable _boxDisplayList;
+    private HighLightJTable _boxDisplayList;
     private JScrollPane _arrowDisplayPane;
-    private JTable _arrowDisplayList;
+    private HighLightJTable _arrowDisplayList;
     private JPanel _drawPanel;
-    private JScrollBar _vSrcollBar;
-    private JScrollBar _hSrcollBar;
+    private JScrollBar _vScrollBar;
+    private JScrollBar _hScrollBar;
     private JButton _adjustBtn;
 
     // Controller
@@ -39,6 +38,9 @@ public class EREditMainView extends JPanel implements EREditIView{
     // List of IView
     private ArrayList<EREditIView> _listIView;
 
+    // CurrentCanvasSize
+    private Size _canvasSize;
+
     public EREditMainView(EREditController controller,
                           ArrayList<EREditEntity> entityList,
                           ArrayList<EREditArrow> arrowList) {
@@ -50,26 +52,43 @@ public class EREditMainView extends JPanel implements EREditIView{
     private void initializeWidgets(ArrayList<EREditEntity> entityList, ArrayList<EREditArrow> arrowList) {
         _btnPanel = new JPanel();
         _newBtn = new JButton();
-        _boxBtn = new JButton();
-        _arrowBtn = new JButton();
-        _textBtn = new JButton();
-        _eraserBtn = new JButton();
+        _boxBtn = new HighLightJButton();
+        _arrowBtn = new HighLightJButton();
+        _eraserBtn = new HighLightJButton();
         _resizeBtn = new JButton();
         _zoomInBtn = new JButton();
         _zoomOutBtn = new JButton();
         _displayPanel = new JPanel();
-        _drawPanel = new JPanel();
-        _vSrcollBar = new JScrollBar(Adjustable.VERTICAL, 0, 0, 0, 100);
-        _hSrcollBar = new JScrollBar(Adjustable.HORIZONTAL, 0, 0, 0, 100);
+        _drawPanel = new JPanel(){
+            @Override
+            protected void paintComponent(Graphics g){
+                super.paintComponent(g);
+
+                if(_canvasSize == null){
+                    _canvasSize = new Size(_drawPanel.getWidth(), _drawPanel.getHeight());
+                }
+                g.setColor(Color.WHITE);
+                g.fillRect(0, 0, _canvasSize.Width, _canvasSize.Height);
+
+                if(_listIView != null) {
+                    // Draw
+                    for (EREditIView drawable: _listIView) {
+                        drawable.draw(g);
+                    }
+                }
+            }
+        };
+        _vScrollBar = new JScrollBar(Adjustable.VERTICAL, 0, 0, 0, 100);
+        _hScrollBar = new JScrollBar(Adjustable.HORIZONTAL, 0, 0, 0, 100);
         _adjustBtn = new JButton();
 
         DefaultTableCellRenderer cellRender = new DefaultTableCellRenderer();
 
         _boxDisplayPane = new JScrollPane();
         _boxTableModel = new EREditTableModel<>(entityList, "Entity", _controller);
-        _boxDisplayList = new JTable(_boxTableModel) {
+        _boxDisplayList = new HighLightJTable(_boxTableModel) {
             @Override
-            public boolean isCellEditable(int row, int coloum) //Set Table uneditable
+            public boolean isCellEditable(int row, int column) //Set Table uneditable
             {
                 return true;
             }
@@ -84,9 +103,9 @@ public class EREditMainView extends JPanel implements EREditIView{
 
         _arrowDisplayPane = new JScrollPane();
         _arrowTableModel = new EREditTableModel<>(arrowList, "Relationship", _controller);
-        _arrowDisplayList = new JTable(_arrowTableModel){
+        _arrowDisplayList = new HighLightJTable(_arrowTableModel){
             @Override
-            public boolean isCellEditable(int row, int coloum) //Set Table uneditable
+            public boolean isCellEditable(int row, int column) //Set Table uneditable
             {
                 return false;
             }
@@ -186,18 +205,6 @@ public class EREditMainView extends JPanel implements EREditIView{
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 5), 0, 0));
 
-        // _textBtn
-        _textBtn.setMinimumSize(new Dimension(70, 20));
-        _textBtn.setMaximumSize(new Dimension(70, 20));
-        _textBtn.setPreferredSize(new Dimension(70, 20));
-        _textBtn.setFont(_textBtn.getFont().deriveFont(_textBtn.getFont().getStyle() | Font.BOLD, _textBtn.getFont().getSize() - 3f));
-        _textBtn.setOpaque(false);
-        _textBtn.setText("Text");
-        _textBtn.addActionListener(new ButtonActionListener(_controller));
-        _btnPanel.add(_textBtn, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                new Insets(0, 0, 0, 5), 0, 0));
-
         //_eraserBtn
         _eraserBtn.setMinimumSize(new Dimension(70, 20));
         _eraserBtn.setMaximumSize(new Dimension(70, 20));
@@ -206,7 +213,7 @@ public class EREditMainView extends JPanel implements EREditIView{
         _eraserBtn.setOpaque(false);
         _eraserBtn.setText("Eraser");
         _eraserBtn.addActionListener(new ButtonActionListener(_controller));
-        _btnPanel.add(_eraserBtn, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0,
+        _btnPanel.add(_eraserBtn, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 5), 0, 0));
 
@@ -240,12 +247,12 @@ public class EREditMainView extends JPanel implements EREditIView{
                 new Insets(0, 0, 0, 5), 0, 0));
 
         //3. _drawPanel
-        _drawPanel.addMouseListener(new DrawPanelClickListener(_controller));
+        _drawPanel.addMouseListener(new DrawPanelClickListener(_controller, this));
         _drawPanel.addMouseMotionListener(new DrawPanelMotionListener(_controller));
         _drawPanel.addMouseWheelListener(new DrawPanelWheelListener(_controller));
         _drawPanel.setFont(new Font("Times New Roman", Font.PLAIN, 12));
         _drawPanel.setForeground(null);
-        _drawPanel.setBackground(Color.white);
+        _drawPanel.setBackground(Color.gray);
         _drawPanel.setLayout(null);
 
         // compute preferred size
@@ -265,17 +272,17 @@ public class EREditMainView extends JPanel implements EREditIView{
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 5, 5), 0, 0));
 
-        //4. _vSrcollBar
-        _vSrcollBar.setName("VScrollBar");
-        _vSrcollBar.addAdjustmentListener(new ScrollBarAdjustListener(_controller));
-        this.add(_vSrcollBar, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
+        //4. _vScrollBar
+        _vScrollBar.setName("VScrollBar");
+        _vScrollBar.addAdjustmentListener(new ScrollBarAdjustListener(_controller));
+        this.add(_vScrollBar, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 5, 0), 0, 0));
 
-        //5. _hSrcollBar
-        _hSrcollBar.setName("HScrollBar");
-        _hSrcollBar.addAdjustmentListener(new ScrollBarAdjustListener(_controller));
-        this.add(_hSrcollBar, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
+        //5. _hScrollBar
+        _hScrollBar.setName("HScrollBar");
+        _hScrollBar.addAdjustmentListener(new ScrollBarAdjustListener(_controller));
+        this.add(_hScrollBar, new GridBagConstraints(1, 2, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 5), 0, 0));
 
@@ -289,36 +296,33 @@ public class EREditMainView extends JPanel implements EREditIView{
                 new Insets(0, 0, 0, 0), 0, 0));
 
         //7. Resize Window
-        this.addComponentListener(new EREditMainViewListner(_controller));
+        this.addComponentListener(new EREditMainViewListener(_controller));
+
+        //8. KeyEvent
+        this.setFocusable(true);
+        this.requestFocusInWindow();
+        this.addKeyListener(new EREditMainViewKeyListener(_controller));
     }
 
     public Size GetDisplayPaneSize(){
         return new Size(_drawPanel.getWidth(), _drawPanel.getHeight());
     }
 
+    // Data Pushing Accessors
     public void SetIViewList(ArrayList<EREditIView> listIView){
         _listIView = listIView;
     }
+    public void SetCanvasSize(Size canvasSize){ _canvasSize = canvasSize; }
+    public void SetPressedBoxBtn(boolean isPressed){ _boxBtn.setPressed(isPressed);}
+    public void SetPressedArrowBtn(boolean isPressed){ _arrowBtn.setPressed(isPressed);}
+    public void SetPressedEraserBtn(boolean isPressed){ _eraserBtn.setPressed(isPressed);}
 
     @Override
     public void draw(Graphics g) {
-        Graphics2D g2 = (Graphics2D) _drawPanel.getGraphics();
+        _boxTableModel.fireTableDataChanged();
+        _arrowTableModel.fireTableDataChanged();
 
-        // Draw elements
-        if(g2 != null){
-            _boxTableModel.fireTableDataChanged();
-            _arrowTableModel.fireTableDataChanged();
-
-            g2.setColor(Color.WHITE);
-            g2.fillRect(0, 0, _drawPanel.getWidth(), _drawPanel.getHeight());
-
-            if(_listIView != null) {
-                // Draw
-                for (EREditIView drawable: _listIView) {
-                    drawable.draw(g2);
-                }
-            }
-        }
+        repaint();
     }
 }
 
@@ -358,6 +362,58 @@ class EREditTableModel<T> extends AbstractTableModel {
             ((EREditEntity)element).SetText((String)aValue);
             _mainController.JTableUpdateViewHandler();
         }
+    }
+
+    public boolean isSelected(int rowIndex){
+        return ((EREditExport)_dataList.get(rowIndex)).IsSelected();
+    }
+}
+
+class HighLightJTable extends JTable{
+
+    public AbstractTableModel _selectDeterminationModel;
+
+    HighLightJTable(AbstractTableModel model){
+        super(model);
+        _selectDeterminationModel = model;
+    }
+
+    @Override
+    public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+        Component c = super.prepareRenderer(renderer, row, column);
+        if (((EREditTableModel)_selectDeterminationModel).isSelected(row)) {
+            c.setForeground(getSelectionForeground());
+            c.setBackground(getSelectionBackground());
+        } else {
+            c.setForeground(getForeground());
+            c.setBackground(getBackground());
+        }
+        return c;
+    }
+}
+
+class HighLightJButton extends JButton{
+
+    private boolean _isPressed;
+
+    HighLightJButton() {
+        super();
+    }
+
+    @Override
+    protected void paintComponent(Graphics g){
+        super.paintComponent(g);
+
+        if(_isPressed){
+            Dimension size = getSize();
+            g.setColor(new Color(255, 0, 0, 70));
+            g.fillRect(-1, -1, size.width + 2, size.height + 2);
+        }
+    }
+
+    public void setPressed(boolean isPressed){
+        _isPressed = isPressed;
+        repaint();
     }
 }
 
@@ -411,13 +467,19 @@ class ScrollBarAdjustListener implements AdjustmentListener{
 
 class DrawPanelClickListener extends MouseAdapter{
     private EREditController _controller;
+    private EREditMainView _view;
 
-    public DrawPanelClickListener(EREditController controller){
+    public DrawPanelClickListener(EREditController controller, EREditMainView view){
         _controller = controller;
+        _view = view;
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        // Get Focus For KeyEventListener
+        _view.setFocusable(true);
+        _view.requestFocusInWindow();
+
         if(e.getButton() == MouseEvent.BUTTON1) {
             _controller.DrawPanelClickEventHandler(new Point(e.getX(), e.getY()), e.getClickCount() == 2);
         }
@@ -466,16 +528,33 @@ class DrawPanelWheelListener implements MouseWheelListener{
     }
 }
 
-class EREditMainViewListner extends ComponentAdapter{
+class EREditMainViewKeyListener extends KeyAdapter{
+
     private EREditController _controller;
 
-    public EREditMainViewListner(EREditController controller)
+    public EREditMainViewKeyListener(EREditController controller)
+    {
+        _controller = controller;
+    }
+
+    @Override
+    public void keyPressed(KeyEvent e) {
+        _controller.WindowKeyEventHandler(e.getKeyCode());
+    }
+}
+
+class EREditMainViewListener extends ComponentAdapter{
+
+    private EREditController _controller;
+
+    public EREditMainViewListener(EREditController controller)
     {
         _controller = controller;
     }
 
     @Override
     public void componentResized(ComponentEvent e) {
-        _controller.WindowResizeEventHandler(e);
+        _controller.WindowResizeEventHandler();
     }
 }
+

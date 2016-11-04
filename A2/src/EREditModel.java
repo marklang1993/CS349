@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 
@@ -168,7 +169,24 @@ public class EREditModel {
         }
     }
 
-    public void NewGraph() {
+    public void NewGraph(boolean isButtonEvent) {
+
+        if(isButtonEvent){
+            String[] btnNames = {"Yes", "No"};
+            int ret = JOptionPane.showOptionDialog(
+                    (JComponent)_mainView,
+                    "Do you want to create a new diagram?",
+                    "New diagram",
+                    JOptionPane.YES_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null, btnNames, btnNames[0]);
+
+            if (ret == 1) {
+                _updateView();
+                return; // No
+            }
+        }
+
         _entityList.clear();
         _arrowList.clear();
         _listIView.clear();
@@ -187,7 +205,29 @@ public class EREditModel {
     }
     public void CursorMode() { _editMode = EDIT_MODE.CURSOR; _updateView(); }
     public void BoxMode() { _editMode = EDIT_MODE.BOX; _updateView();}
-    public void ArrowMode(){ _editMode = EDIT_MODE.ARROW; _updateView();}
+    public void ArrowMode(){
+        EREditEntity selectedEntity = null;
+        // Find a selected entity
+        for ( EREditEntity entity: _entityList) {
+            if(entity.IsSelected()){
+                selectedEntity = entity;
+                break;
+            }
+        }
+
+        // Check
+        if(selectedEntity == null){
+            JOptionPane.showMessageDialog((JComponent)_mainView,
+                    "Create relationship error! Please select an entity first.",
+                    "Error!",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+        else{
+            _editMode = EDIT_MODE.ARROW;
+        }
+
+        _updateView();
+    }
     public void EraserMode() { _editMode = EDIT_MODE.ERASER; _updateView();}
 
     public void AddBox(Point rawPos){
@@ -223,12 +263,20 @@ public class EREditModel {
         }
         if(startEntity.equals(endEntity)) {
             // Should not be same entity (Cannot Connect to itself)
+            JOptionPane.showMessageDialog((JComponent)_mainView,
+                    "Cannot create relationship with an entity itself!",
+                    "Error!",
+                    JOptionPane.ERROR_MESSAGE);
             CursorMode();
             return;
         }
         for (EREditArrow arrow: _arrowList) {
             if(arrow.isSameArrow(startEntity, endEntity)){
                 // Cannot add repeated arrow
+                JOptionPane.showMessageDialog((JComponent)_mainView,
+                        "Cannot create repeated relationship!",
+                        "Error!",
+                        JOptionPane.ERROR_MESSAGE);
                 CursorMode();
                 return;
             }

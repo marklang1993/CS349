@@ -13,7 +13,7 @@ public class EREditController {
 
     public void ButtonEventHandler(String buttonName){
         if(buttonName.equals("New") ){
-            _model.NewGraph();
+            _model.NewGraph(true);
         }
         else if(buttonName.equals("Resize")){
 

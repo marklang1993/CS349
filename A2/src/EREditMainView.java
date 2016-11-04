@@ -20,9 +20,9 @@ public class EREditMainView extends JPanel implements EREditIView{
     private JButton _zoomOutBtn;
     private JPanel _displayPanel;
     private JScrollPane _boxDisplayPane;
-    private JTable _boxDisplayList;
+    private HighLightJTable _boxDisplayList;
     private JScrollPane _arrowDisplayPane;
-    private JTable _arrowDisplayList;
+    private HighLightJTable _arrowDisplayList;
     private JPanel _drawPanel;
     private JScrollBar _vScrollBar;
     private JScrollBar _hScrollBar;
@@ -65,7 +65,7 @@ public class EREditMainView extends JPanel implements EREditIView{
 
         _boxDisplayPane = new JScrollPane();
         _boxTableModel = new EREditTableModel<>(entityList, "Entity", _controller);
-        _boxDisplayList = new JTable(_boxTableModel) {
+        _boxDisplayList = new HighLightJTable(_boxTableModel) {
             @Override
             public boolean isCellEditable(int row, int coloum) //Set Table uneditable
             {
@@ -82,7 +82,7 @@ public class EREditMainView extends JPanel implements EREditIView{
 
         _arrowDisplayPane = new JScrollPane();
         _arrowTableModel = new EREditTableModel<>(arrowList, "Relationship", _controller);
-        _arrowDisplayList = new JTable(_arrowTableModel){
+        _arrowDisplayList = new HighLightJTable(_arrowTableModel){
             @Override
             public boolean isCellEditable(int row, int coloum) //Set Table uneditable
             {
@@ -349,6 +349,33 @@ class EREditTableModel<T> extends AbstractTableModel {
             ((EREditEntity)element).SetText((String)aValue);
             _mainController.JTableUpdateViewHandler();
         }
+    }
+
+    public boolean isSelected(int rowIndex){
+        return ((EREditExport)_dataList.get(rowIndex)).IsSelected();
+    }
+}
+
+class HighLightJTable extends JTable{
+
+    public AbstractTableModel _selectDeterminationModel;
+
+    HighLightJTable(AbstractTableModel model){
+        super(model);
+        _selectDeterminationModel = model;
+    }
+
+    @Override
+    public Component prepareRenderer(TableCellRenderer renderer, int row, int column) {
+        Component c = super.prepareRenderer(renderer, row, column);
+        if (((EREditTableModel)_selectDeterminationModel).isSelected(row)) {
+            c.setForeground(getSelectionForeground());
+            c.setBackground(getSelectionBackground());
+        } else {
+            c.setForeground(getForeground());
+            c.setBackground(getBackground());
+        }
+        return c;
     }
 }
 

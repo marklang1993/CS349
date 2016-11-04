@@ -18,7 +18,7 @@ public class EREdit {
         controller.SetModel(model);
         EREditMainView mainView = new EREditMainView(controller, model.GetEntityList(), model.GetArrowList());
         model.SetMainView(mainView);
-        model.NewGraph();
+        model.NewGraph(false);
 
 
         SwingUtilities.invokeLater(
@@ -30,6 +30,7 @@ public class EREdit {
                     frame.add(mainView);
                     frame.pack();
                     frame.setTitle("Entity-Relationship Diagram Editor");
+                    frame.setLocationRelativeTo(null);
                     frame.setVisible(true);
                 }
             }

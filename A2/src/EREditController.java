@@ -63,7 +63,7 @@ public class EREditController {
     }
 
     public void DrawPanelClickEventHandler(Point displayPos, boolean doubleClicked){
-        System.out.println("X: " + displayPos.X + "; Y: "+ displayPos.Y + "; " + doubleClicked);
+        //System.out.println("X: " + displayPos.X + "; Y: "+ displayPos.Y + "; " + doubleClicked);
 
         // Coordinates system transformation
         Point rawPos = EREditMath.DisplayToRaw(displayPos, _model.GetOffset(), _model.GetMultiplicity());
@@ -87,10 +87,6 @@ public class EREditController {
                 // # CURSOR Mode
                 _model.ClickCursor(rawPos);
             }
-        }
-        else
-        {
-            // Double-click: Name editing
         }
     }
 
@@ -150,6 +146,13 @@ public class EREditController {
             case KeyEvent.VK_CLOSE_BRACKET:
                 _model.ZoomIn();
                 break;
+            case KeyEvent.VK_X:
+                _model.AdjustCrossBar(true);
+                break;
+            case KeyEvent.VK_Z:
+                _model.AdjustCrossBar(false);
+                break;
+
         }
     }
 }

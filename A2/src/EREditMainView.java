@@ -229,7 +229,7 @@ public class EREditMainView extends JPanel implements EREditIView{
         _boxDisplayList.setName("BoxList");
         _boxDisplayList.setFont(new Font("Times New Roman", Font.PLAIN, 13));
         _boxDisplayList.setPreferredScrollableViewportSize(new Dimension(150, 32));
-        _boxDisplayList.addMouseListener(new TableClickListener(_controller));
+        _boxDisplayList.addMouseListener(new TableClickListener(_controller, this));
         _boxDisplayPane.setViewportView(_boxDisplayList);
         _displayPanel.add(_boxDisplayPane);
 
@@ -238,7 +238,7 @@ public class EREditMainView extends JPanel implements EREditIView{
         _arrowDisplayList.setName("ArrowList");
         _arrowDisplayList.setFont(new Font("Times New Roman", Font.PLAIN, 13));
         _arrowDisplayList.setPreferredScrollableViewportSize(new Dimension(150, 32));
-        _arrowDisplayList.addMouseListener(new TableClickListener(_controller));
+        _arrowDisplayList.addMouseListener(new TableClickListener(_controller, this));
         _arrowDisplayPane.setViewportView(_arrowDisplayList);
         _displayPanel.add(_arrowDisplayPane);
 
@@ -435,13 +435,19 @@ class ButtonActionListener implements ActionListener{
 class TableClickListener extends MouseAdapter{
 
     private EREditController _controller;
+    private EREditMainView _view;
 
-    public TableClickListener(EREditController controller){
+    public TableClickListener(EREditController controller, EREditMainView view) {
         _controller = controller;
+        _view = view;
     }
 
     @Override
     public void mouseClicked(MouseEvent e) {
+        // Get Focus For KeyEventListener
+        _view.setFocusable(true);
+        _view.requestFocusInWindow();
+
         JTable table = (JTable)e.getSource();
         _controller.TableEventHandler(table.getName(), table.getSelectedRow());
     }
@@ -466,6 +472,7 @@ class ScrollBarAdjustListener implements AdjustmentListener{
 }
 
 class DrawPanelClickListener extends MouseAdapter{
+
     private EREditController _controller;
     private EREditMainView _view;
 

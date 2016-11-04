@@ -1,4 +1,3 @@
-import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
 
 /**
@@ -30,9 +29,6 @@ public class EREditController {
         }
         else if(buttonName.equals("Arrow")){
             _model.ArrowMode();
-        }
-        else if(buttonName.equals("Text")){
-            _model.TextMode();
         }
         else if(buttonName.equals("Eraser")){
             _model.EraserMode();

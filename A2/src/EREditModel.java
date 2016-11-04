@@ -13,7 +13,7 @@ public class EREditModel {
     private ArrayList<EREditIView> _listIView;
 
     // Graphics Related
-    public enum EDIT_MODE { CURSOR, DRAGGING, BOX, ARROW, TEXT, TEXT_EDIT, ERASER}
+    public enum EDIT_MODE { CURSOR, DRAGGING, BOX, ARROW, ERASER}
     private final double MAX_Multiplicity = 4.0d;
     private final double MIN_Multiplicity = 0.5d;
 
@@ -34,42 +34,6 @@ public class EREditModel {
         _arrowList = new ArrayList<>();
         _listIView = new ArrayList<>();
     }
-    // Actions handlers
-//    public int ClickOnGraphText(Point mousePos, String text){
-//        // Coordinates system transformation
-//        Point rawPos = EREditMath.DisplayToRaw(mousePos, _offset, _multiplicity);
-//
-//        // Find correct entity
-//        int index = -1;
-//        for ( EREditEntity entity: _entityList) {
-//            // Find new select entity
-//            if(entity.IsContained(rawPos)){ ++index; break; }
-//            ++index;
-//        }
-//        if(index == -1) {
-//            // Entity not found
-//            CursorMode();
-//            return index;
-//        }
-//
-//        // Entity found
-//        return ClickOnGraphText(index, text);
-//    }
-//    public int ClickOnGraphText(int index, String text){
-//
-//        if (_editMode == EDIT_MODE.TEXT){
-//            // Start Editing
-//            _editMode = EDIT_MODE.TEXT_EDIT;
-//            _updateView();
-//        }
-//        else if (_editMode == EDIT_MODE.TEXT_EDIT) {
-//            // Finish Editing
-//            _entityList.get(index).SetText(text);
-//            CursorMode();
-//        }
-//
-//        return index;
-//    }
 
     public void ClickEntityList(int index){
         // Unselect other objects first
@@ -224,7 +188,6 @@ public class EREditModel {
     public void CursorMode() { _editMode = EDIT_MODE.CURSOR; _updateView(); }
     public void BoxMode() { _editMode = EDIT_MODE.BOX; _updateView();}
     public void ArrowMode(){ _editMode = EDIT_MODE.ARROW; _updateView();}
-    public void TextMode(){ _editMode = EDIT_MODE.TEXT; _updateView();}
     public void EraserMode() { _editMode = EDIT_MODE.ERASER; _updateView();}
 
     public void AddBox(Point rawPos){

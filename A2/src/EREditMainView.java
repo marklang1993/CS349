@@ -14,7 +14,6 @@ public class EREditMainView extends JPanel implements EREditIView{
     private JButton _newBtn;
     private JButton _boxBtn;
     private JButton _arrowBtn;
-    private JButton _textBtn;
     private JButton _eraserBtn;
     private JButton _resizeBtn;
     private JButton _zoomInBtn;
@@ -52,7 +51,6 @@ public class EREditMainView extends JPanel implements EREditIView{
         _newBtn = new JButton();
         _boxBtn = new JButton();
         _arrowBtn = new JButton();
-        _textBtn = new JButton();
         _eraserBtn = new JButton();
         _resizeBtn = new JButton();
         _zoomInBtn = new JButton();
@@ -186,18 +184,6 @@ public class EREditMainView extends JPanel implements EREditIView{
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 5), 0, 0));
 
-        // _textBtn
-        _textBtn.setMinimumSize(new Dimension(70, 20));
-        _textBtn.setMaximumSize(new Dimension(70, 20));
-        _textBtn.setPreferredSize(new Dimension(70, 20));
-        _textBtn.setFont(_textBtn.getFont().deriveFont(_textBtn.getFont().getStyle() | Font.BOLD, _textBtn.getFont().getSize() - 3f));
-        _textBtn.setOpaque(false);
-        _textBtn.setText("Text");
-        _textBtn.addActionListener(new ButtonActionListener(_controller));
-        _btnPanel.add(_textBtn, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
-                GridBagConstraints.CENTER, GridBagConstraints.BOTH,
-                new Insets(0, 0, 0, 5), 0, 0));
-
         //_eraserBtn
         _eraserBtn.setMinimumSize(new Dimension(70, 20));
         _eraserBtn.setMaximumSize(new Dimension(70, 20));
@@ -206,7 +192,7 @@ public class EREditMainView extends JPanel implements EREditIView{
         _eraserBtn.setOpaque(false);
         _eraserBtn.setText("Eraser");
         _eraserBtn.addActionListener(new ButtonActionListener(_controller));
-        _btnPanel.add(_eraserBtn, new GridBagConstraints(3, 1, 1, 1, 0.0, 0.0,
+        _btnPanel.add(_eraserBtn, new GridBagConstraints(2, 1, 1, 1, 0.0, 0.0,
                 GridBagConstraints.CENTER, GridBagConstraints.BOTH,
                 new Insets(0, 0, 0, 5), 0, 0));
 

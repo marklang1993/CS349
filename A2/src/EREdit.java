@@ -13,23 +13,27 @@ public class EREdit {
     public static void main(String[] args) {
 //        System.out.println("Hello, world!");
 
+        JFrame frame = new JFrame();
+
         EREditController controller = new EREditController();
         EREditModel model = new EREditModel();
         controller.SetModel(model);
         EREditMainView mainView = new EREditMainView(controller, model.GetEntityList(), model.GetArrowList());
         model.SetMainView(mainView);
-        model.NewGraph();
+        model.SetMainFrame(frame);
+        model.NewGraph(false);
 
 
         SwingUtilities.invokeLater(
             new Runnable() {
                 @Override
                 public void run() {
-                    JFrame frame = new JFrame();
+
                     frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
                     frame.add(mainView);
                     frame.pack();
                     frame.setTitle("Entity-Relationship Diagram Editor");
+                    frame.setLocationRelativeTo(null);
                     frame.setVisible(true);
                 }
             }

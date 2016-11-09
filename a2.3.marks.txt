@@ -1,0 +1,48 @@
+
+CS349 A2.3 Marking Scheme
+
+TA:	Dallas Fraser
+Email: d6fraser@uwaterloo.ca
+
+
+
+6/6 - Model-View-Controller used effectively. 
+	2/2	Model has a list of observers (restricted interface) or extends Observable
+	2/2	Calls update method for each item on the list at the end of each public
+		method that mutates state
+	2/2	Listeners appropriate to the controller  (Only mouse listeners = 0)
+
+15/15 User interface elements and layout
+	3/3	The UI has at least three parts:  a canvas for the image, a list of entities
+		and a list of arrows.
+	3/3	It's easy to correctly identify the list of entities vs. list of arrows
+	3/3	Entities list shows the entity name;  arrows list shows the two entities connected
+	3/3	The entities are laid out in a pleasing arrangment.
+	3/3	Resizing the window (within reasonable limits) maintains a pleasing arrangment.
+
+
+21/21	Functional Requirements
+
+	7/7	Entity Creation
+		3/3	Interaction for creating entities works well from a human perspective.
+		2/2	New entity can be named
+		2/2	New entity appears at a specified location
+
+	4/4	Selection
+		2/2	Selecting an entity on the canvas: changes its appearance
+			selects the corresponding item on the entities list
+		1/1	Selecting an entity in the entities list: changes its appearance
+			selects the corresponding entity on the canvas
+		1/1	Selecting an arrow in the arrows list:  changes its appearance,
+			selects both entities in the entities list, selects stuff on canvas
+	 
+	10/10 - Entity Movement and Arrow Adjustment
+		5/5	Entities can be moved to other locations on the canvas. 
+		5/5	Arrows remain connected to the moved entity and re-position accordingly.
+
+5/5: “Good Job!”  Obvious attention to detail
+
+
+Total:
+
+47/45

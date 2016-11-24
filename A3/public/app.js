@@ -11,9 +11,9 @@
 // parameter "exports".  That is, it exports startApp to the window
 // environment.
 (function(exports) {
-	var client_id = '';		// Fill in with your value from Spotify
+	var client_id = '617e177e250b42f28cc2c7994cf90cb9';		// Fill in with your value from Spotify
 	var redirect_uri = 'http://localhost:3000/index.html';
-	var g_access_token = '';
+	var g_access_token = '6973204623354ff6ae5a1b16295b34de';
 
 	/*
 	 * Get the playlists of the logged-in user.
@@ -36,6 +36,25 @@
 		});
 	}
 
+	/*
+	 * Get the songs from a playlist of the logged-in user
+	 */
+	function getSongs(callback, url) {
+		console.log('getSongs from: ' + url);
+		$.ajax(url, {
+			dataType: 'json',
+			headers: {
+				'Authorization': 'Bearer ' + g_access_token
+			},
+			success: function(r) {
+				console.log('got songs from a playlist ', r);
+				callback(r);
+			},
+			error: function(r) {
+				callback(null);
+			}
+		});
+	}
 	
 	/*
 	 * Redirect to Spotify to login.  Spotify will show a login page, if
@@ -61,7 +80,19 @@
 		getPlaylists(function(items) {
 			console.log('items = ', items);
 			items.forEach(function(item){
-				$('#playlists').append('<li>' + item.name + '</li>');
+				$('#playlists').append('<li id="' + item.id + '" >' + item.name + '</li>');
+				var url = item.tracks.href;
+				getSongs(function(songs){
+					console.log(songs);
+					
+					// Add song column title
+					var songsHtmlStr = '';
+					songs.items.forEach(function(song){
+						songsHtmlStr += ('<li>' + song.track.name + '</li>');
+					});
+					$('#'+item.id).append('<p>Songs: <ul>'+songsHtmlStr+' </ul></p>');
+
+				}, url);
 			});
 		});
 

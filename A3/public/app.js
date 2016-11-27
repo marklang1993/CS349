@@ -80,6 +80,7 @@
         this._playLists = [];   // PlayList list (hashkey, PlayListItem)
         this._viewLists = [];   // View List
 
+		// Parse JSON string of PlayList
         this.ParseJSON = function(jsonPlayLists){
 			// _playLists.pop();
             jsonPlayLists.forEach(function(playList){
@@ -94,15 +95,41 @@
             });
         };
 
+		// Subscribe view to model
         this.AddView = function(view){
             this._viewLists.push(view);
         };
 
+		// Notify all views
         this.Notify = function(){
             this._viewLists.forEach(function(view) {
                 view.update();
             });
         };
+
+		// Rating operation
+		this.RateAdjust = function(playlistHash, songHash, rateOp){
+			// find SongItem
+			_.forEach(playLists, function(playListTuple, idx) {
+                if(playListTuple[2] === playlistHash){
+					// PlayList located
+					_.forEach(playListTuple[1]._songs, function(songItemTuple, idx) {
+						if(songItemTuple[2] === songHash){
+							// SongItem located
+							if(songItemTuple[1].Rate < 5 && rateOp === "+"){		// inc.
+								songItemTuple[1].Rate = songItemTuple[1].Rate + 1; 
+							}
+							else if(songItemTuple[1].Rate > 1 && rateOp === "-"){	// dec.
+								songItemTuple[1].Rate = songItemTuple[1].Rate - 1; 
+							}
+						}               
+					});
+				}
+            });
+			// update
+			that.Notify();
+		}
+		
     };
 
     // class - View
@@ -129,7 +156,7 @@
 
                     t_html_SongItem.find(".name").html(idx + "." + songItemTuple[1].Name);
                     t_html_SongItem.find(".rate").html(that.toSTAR(songItemTuple[1].Rate));
-                    t_html_SongItem.find(".tags").html("+");   
+                    t_html_SongItem.find(".tags").html("tag test");   
 
                     // Add to Playlist
                     t_html_Playlist.append(t_html_SongItem);                 

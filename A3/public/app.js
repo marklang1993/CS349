@@ -9,6 +9,7 @@
 	var connector;
 	// MVC
 	var model;
+	var controller;
 	var viewPlayList;
 
 // --------------------------------mvc.js###Start--------------------------------
@@ -110,11 +111,11 @@
 		// Rating operation
 		this.RateAdjust = function(playlistHash, songHash, rateOp){
 			// find SongItem
-			_.forEach(playLists, function(playListTuple, idx) {
-                if(playListTuple[2] === playlistHash){
+			_.forEach(that._playLists, function(playListTuple, idx) {
+                if(playListTuple[0] === playlistHash){
 					// PlayList located
 					_.forEach(playListTuple[1]._songs, function(songItemTuple, idx) {
-						if(songItemTuple[2] === songHash){
+						if(songItemTuple[0] === songHash){
 							// SongItem located
 							if(songItemTuple[1].Rate < 5 && rateOp === "+"){		// inc.
 								songItemTuple[1].Rate = songItemTuple[1].Rate + 1; 
@@ -133,7 +134,7 @@
     };
 
     // class - View
-    var PlaylistsView = function(model, divList){
+    var PlaylistsView = function(model, controller, divList){
         var that = this;
 
         // Update View
@@ -155,7 +156,9 @@
                     var t_html_SongItem = $(t_SongItem.html()); // to DOM element
 
                     t_html_SongItem.find(".name").html(idx + "." + songItemTuple[1].Name);
+					t_html_SongItem.find("#rateDecBtn").find(".rateBtn").click(controller.makeRateOpBtnController(playListTuple[0], songItemTuple[0], "-"));					
                     t_html_SongItem.find(".rate").html(that.toSTAR(songItemTuple[1].Rate));
+					t_html_SongItem.find("#rateIncBtn").find(".rateBtn").click(controller.makeRateOpBtnController(playListTuple[0], songItemTuple[0], "+"));										
                     t_html_SongItem.find(".tags").html("tag test");   
 
                     // Add to Playlist
@@ -182,6 +185,17 @@
 		};
 
     };
+
+	// class - Controller 
+	var PlaylistsController = function(model){
+		
+		this.makeRateOpBtnController = function(playlistHash, songHash, rateOp){
+			return function(){
+				model.RateAdjust(playlistHash, songHash, rateOp);
+			};
+		};
+
+	};
 
 // --------------------------------mvc.js###End--------------------------------
 
@@ -275,12 +289,6 @@
 	};
 		
 // --------------------------------connector.js###End--------------------------------	
-	/*
-	* Perform a function call
-	*/
-	exports.callFun = function(entryPoint, argc, argv){
-		
-	};
 
 	/*
 	 * Export startApp to the window so it can be called from the HTML's
@@ -291,7 +299,8 @@
 		// init.
 		connector = new Connector();
 		model = new SpotifyWebModel();
-		viewPlayList = new PlaylistsView(model, "div#Playlists");
+		controller = new PlaylistsController(model);
+		viewPlayList = new PlaylistsView(model, controller, "div#Playlists");
 		model.AddView(viewPlayList);
 
 		console.log('location = ' + location);

@@ -47,6 +47,15 @@
             }
         };
 
+		this.RateAdjust = function(rateOp){
+			if(this.Rate < 5 && rateOp === "+"){		// inc.
+				this.Rate = this.Rate + 1; 
+			}
+			else if(this.Rate > 1 && rateOp === "-"){	// dec.
+				this.Rate = this.Rate - 1; 
+			}
+		}
+
     };
 
     // class - PlayList
@@ -108,29 +117,6 @@
                 view.update();
             });
         };
-
-		// Rating operation
-		this.RateAdjust = function(playlistHash, songHash, rateOp){
-			// find SongItem
-			_.forEach(that._playLists, function(playListTuple, idx) {
-                if(playListTuple[0] === playlistHash){
-					// PlayList located
-					_.forEach(playListTuple[1]._songs, function(songItemTuple, idx) {
-						if(songItemTuple[0] === songHash){
-							// SongItem located
-							if(songItemTuple[1].Rate < 5 && rateOp === "+"){		// inc.
-								songItemTuple[1].Rate = songItemTuple[1].Rate + 1; 
-							}
-							else if(songItemTuple[1].Rate > 1 && rateOp === "-"){	// dec.
-								songItemTuple[1].Rate = songItemTuple[1].Rate - 1; 
-							}
-						}               
-					});
-				}
-            });
-			// update
-			that.Notify();
-		}
 		
     };
 
@@ -157,9 +143,9 @@
                     var t_html_SongItem = $(t_SongItem.html()); // to DOM element
 
                     t_html_SongItem.find(".name").html(idx + "." + songItemTuple[1].Name);
-					t_html_SongItem.find("#rateDecBtn").find(".rateBtn").click(controller.makeRateOpBtnController(playListTuple[0], songItemTuple[0], "-"));					
+					t_html_SongItem.find("#rateDecBtn").find(".rateBtn").click(controller.makeRateOpBtnController(songItemTuple[1], "-"));					
                     t_html_SongItem.find(".rate").html(that.toSTAR(songItemTuple[1].Rate));
-					t_html_SongItem.find("#rateIncBtn").find(".rateBtn").click(controller.makeRateOpBtnController(playListTuple[0], songItemTuple[0], "+"));										
+					t_html_SongItem.find("#rateIncBtn").find(".rateBtn").click(controller.makeRateOpBtnController(songItemTuple[1], "+"));										
                     if(songItemTuple[1].TagShow === true){
 						_.forEach(songItemTuple[1]._tags, function(tag, idx) {
 							// Add Button
@@ -198,9 +184,11 @@
 	var PlaylistsController = function(model){
 		
 		// Rate operation Button handler
-		this.makeRateOpBtnController = function(playlistHash, songHash, rateOp){
+		this.makeRateOpBtnController = function(songItem, rateOp){
 			return function(){
-				model.RateAdjust(playlistHash, songHash, rateOp);
+				songItem.RateAdjust(rateOp);
+				// update
+				model.Notify();
 			};
 		};
 

@@ -20,3 +20,8 @@
 #loggedin {
 	display: none;
 }
+
+.name, .rate, .tag {
+    width: 5em;
+    float: left;
+}

@@ -5,7 +5,7 @@
 		"https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"
 		type="text/javascript"></script>
 		<script src="https://cdn.jsdelivr.net/lodash/4.17.1/lodash.min.js"></script>
-		<script type="text/javascript" src="app.js"></script>
+		<script type="text/javascript" src="app.js"></script>		
 		<link rel="stylesheet" type="text/css" href="style.css">
 		<title></title>
 	</head>
@@ -20,7 +20,27 @@
 		</div><!-- "Page" to show when logged in -->
 		<div id="loggedin">
 			<p>Playlists:</p>
-			<ul id="playlists"></ul>
+			<!--<ul id="playlists"></ul>-->
+			
+			<div id="Playlists">
+			</div>
+
 		</div>
+
+		<!--Template for Playlist display-->
+		<template id="Playlist_template">
+			<div class="Playlist">
+				<h3></h3>
+			</div>
+		</template>
+
+		<!--Template for Songlist display-->
+		<template id="SongItem_template">
+			<div class="SongItem">
+				<div class="name"></div>
+				<div class="rate"></div>
+				<div class="tags"></div>
+			</div>
+		</template>
 	</body>
 </html>

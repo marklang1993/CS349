@@ -9,8 +9,10 @@
 	var connector;
 	// MVC
 	var model;
-	var controller;
+	var controllerPlayList;
+	var controllerTagList;	
 	var viewPlayList;
+	var viewTagList;
 
 // --------------------------------mvc.js###Start--------------------------------
 	// class - Song
@@ -19,21 +21,24 @@
         this.Name = "NULL";    	// Name of the song
         this.Rate = 1;         	// Rating of the song (1 ~ 5)
 		this.TagShow = false; 	// Flag: showing tag
-        this._tags = ["tag1","tag2"];       	// Tags of this song
+        this._tags = [];       	// Tags of this song
 
         // Tag operations
 		this.TagShownToggle = function(){
 			this.TagShow = !this.TagShow;
 		};
 
-        this.FindTag = function(tag){
+		// Failed : return -1;
+		this.FindTag = function(tag){
             // find tag
-            for(var i = 0; i < this._tags.length; i++){
-                if(this._tags[i] === tag){
-                    return i;
+			var index = -1;
+            _.forEach(this._tags, function(_tag, idx)
+			{
+				if(_tag === tag){
+                    index = idx;
                 }
-            }
-            return -1;
+			});
+            return index;
         };
 
         this.AddTag = function(tag){
@@ -86,14 +91,67 @@
 
 	// class - TagCollection
 	var TagCollection = function(){
+		var that = this;
+		this._tags = ["Tag1", "Tag2"];	// All tags
 
+		// Failed : return -1;
+		this.FindTag = function(tag){
+            // find tag
+			var index = -1;
+            _.forEach(this._tags, function(_tag, idx)
+			{
+				if(_tag === tag){
+                    index = idx;
+                }
+			});
+            return index;
+        };
+
+        this.AddTag = function(tag){
+            // add tag
+            if(that.FindTag(tag) === -1){
+                that._tags.push(tag);
+            }
+        };
+
+        this.RemoveTag = function(tag){
+            // remove tag
+            var index = that.FindTag(tag);
+            if(index != -1){
+                that._tags.splice(index, 1);
+            }
+        };
 	};
 
     // class - Model
     var SpotifyWebModel = function(){
 		var that = this;
-        this._playLists = [];   // PlayList list (hashkey, PlayListItem)
-        this._viewLists = [];   // View List
+        this._playLists = [];   	// PlayList list (hashkey, PlayListItem)
+        this._viewLists = [];   	// View List
+		this._tagCollection = {};	// Tag Collection
+
+		// Init. TagCollection
+		this.InitTagCollection = function(){
+			this._tagCollection = new TagCollection();
+		};
+
+		// Insert Tag into TagCollection
+		this.InsertTag = function(tag){
+			_tagCollection.AddTag(tag);
+		};
+
+		// Remove Tag from both TagCollection and SongItems
+		this.RemoveTag = function(tag){
+			// Remove Tag from TagCollection
+			this._tagCollection.RemoveTag(tag);
+
+			// Remove Tag from all SongItems
+			_.forEach(this._playLists, function(playListTuple, idx) {
+				_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+					songItemTuple[1].RemoveTag(tag);
+				});
+			});
+		};
 
 		// Parse JSON string of PlayList
         this.ParseJSON = function(jsonPlayLists){
@@ -191,6 +249,37 @@
 
     };
 
+	var TaglistsView = function(model, controller, divList){
+		var that = this;
+
+		this.update = function(){
+			var html_divList = $(divList);
+			html_divList.find(".CurrentTags");
+            html_divList.empty();
+
+			var tagCollection = model._tagCollection._tags;
+
+			// Create TagList from template
+			var t_Taglist = $("template#Taglist_template");
+			var t_html_Taglist = $(t_Taglist.html()); // to DOM element
+			_.forEach(tagCollection, function(tag, idx){
+				// Add one row
+				var tagBtnID = "_tagId_" + tag;
+				t_html_Taglist.append("<div class=\"tagCollectionItem\" id=\"" + tagBtnID + "\"> </div>");
+                // Add Text & Button
+				var pos = t_html_Taglist.find("#" + tagBtnID);
+				pos.append("<div class=\"tagCollectionName\">" + tag + "</div>");
+                pos.append("<button class=\"tagBtn\">-</button>");
+
+				// Add handler
+				pos.find(".tagBtn").click(controller.makeRemoveTagBtnController(tag));			
+			});
+
+			// Add to HTML page
+			html_divList.append(t_html_Taglist);
+		};
+	}
+
 	// class - Controller 
 	var PlaylistsController = function(model){
 		
@@ -203,6 +292,7 @@
 			};
 		};
 
+		// Tag Row Display Toggle Button handler
 		this.makeTagShownToggleController = function(songItem){
 			return function(){
 				songItem.TagShownToggle();
@@ -228,6 +318,26 @@
 		};
 
 	};
+
+	var TaglistsController = function(model){
+		// Add new Tag to TagCollection
+		this.makeAddTagBtnController = function(tag){
+			return function(){
+				model.InsertTag(tag);
+				// update
+				model.Notify();
+			};
+		};
+
+		// Remove tag from TagCollection
+		this.makeRemoveTagBtnController = function(tag){
+			return function(){
+				model.RemoveTag(tag);
+				// update
+				model.Notify();
+			};
+		};
+	}
 
 // --------------------------------mvc.js###End--------------------------------
 
@@ -331,9 +441,13 @@
 		// init.
 		connector = new Connector();
 		model = new SpotifyWebModel();
-		controller = new PlaylistsController(model);
-		viewPlayList = new PlaylistsView(model, controller, "div#Playlists");
+		controllerPlayList = new PlaylistsController(model);
+		controllerTagList = new TaglistsController(model);
+		viewPlayList = new PlaylistsView(model, controllerPlayList, "div#Playlists");
+		viewTagList = new TaglistsView(model, controllerTagList, "div#Taglists");
 		model.AddView(viewPlayList);
+		model.AddView(viewTagList);
+		model.InitTagCollection();
 
 		console.log('location = ' + location);
 

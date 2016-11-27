@@ -19,10 +19,20 @@
 			</p>
 		</div><!-- "Page" to show when logged in -->
 		<div id="loggedin">
-			<!--<p>Playlists:</p>-->
-			<!--<ul id="playlists"></ul>-->
+			<!--VIEW SWITCH BUTTON-->
+
+
+			<!--ALL PLAYLISTS SHOULD SHOW HERE-->
+			<div hidden id="Playlists">
+
+			</div>
 			
-			<div id="Playlists">
+			<!--ALL TAGLISTS SHOULD SHOW HERE-->
+			<div id="Taglists">
+				<h3>Current Tags:</h3>
+				<div class="CurrentTags"> </div>
+				<!--Add New Tag Area-->
+				
 			</div>
 
 		</div>
@@ -52,5 +62,12 @@
 				<!--<div hidden class="tags"></div>-->
 			</div>
 		</template>
+
+		<!--Template for Taglist display-->
+		<template id="Taglist_template">
+			<div class="Taglist">
+			</div>
+		</template>		
+
 	</body>
 </html>

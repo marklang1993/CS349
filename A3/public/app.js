@@ -16,15 +16,16 @@
 	// class - Song
     var SongItem = function() {
         // variable definition
-        this.Name = "NULL";    // Name of the song
-        this.Rate = 1;         // Rating of the song (1 ~ 5) 
-        this._tags = [];       // Tags of this song
+        this.Name = "NULL";    	// Name of the song
+        this.Rate = 1;         	// Rating of the song (1 ~ 5)
+		this.TagShow = true; 	// Flag: showing tag
+        this._tags = ["tag1","tag2"];       	// Tags of this song
 
         // Tag operations
         this.FindTag = function(tag){
             // find tag
-            for(var i = 0; i < _tags.length; i++){
-                if(_tags[i] === tag){
+            for(var i = 0; i < this._tags.length; i++){
+                if(this._tags[i] === tag){
                     return i;
                 }
             }
@@ -34,7 +35,7 @@
         this.AddTag = function(tag){
             // add tag
             if(this.FindTag(tag) === -1){
-                _tags.push(tag);
+                this._tags.push(tag);
             }
         };
 
@@ -42,7 +43,7 @@
             // remove tag
             var index = this.FindTag(tag);
             if(index != -1){
-                _tags.splice(index, 1);
+                this._tags.splice(index, 1);
             }
         };
 
@@ -159,8 +160,15 @@
 					t_html_SongItem.find("#rateDecBtn").find(".rateBtn").click(controller.makeRateOpBtnController(playListTuple[0], songItemTuple[0], "-"));					
                     t_html_SongItem.find(".rate").html(that.toSTAR(songItemTuple[1].Rate));
 					t_html_SongItem.find("#rateIncBtn").find(".rateBtn").click(controller.makeRateOpBtnController(playListTuple[0], songItemTuple[0], "+"));										
-                    t_html_SongItem.find(".tags").html("tag test");   
-
+                    if(songItemTuple[1].TagShow === true){
+						_.forEach(songItemTuple[1]._tags, function(tag, idx) {
+							// Add Button
+							var pos = t_html_SongItem.find(".tags").find(".tagBtnList");
+							pos.append("<button class=\"tagBtn\" id=\"" + tag + "\">" + tag + "</button>");
+							// Add handler
+							pos.find("#" + tag).click(controller.makeDelTagBtnController(songItemTuple[1], tag));
+						});
+					}
                     // Add to Playlist
                     t_html_Playlist.append(t_html_SongItem);                 
                 });
@@ -189,9 +197,26 @@
 	// class - Controller 
 	var PlaylistsController = function(model){
 		
+		// Rate operation Button handler
 		this.makeRateOpBtnController = function(playlistHash, songHash, rateOp){
 			return function(){
 				model.RateAdjust(playlistHash, songHash, rateOp);
+			};
+		};
+
+		// Delete tag Button handler
+		this.makeDelTagBtnController = function(songItem, tag){
+			return function(){
+				songItem.RemoveTag(tag);
+				// update
+				model.Notify();
+			};
+		};
+
+		// Test handler
+		this.makeTest = function(){
+			return function(){
+				console.log("This is a test!");
 			};
 		};
 

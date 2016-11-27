@@ -76,5 +76,14 @@
 }
 
 .tags {
+    text-align: left;
+}
+
+.tagListName{
+    float: left;
+}
+
+.tagBtnList{
     text-align: center;
+    float: left;
 }

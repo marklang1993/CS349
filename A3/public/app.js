@@ -19,6 +19,7 @@
 	var model;
 	var viewPlayList;
 
+// --------------------------------mvc.js###Start--------------------------------
 	// class - Song
     var SongItem = function() {
         // variable definition
@@ -75,6 +76,11 @@
             return _songs;
         };
     };
+
+	// class - TagCollection
+	var TagCollection = function(){
+
+	};
 
     // class - Model
     var SpotifyWebModel = function(){
@@ -146,6 +152,9 @@
 
     };
 
+// --------------------------------mvc.js###End--------------------------------
+
+
 	/*
 	 * Get the playlists of the logged-in user.
 	 */
@@ -210,24 +219,7 @@
 	function loggedIn() {
 		$('#login').hide();
 		$('#loggedin').show();
-		// getPlaylists(function(items) {
-		// 	console.log('items = ', items);
-		// 	items.forEach(function(item){
-		// 		$('#playlists').append('<li id="' + item.id + '" >' + item.name + '</li>');
-		// 		var url = item.tracks.href;
-		// 		getSongs(function(songs){
-		// 			console.log(songs);
-					
-		// 			// Add song column title
-		// 			var songsHtmlStr = '';
-		// 			songs.items.forEach(function(song){
-		// 				songsHtmlStr += ('<li>' + song.track.name + '</li>');
-		// 			});
-		// 			$('#'+item.id).append('<p>Songs: <ul>'+songsHtmlStr+' </ul></p>');
 
-		// 		}, url);
-		// 	});
-		// });
 		getPlaylists(model.ParseJSON);
 		model.Notify();
 

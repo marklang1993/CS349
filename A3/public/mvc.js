@@ -6,7 +6,7 @@
 
 (function(exports){
 
-    // class - Song
+	// class - Song
     var SongItem = function() {
         // variable definition
         this.Name = "NULL";    // Name of the song
@@ -14,24 +14,24 @@
         this._tags = [];       // Tags of this song
 
         // Tag operations
-        var FindTag = function(tag){
+        this.FindTag = function(tag){
             // find tag
             for(var i = 0; i < _tags.length; i++){
-                if(_tags[i] == tag){
+                if(_tags[i] === tag){
                     return i;
                 }
             }
             return -1;
         };
 
-        var AddTag = function(tag){
+        this.AddTag = function(tag){
             // add tag
-            if(this.FindTag(tag) == -1){
+            if(this.FindTag(tag) === -1){
                 _tags.push(tag);
             }
         };
 
-        var RemoveTag = function(tag){
+        this.RemoveTag = function(tag){
             // remove tag
             var index = this.FindTag(tag);
             if(index != -1){
@@ -43,37 +43,34 @@
 
     // class - PlayList
     var PlayListItem = function(){
-        // variable definition
+		var that = this;
         this.Name = "NULL";     // Name of playList
         this._songs = [];       // song list (hashkey, SongItem)
 
         // Parse getSong JSON string
-        var ParseJSON = function(jsonSongs){
-            var that = this;   
+        this.ParseJSON = function(jsonSongs){  
             jsonSongs.items.forEach(function(song){
                 var songItem = new SongItem();
-                songItem.Name = song.track.id;
+                songItem.Name = song.track.name;
 
                 // Add key-value pair
-                that._songs.push([
-                    song.track.id,
-                    songItem
-                ]);
+                that._songs.push([song.track.id, songItem]);
             });
         };
 
-        var GetSongList = function(){
+        this.GetSongList = function(){
             return _songs;
         };
     };
 
     // class - Model
     var SpotifyWebModel = function(){
+		var that = this;
         this._playLists = [];   // PlayList list (hashkey, PlayListItem)
         this._viewLists = [];   // View List
 
-        var ParseJSON = function(jsonPlayLists){
-            var that = this;
+        this.ParseJSON = function(jsonPlayLists){
+			// _playLists.pop();
             jsonPlayLists.forEach(function(playList){
                 var playListURL = playList.tracks.href;
                 var playListItem = new PlayListItem();
@@ -82,19 +79,16 @@
                 // Init. PlayList
                 getSongs(playListItem.ParseJSON, playListURL); 
                 // Add key-value pair
-                that._playLists.push([
-                    jsonPlayLists.id,
-                    playListItem
-                ]);
+                that._playLists.push([playList.id, playListItem]);
             });
         };
 
-        var subscribe = function(view){
-            _viewLists.push(view);
+        this.AddView = function(view){
+            this._viewLists.push(view);
         };
 
-        var notify = function(){
-            _viewLists.forEach(function(view) {
+        this.Notify = function(){
+            this._viewLists.forEach(function(view) {
                 view.update();
             });
         };
@@ -103,32 +97,34 @@
     // class - View
     var PlaylistsView = function(model, divList){
         var that = this;
-        var playLists = this.model._playLists;
 
         // Update View
-        var update = function(){
+        this.update = function(){
             var html_divList = $(divList);
-            that.html_divList.empty();
+            html_divList.empty();
+
+			var playLists = model._playLists;
 
             // Create PlayList from template
-            playLists.forEach(function(playList) {
+            _.forEach(playLists, function(playListTuple, idx) {
                 var t_Playlist = $("template#Playlist_template");
+				var t_html_Playlist = $(t_Playlist.html()); // to DOM element
+                t_html_Playlist.find("h3").html(playListTuple[1].Name);
 
                 //Create SongItem
-                playList._songs.forEach(function(songItem) {
+                _.forEach(playListTuple[1]._songs, function(songItemTuple, idx) {
                     var t_SongItem = $("template#SongItem_template");
                     var t_html_SongItem = $(t_SongItem.html()); // to DOM element
 
-                    t_html_SongItem.find(".SongItem.name").html(songItem.Name);
-                    t_html_SongItem.find(".SongItem.rate").html(songItem.Rate);
-                    t_html_SongItem.find(".SongItem.tags").html("Tags Test");   
+                    t_html_SongItem.find(".name").html(songItemTuple[1].Name);
+                    t_html_SongItem.find(".rate").html(songItemTuple[1].Rate);
+                    t_html_SongItem.find(".tags").html("Tags Test");   
 
                     // Add to Playlist
-                    t_Playlist.append(t_html_SongItem);                 
+                    t_html_Playlist.append(t_html_SongItem);                 
                 });
 
-                var t_html_Playlist = $(t_Playlist.html()); // to DOM element
-                t_html_Playlist.find(".Playlist.name").html(playList.Name);
+                
 
                 // Add to HTML page
                 html_divList.append(t_html_Playlist);

@@ -18,10 +18,14 @@
         // variable definition
         this.Name = "NULL";    	// Name of the song
         this.Rate = 1;         	// Rating of the song (1 ~ 5)
-		this.TagShow = true; 	// Flag: showing tag
+		this.TagShow = false; 	// Flag: showing tag
         this._tags = ["tag1","tag2"];       	// Tags of this song
 
         // Tag operations
+		this.TagShownToggle = function(){
+			this.TagShow = !this.TagShow;
+		};
+
         this.FindTag = function(tag){
             // find tag
             for(var i = 0; i < this._tags.length; i++){
@@ -145,8 +149,12 @@
                     t_html_SongItem.find(".name").html(idx + "." + songItemTuple[1].Name);
 					t_html_SongItem.find("#rateDecBtn").find(".rateBtn").click(controller.makeRateOpBtnController(songItemTuple[1], "-"));					
                     t_html_SongItem.find(".rate").html(that.toSTAR(songItemTuple[1].Rate));
-					t_html_SongItem.find("#rateIncBtn").find(".rateBtn").click(controller.makeRateOpBtnController(songItemTuple[1], "+"));										
+					t_html_SongItem.find("#rateIncBtn").find(".rateBtn").click(controller.makeRateOpBtnController(songItemTuple[1], "+"));
+
+					// Tag related
+					t_html_SongItem.find("#tagShownBtn").find(".tagBtn").click(controller.makeTagShownToggleController(songItemTuple[1]));														
                     if(songItemTuple[1].TagShow === true){
+						t_html_SongItem.find(".tags").show();
 						_.forEach(songItemTuple[1]._tags, function(tag, idx) {
 							// Add Button
 							var pos = t_html_SongItem.find(".tags").find(".tagBtnList");
@@ -154,6 +162,9 @@
 							// Add handler
 							pos.find("#" + tag).click(controller.makeDelTagBtnController(songItemTuple[1], tag));
 						});
+					}
+					else{
+						t_html_SongItem.find(".tags").hide();
 					}
                     // Add to Playlist
                     t_html_Playlist.append(t_html_SongItem);                 
@@ -187,6 +198,14 @@
 		this.makeRateOpBtnController = function(songItem, rateOp){
 			return function(){
 				songItem.RateAdjust(rateOp);
+				// update
+				model.Notify();
+			};
+		};
+
+		this.makeTagShownToggleController = function(songItem){
+			return function(){
+				songItem.TagShownToggle();
 				// update
 				model.Notify();
 			};

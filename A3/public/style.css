@@ -21,9 +21,12 @@
 	display: none;
 }
 
-.name, .rate, .tag {
-    width: 5em;
-    max-width: 10em;
-    min-width: 5em;
+.name {
+    width: 14em;
+    float: left;
+}
+
+.rate {
+    width: 6em;
     float: left;
 }

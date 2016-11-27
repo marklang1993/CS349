@@ -1,20 +1,12 @@
-/*
- *  Starter code for University of Waterloo CS349 Fall 2016.
- *  
- *  bwbecker 20161113
- *  
- *  Some code adapted from https://github.com/possan/playlistcreator-example
- */
 "use strict";
 
 // An anonymous function that is executed passing "window" to the
 // parameter "exports".  That is, it exports startApp to the window
 // environment.
 (function(exports) {
-	var client_id = '617e177e250b42f28cc2c7994cf90cb9';		// Fill in with your value from Spotify
-	var redirect_uri = 'http://localhost:3000/index.html';
-	var g_access_token = '6973204623354ff6ae5a1b16295b34de';
 
+	// Connector
+	var connector;
 	// MVC
 	var model;
 	var viewPlayList;
@@ -96,7 +88,7 @@
                 playListItem.Name = playList.name;
                 
                 // Init. PlayList
-                getSongs(playListItem.ParseJSON, playListURL); 
+                connector.getSongs(playListItem.ParseJSON, playListURL); 
                 // Add key-value pair
                 that._playLists.push([playList.id, playListItem]);
             });
@@ -135,9 +127,9 @@
                     var t_SongItem = $("template#SongItem_template");
                     var t_html_SongItem = $(t_SongItem.html()); // to DOM element
 
-                    t_html_SongItem.find(".name").html(songItemTuple[1].Name);
-                    t_html_SongItem.find(".rate").html(songItemTuple[1].Rate);
-                    t_html_SongItem.find(".tags").html("Tags Test");   
+                    t_html_SongItem.find(".name").html(idx + "." + songItemTuple[1].Name);
+                    t_html_SongItem.find(".rate").html(that.toSTAR(songItemTuple[1].Rate));
+                    t_html_SongItem.find(".tags").html("+");   
 
                     // Add to Playlist
                     t_html_Playlist.append(t_html_SongItem);                 
@@ -150,84 +142,118 @@
             });
         };
 
+		// parse rate to STAR(1 ~ 5)
+		this.toSTAR = function(rate){
+			var STAR = "";
+			for(var i = 0; i < rate; i++){
+				STAR += "★";
+			}
+			for(var i = 0; i < 5 - rate; i++){
+				STAR += "☆";
+			}
+			return STAR;
+		};
+
     };
 
 // --------------------------------mvc.js###End--------------------------------
 
+// --------------------------------connector.js###Start--------------------------------
 
 	/*
-	 * Get the playlists of the logged-in user.
-	 */
-	function getPlaylists(callback) {
-		console.log('getPlaylists');
-		var url = 'https://api.spotify.com/v1/me/playlists';
-		$.ajax(url, {
-			dataType: 'json',
-			async: false,
-			headers: {
-				'Authorization': 'Bearer ' + g_access_token
-			},
-			success: function(r) {
-				console.log('got playlist response', r);
-				callback(r.items);
-			},
-			error: function(r) {
-				callback(null);
-			}
-		});
-	}
+	*  Starter code for University of Waterloo CS349 Fall 2016.
+	*  
+	*  bwbecker 20161113
+	*  
+	*  Some code adapted from https://github.com/possan/playlistcreator-example
+	*/
+	var Connector = function() {
+		var client_id = '617e177e250b42f28cc2c7994cf90cb9';		// Fill in with your value from Spotify
+		var redirect_uri = 'http://localhost:3000/index.html';
+		this.g_access_token = '6973204623354ff6ae5a1b16295b34de';
 
+		/*
+		* Get the playlists of the logged-in user.
+		*/
+		this.getPlaylists = function(callback) {
+			console.log('getPlaylists');
+			var url = 'https://api.spotify.com/v1/me/playlists';
+			$.ajax(url, {
+				dataType: 'json',
+				async: false,
+				headers: {
+					'Authorization': 'Bearer ' + this.g_access_token
+				},
+				success: function(r) {
+					console.log('got playlist response', r);
+					callback(r.items);
+				},
+				error: function(r) {
+					callback(null);
+				}
+			});
+		}
+
+		/*
+		* Get the songs from a playlist of the logged-in user
+		*/
+		this.getSongs = function(callback, url) {
+			console.log('getSongs from: ' + url);
+			$.ajax(url, {
+				dataType: 'json',
+				async: false,
+				headers: {
+					'Authorization': 'Bearer ' + this.g_access_token
+				},
+				success: function(r) {
+					console.log('got songs from a playlist ', r);
+					callback(r);
+				},
+				error: function(r) {
+					callback(null);
+				}
+			});
+		}
+
+		/*
+		* Redirect to Spotify to login.  Spotify will show a login page, if
+		* the user hasn't already authorized this app (identified by client_id).
+		* 
+		*/
+		this.doLogin = function(callback) {
+			var url = 'https://accounts.spotify.com/authorize?client_id=' + client_id +
+				'&response_type=token' +
+				'&scope=playlist-read-private' +
+				'&redirect_uri=' + encodeURIComponent(redirect_uri);
+
+			console.log("doLogin url = " + url);
+			window.location = url;
+		}
+
+		/*
+		* What to do once the user is logged in.
+		*/
+		this.loggedIn = function() {
+			$('#login').hide();
+			$('#loggedin').show();
+
+			this.getPlaylists(model.ParseJSON);
+			model.Notify();
+
+			// Post data to a server-side database.  See 
+			// https://github.com/typicode/json-server
+			var now = new Date();
+			$.post("http://localhost:3000/demo", {"msg": "accessed at " + now.toISOString()}, null, "json");
+		}
+	};
+		
+// --------------------------------connector.js###End--------------------------------	
 	/*
-	 * Get the songs from a playlist of the logged-in user
-	 */
-	function getSongs(callback, url) {
-		console.log('getSongs from: ' + url);
-		$.ajax(url, {
-			dataType: 'json',
-			async: false,
-			headers: {
-				'Authorization': 'Bearer ' + g_access_token
-			},
-			success: function(r) {
-				console.log('got songs from a playlist ', r);
-				callback(r);
-			},
-			error: function(r) {
-				callback(null);
-			}
-		});
-	}
-	
-	/*
-	 * Redirect to Spotify to login.  Spotify will show a login page, if
-	 * the user hasn't already authorized this app (identified by client_id).
-	 * 
-	 */
-	var doLogin = function(callback) {
-		var url = 'https://accounts.spotify.com/authorize?client_id=' + client_id +
-			'&response_type=token' +
-			'&scope=playlist-read-private' +
-			'&redirect_uri=' + encodeURIComponent(redirect_uri);
-
-		console.log("doLogin url = " + url);
-		window.location = url;
-	}
-
-	/*
-	 * What to do once the user is logged in.
-	 */
-	function loggedIn() {
-		$('#login').hide();
-		$('#loggedin').show();
-
-		getPlaylists(model.ParseJSON);
-		model.Notify();
-
-		// Post data to a server-side database.  See 
-		// https://github.com/typicode/json-server
-		var now = new Date();
-		$.post("http://localhost:3000/demo", {"msg": "accessed at " + now.toISOString()}, null, "json");
-	}
+	* Perform a function call
+	*/
+	exports.callFun = function(entryPoint, argc, argv){
+		
+	};
 
 	/*
 	 * Export startApp to the window so it can be called from the HTML's
@@ -235,6 +261,8 @@
 	 */
 	exports.startApp = function() {
 		console.log('start app.');
+		// init.
+		connector = new Connector();
 		model = new SpotifyWebModel();
 		viewPlayList = new PlaylistsView(model, "div#Playlists");
 		model.AddView(viewPlayList);
@@ -255,13 +283,13 @@
 
 		if (typeof(args['access_token']) == 'undefined') {
 			$('#start').click(function() {
-				doLogin(function() {});
+				connector.doLogin(function() {});
 			});
 			$('#login').show();
 			$('#loggedin').hide();
 		} else {
-			g_access_token = args['access_token'];
-			loggedIn();
+			connector.g_access_token = args['access_token'];
+			connector.loggedIn();
 		}
 	}
 

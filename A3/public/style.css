@@ -96,3 +96,12 @@
     margin-top: 2px;
     float: left;
 }
+
+.tagTextBox{
+    margin-left: 5px;
+    border-color: blue;
+}
+
+.InputTag{
+    margin-top: 10px;
+}

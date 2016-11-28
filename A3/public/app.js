@@ -92,7 +92,7 @@
 	// class - TagCollection
 	var TagCollection = function(){
 		var that = this;
-		this._tags = ["Tag1", "Tag2"];	// All tags
+		this._tags = [];	// All tags
 
 		// Failed : return -1;
 		this.FindTag = function(tag){
@@ -137,7 +137,7 @@
 
 		// Insert Tag into TagCollection
 		this.InsertTag = function(tag){
-			_tagCollection.AddTag(tag);
+			this._tagCollection.AddTag(tag);
 		};
 
 		// Remove Tag from both TagCollection and SongItems
@@ -253,10 +253,17 @@
 		var that = this;
 
 		this.update = function(){
+			// select right locations
 			var html_divList = $(divList);
-			html_divList.find(".CurrentTags");
+			html_divList = html_divList.find(".CurrentTags");
             html_divList.empty();
+			var html_inputArea = $(divList);
+			html_inputArea = html_inputArea.find(".InputTag");
 
+			// Bind Input Button
+			html_inputArea.find("#addTagBtn").click(controller.makeAddTagBtnController());
+
+			// Pick data
 			var tagCollection = model._tagCollection._tags;
 
 			// Create TagList from template
@@ -264,7 +271,7 @@
 			var t_html_Taglist = $(t_Taglist.html()); // to DOM element
 			_.forEach(tagCollection, function(tag, idx){
 				// Add one row
-				var tagBtnID = "_tagId_" + tag;
+				var tagBtnID = "_tagId_" + idx;
 				t_html_Taglist.append("<div class=\"tagCollectionItem\" id=\"" + tagBtnID + "\"> </div>");
                 // Add Text & Button
 				var pos = t_html_Taglist.find("#" + tagBtnID);
@@ -321,11 +328,17 @@
 
 	var TaglistsController = function(model){
 		// Add new Tag to TagCollection
-		this.makeAddTagBtnController = function(tag){
+		this.makeAddTagBtnController = function(){
 			return function(){
-				model.InsertTag(tag);
-				// update
-				model.Notify();
+				// Get Input Area
+				var tagTextBox = $(".tagTextBox");
+				var tag = tagTextBox.val();
+				if(tag != ""){
+					tagTextBox.val("");
+					model.InsertTag(tag);
+					// update
+					model.Notify();
+				}
 			};
 		};
 

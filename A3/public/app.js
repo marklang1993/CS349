@@ -522,6 +522,9 @@
 							else{
 								t_html_SongItem.find(".tags").hide();
 							}
+							// PlayButton related
+							t_html_SongItem.find("#playSongBtn").find(".playBtn").click(controller.makePlayButtonController(songItemTuple[0]));
+
 							// Add to Playlist
 							t_html_Playlist.append(t_html_SongItem);   
 						}
@@ -626,6 +629,8 @@
 
 	var PlaylistsController = function(model){
 		
+		var _hashCodePlayBtn = "";
+
 		// Rate operation Button handler
 		this.makeRateOpBtnController = function(songItem, rateOp){
 			return function(){
@@ -643,6 +648,23 @@
 				model.Notify();
 			};
 		};
+
+		// Play Button handler
+		this.makePlayButtonController = function(Hashcode){
+			return function(){
+				if(_hashCodePlayBtn != Hashcode){
+					_hashCodePlayBtn = Hashcode;
+					var playBtnObj = $("div").find("#PlaylistsPlayButton");
+					playBtnObj.empty();
+					playBtnObj.html("<iframe id=\"PlayButton\" src=\"https://embed.spotify.com/?uri=spotify:track:" + Hashcode + "\" frameborder=\"0\" allowtransparency=\"true\"></iframe>");
+				}
+				else {
+					_hashCodePlayBtn = "";
+					var playBtnObj = $("div").find("#PlaylistsPlayButton");
+					playBtnObj.empty();
+				}
+			};
+		}
 
 		// Insert tag Button handler
 		this.makeAddTagBtnController = function(songItem){

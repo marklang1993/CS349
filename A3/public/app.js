@@ -7,9 +7,6 @@
 
 	// Connector
 	var connector;
-	
-	// MVC
-	var model;
 
 // --------------------------------mvc.js###Start--------------------------------
 	// class - Song
@@ -370,7 +367,7 @@
 		// Init. View
 		this.init = function(){
 			// Set Searchbar Button
-			$("div#Playlists").find("#PlaylistsSearchbar").find("#songSearchBtn").click(controller.makeSearchBarBtnController(model));
+			$("div#Playlists").find("#PlaylistsSearchbar").find("#songSearchBtn").click(controller.makeSearchBarBtnController());
 		};
 
         // Update View
@@ -416,7 +413,7 @@
 								});
 								// # Bind handler to tagAppendBtn
 								var pos = t_html_SongItem.find(".tags").find("#tagAppendBtn");
-								pos.click(controller.makeAddTagBtnController(songItemTuple[1], model));
+								pos.click(controller.makeAddTagBtnController(songItemTuple[1]));
 							}
 							else{
 								t_html_SongItem.find(".tags").hide();
@@ -485,7 +482,7 @@
 
 				// Add handler
 				pos.find(".tagCollectionName").click(controller.makeSelectTagBtnController(tag));		
-				pos.find(".tagBtn").click(controller.makeRemoveTagBtnController(model,tag));			
+				pos.find(".tagBtn").click(controller.makeRemoveTagBtnController(tag));			
 			});
 
 			// Add to HTML page
@@ -537,7 +534,7 @@
 		};
 
 		// Insert tag Button handler
-		this.makeAddTagBtnController = function(songItem, model){
+		this.makeAddTagBtnController = function(songItem){
 			return function(){
 				if(model._tagCollection.selectedTag != ""){
 					if(model._tagCollection.FindTag(model._tagCollection.selectedTag != -1)){
@@ -559,7 +556,7 @@
 		};
 
 		// Searchbar Button handler
-		this.makeSearchBarBtnController = function(model){
+		this.makeSearchBarBtnController = function(){
 			return function(){
 				// Search
 				var keyWord = $(".songSearchbar").val();
@@ -595,7 +592,7 @@
 		};
 
 		// Remove tag from TagCollection
-		this.makeRemoveTagBtnController = function(model, tag){
+		this.makeRemoveTagBtnController = function(tag){
 			return function(){
 				// check selectedTag
 				if(model._tagCollection.selectedTag === tag){
@@ -630,7 +627,7 @@
 	*  
 	*  Some code adapted from https://github.com/possan/playlistcreator-example
 	*/
-	var Connector = function() {
+	var Connector = function(model) {
 		var client_id = '617e177e250b42f28cc2c7994cf90cb9';		// Fill in with your value from Spotify
 		var redirect_uri = 'http://localhost:3000/index.html';
 		this.g_access_token = '6973204623354ff6ae5a1b16295b34de';
@@ -700,13 +697,9 @@
 			$('#login').hide();
 			$('#loggedin').show();
 
+			// Get Newest data from Spotify
 			this.getPlaylists(model.ParseJSON);
 			model.Notify();
-
-			// Post data to a server-side database.  See 
-			// https://github.com/typicode/json-server
-			var now = new Date();
-			$.post("http://localhost:3000/demo", {"msg": "accessed at " + now.toISOString()}, null, "json");
 		}
 	};
 		
@@ -719,8 +712,8 @@
 	exports.startApp = function() {
 		console.log('start app.');
 		// init.
-		connector = new Connector();
-		model = new SpotifyWebModel();
+		var model = new SpotifyWebModel();
+		connector = new Connector(model);
 		var controllerPlayList = new PlaylistsController(model);
 		var controllerTagList = new TaglistsController(model);
 		var controllerSwitchBtn = new SwitchBtnController();

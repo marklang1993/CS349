@@ -5,22 +5,91 @@
 		"https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"
 		type="text/javascript"></script>
 		<script src="https://cdn.jsdelivr.net/lodash/4.17.1/lodash.min.js"></script>
-		<script type="text/javascript" src="app.js"></script>
+		<script type="text/javascript" src="app.js"></script>		
 		<link rel="stylesheet" type="text/css" href="style.css">
 		<title></title>
 	</head>
 	<body onload="startApp()">
 		<h2>
 			CS349 A3
-		</h2><!-- "Page" to show when not logged in -->
+		</h2>
+
+		<!-- "Page" to show when not logged in -->
 		<div id="login">
 			<p>
 				<button id="start" class="btn">Log in</button>
 			</p>
-		</div><!-- "Page" to show when logged in -->
-		<div id="loggedin">
-			<p>Playlists:</p>
-			<ul id="playlists"></ul>
 		</div>
+		
+		<!-- "Page" to show when logged in -->
+		<div id="loggedin">
+			<!--VIEW SWITCH BUTTON-->
+			<div id="viewSwitchBtn"> 
+				<button id="switchPlaylistBtn">Play List</button>
+				<button id="switchTaglistBtn">Tag List</button>				
+			</div>
+
+			<!--ALL PLAYLISTS SHOULD SHOW HERE-->
+			<div id="Playlists">
+				<!--Searchbar Area-->
+				<div id="PlaylistsSearchbar">
+					<input type="text" class="songSearchbar">
+					<button id="songSearchBtn">Search</button>
+				</div>
+
+				<!--Playlists Display Area-->
+				<div id="PlaylistsDisplay">
+				</div>
+			</div>
+			
+			<!--ALL TAGLISTS SHOULD SHOW HERE-->
+			<div hidden id="Taglists">
+				<h3 id="selectedTag"></h3>
+				<div class="CurrentTags"> </div>
+				<!--Add New Tag Area-->
+				<div class="InputTag">
+					<div class="tagCollectionTip">New Tag: </div>
+					<input type="text" class="tagTextBox">
+					<button id="addTagBtn" class="tagBtn">+</button>
+				</div>
+			</div>
+
+		</div>
+
+
+		<!--TEMPLATE AREA-->
+
+		<!--Template for Playlist display-->
+		<template id="Playlist_template">
+			<div class="Playlist">
+				<h3></h3>
+			</div>
+		</template>
+
+		<!--Template for Songlist display-->
+		<template id="SongItem_template">
+			<div class="SongItem">
+				<div class="name"></div>
+				<div id="rateDecBtn"> <button class="rateBtn">－</button> </div>
+				<div class="rate"></div>
+				<div id="rateIncBtn"> <button class="rateBtn">＋</button> </div>
+				<div id="tagShownBtn"> <button class="tagBtn">T</button> </div>	
+				<div class="tags">
+					<div class="tagListName">Tag:</div>
+					<div class="tagBtnList">
+						<!--<button class="tagBtn">Tag1</button>-->
+					</div>
+					<button id="tagAppendBtn" class="tagBtn">+</button>
+				</div>							
+				<!--<div hidden class="tags"></div>-->
+			</div>
+		</template>
+
+		<!--Template for Taglist display-->
+		<template id="Taglist_template">
+			<div class="Taglist">
+			</div>
+		</template>		
+
 	</body>
 </html>

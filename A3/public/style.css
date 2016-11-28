@@ -20,3 +20,154 @@
 #loggedin {
 	display: none;
 }
+
+/*Switch button*/
+#switchPlaylistBtn{
+    background-color: fuchsia; 
+    border: none;
+    color: white;
+    padding: 5px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 20px;
+}
+
+#switchTaglistBtn{
+    background-color: darkorange; 
+    border: none;
+    color: white;
+    padding: 5px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 20px;
+}
+
+
+/*Playlist View*/
+#PlaylistsSearchbar{
+    margin-top: 10px;
+    text-align: center;
+}
+
+.songSearchbar{
+    margin-left: 5px;
+    border-color: blue;
+}
+
+#songSearchBtn {
+    background-color: deeppink; 
+    border: none;
+    color: white;
+    padding: 3px 3px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 20px;
+    font: bold;
+    font-family: "Arial"; 
+}
+
+
+
+.Playlist{
+    margin-top: -10px;
+    float: left;
+}
+
+.name {
+    width: 13em;
+    float: left;
+}
+
+.rateBtn {
+    background-color: #4CAF50; 
+    border: none;
+    color: white;
+    padding: 3px 3px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 20px;
+    font: bold;
+    font-family: "Arial"; 
+}
+
+#rateDecBtn, #rateIncBtn{
+    width: 1em;
+    max-width: 1em;
+    float: left;
+}
+
+.rate {
+    width: 5.2em;
+    float: left;
+    text-align: center;
+}
+
+.tagBtn {
+    background-color: #FF5050;
+    margin-left: 7px;
+    border: none;
+    color: white;
+    padding: 3px 3px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 20px;
+    font-family: "Arial"; 
+}
+
+#tagShownBtn{
+    width: 1em;
+    max-width: 1em;
+    float: left;
+}
+
+.tags {
+    text-align: left;
+}
+
+.tagListName{
+    float: left;
+}
+
+.tagBtnList{
+    text-align: center;
+    float: left;
+}
+
+
+/*TagList View*/
+.tagCollectionItem{
+    margin-top: 5px;
+}
+.tagCollectionName{
+    background-color: cyan;
+    margin-left: 7px;
+    border: none;
+    color: white;
+    padding: 3px 3px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 20px;
+    font-family: "Arial"; 
+}
+
+.tagCollectionTip{
+    margin-top: 2px;
+    float: left;
+}
+
+.tagTextBox{
+    margin-left: 5px;
+    border-color: blue;
+}
+
+.InputTag{
+    margin-top: 10px;
+}

@@ -7,12 +7,16 @@
 
 	// Connector
 	var connector;
+	
 	// MVC
 	var model;
-	var controllerPlayList;
-	var controllerTagList;	
-	var viewPlayList;
-	var viewTagList;
+	// var controllerPlayList;
+	// var controllerTagList;	
+	// var viewPlayList;
+	// var viewTagList;
+	
+	// Others
+	var selectedTag = "";
 
 // --------------------------------mvc.js###Start--------------------------------
 	// class - Song
@@ -454,10 +458,10 @@
 		// init.
 		connector = new Connector();
 		model = new SpotifyWebModel();
-		controllerPlayList = new PlaylistsController(model);
-		controllerTagList = new TaglistsController(model);
-		viewPlayList = new PlaylistsView(model, controllerPlayList, "div#Playlists");
-		viewTagList = new TaglistsView(model, controllerTagList, "div#Taglists");
+		var controllerPlayList = new PlaylistsController(model);
+		var controllerTagList = new TaglistsController(model);
+		var viewPlayList = new PlaylistsView(model, controllerPlayList, "div#Playlists");
+		var viewTagList = new TaglistsView(model, controllerTagList, "div#Taglists");
 		model.AddView(viewPlayList);
 		model.AddView(viewTagList);
 		model.InitTagCollection();

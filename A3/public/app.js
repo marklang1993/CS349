@@ -132,7 +132,7 @@
     var SpotifyWebModel = function(){
 		var that = this;
 		var connector = {};			// Httpcall connector
-		
+
         this._playLists = [];   	// PlayList list (hashkey, PlayListItem)
         this._viewLists = [];   	// View List
 		this._tagCollection = {};	// Tag Collection
@@ -336,10 +336,109 @@
 		// Set Connector
 		this.SetConnector = function(conn){
 			connector = conn;
-		}
+		};
+
+		// Push Local Modification to Remote Database
+		this.Push = function(){
+			// Remove Old Data
+			$.ajax({
+				url: 'http://localhost:3000/demo/1',
+				type: 'DELETE',
+				success: function(result) {
+					console.log("DELETE OK!");
+				},
+				error: function(result){
+					console.log("DELETE FAILED!");
+				}
+			});
+
+			// Prepare Data
+			var pushData = {
+				PlayLists : that._playLists,
+				Tags: that._tagCollection._tags
+			};
+			var pushData_JSON = JSON.stringify(pushData);
+
+			// Push New Data
+
+			// Post data to a server-side database.  See 
+			// https://github.com/typicode/json-server
+			$.post("http://localhost:3000/demo", {"id" : 1, "data": pushData_JSON}, null, "json");
+		};
+
+		// Get Data from Remote Database 
+		this.Get = function(){
+			var objRemote;
+ 			// Get Data back
+			$.ajax({
+				url: 'http://localhost:3000/demo/1',
+				type: 'GET',
+				async: false,
+				dataType: "text",
+				success: function(JSONdata){
+					var getData = JSON.parse(JSONdata);
+					objRemote = JSON.parse(getData.data);
+					console.log("GET OK!");
+				},
+				error: function(result){
+					console.log("GET FAILED!");
+				}
+			});
+
+			return objRemote;
+		};
+
+		// SynchronizeData
+		this.SynchronizeData = function(){
+			// Retrive Data from database
+			var objRemote = that.Get();
+			if (typeof(objRemote) != "undefined"){
+				// Data is Defined
+				// Check structure
+				if(_.has(objRemote, 'PlayLists') && _.has(objRemote, 'Tags')){
+					if(_.isArray(objRemote.PlayLists) && _.isArray(objRemote.Tags)){
+						// Checked
+						// Restore Tags back
+						that._tagCollection._tags = objRemote.Tags;
+						
+						// Restore SongItems back
+						/*
+						 *	Ignore all PlayList, Only check SongItem's Hashcode to do a match
+						 *  If Spotify's data does not contain a song, then discard the data from remote database
+						 */
+						_.forEach(that._playLists, function(playListTuple, idx){
+							_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+								var foundSongItem = that.RetriveSongItem(objRemote.PlayLists, songItemTuple[0]);
+								if(typeof(foundSongItem) != "undefined"){
+									// Find a match - Do a copy
+									songItemTuple[1].Rate = foundSongItem.Rate;
+									songItemTuple[1]._tags = foundSongItem._tags;									
+								}
+							});
+						});
+
+						console.log("Syn. OK");
+					}
+				}
+			}
+		};
+
+		// Retrive SongItem from SongLists with Hashcode
+		this.RetriveSongItem = function(PlayLists, Hashcode){
+			var foundSongItem;
+			_.forEach(PlayLists, function(playListTuple, idx){
+				_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+					if(songItemTuple[0] === Hashcode){
+						foundSongItem = songItemTuple[1];
+					}
+				});
+			});
+			return foundSongItem;
+		};
 
 		// Notify all views
         this.Notify = function(){
+			// Update All Views
             this._viewLists.forEach(function(view) {
                 view.update();
             });
@@ -357,6 +456,7 @@
 			// Bind buttons
 			html_divList.find("#switchPlaylistBtn").click(controller.makeSwitchPlaylistBtn());
 			html_divList.find("#switchTaglistBtn").click(controller.makeSwitchTaglistBtn());
+			html_divList.find("#switchPushBtn").click(controller.makeSwitchPushBtn());
 		};
 
 		// Update View
@@ -495,7 +595,7 @@
 	}
 
 	// class - Controller 
-	var SwitchBtnController = function(){
+	var SwitchBtnController = function(model){
 		// Switch to Playlist Button handler
 		this.makeSwitchPlaylistBtn = function(){
 			return function(){
@@ -513,6 +613,13 @@
 				var taglistPos = $("div#Taglists");
 				playlistPos.hide();
 				taglistPos.show();
+			};
+		};
+
+		// Push Data Button handler
+		this.makeSwitchPushBtn = function(){
+			return function(){
+				var ret = model.Push();
 			};
 		};
 	};
@@ -703,7 +810,6 @@
 
 			// Get Newest data from Spotify
 			this.getPlaylists(model.ParseJSON);
-			model.Notify();
 		}
 	};
 		
@@ -718,9 +824,9 @@
 		// init.
 		var model = new SpotifyWebModel();
 		var connector = new Connector(model);
+		var controllerSwitchBtn = new SwitchBtnController(model);
 		var controllerPlayList = new PlaylistsController(model);
 		var controllerTagList = new TaglistsController(model);
-		var controllerSwitchBtn = new SwitchBtnController();
 		var viewSwitchBtn = new SwitchBtnView(controllerSwitchBtn, "div#viewSwitchBtn");
 		var viewPlayList = new PlaylistsView(model, controllerPlayList, "div#PlaylistsDisplay");
 		var viewTagList = new TaglistsView(model, controllerTagList, "div#Taglists");
@@ -751,8 +857,13 @@
 			$('#login').show();
 			$('#loggedin').hide();
 		} else {
+			// Get PlayList from Spotify
 			connector.g_access_token = args['access_token'];
 			connector.loggedIn();
+			// Synchronize Playlist
+			model.SynchronizeData();
+			// Update all views
+			model.Notify();
 		}
 	}
 

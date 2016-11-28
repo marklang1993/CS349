@@ -17,6 +17,7 @@
         // variable definition
         this.Name = "NULL";    	// Name of the song
         this.Rate = 1;         	// Rating of the song (1 ~ 5)
+		this.isDisplay = true;	// Display this SongItem
 		this.TagShow = false; 	// Flag: showing tag
         this._tags = [];       	// Tags of this song
 
@@ -68,6 +69,7 @@
     var PlayListItem = function(){
 		var that = this;
         this.Name = "NULL";     // Name of playList
+		this.isDisplay = true;	// Display this Playlist
         this._songs = [];       // song list (hashkey, SongItem)
 
         // Parse getSong JSON string
@@ -80,6 +82,17 @@
                 that._songs.push([song.track.id, songItem]);
             });
         };
+
+		// Recheck all SongItems
+		this.Recheck = function(){
+			this.isDisplay = false;
+			_.forEach(this._songs, function(songItemTuple, idx){
+				if(songItemTuple[1].isDisplay === true){
+					this.isDisplay = true;
+					return;
+				}
+			});
+		};
 
         this.GetSongList = function(){
             return _songs;
@@ -151,6 +164,74 @@
 			});
 		};
 
+		// Search
+		this.Search = function(keyWord){
+			// Check isEmpty
+			if(keyWord === "") {
+				// Set all SongItem to Display
+				this.Search_Set_isDisplay_All(true);
+			}
+			else {
+				// Set all SongItem not to Display first
+				this.Search_Set_isDisplay_All(false);
+				// Try to Split and Check expression
+				if(keyWord.search(/#tag/gi) != -1){
+					var pos = keyWord.search(/#tag/gi) + 3;
+					// Read operand & Split keyword
+					if(pos + 2 < keyWord.length){
+						pos = pos + 1;
+						var pos_exprs = pos + 1;
+						var exprs = this.Search_Split(keyWord.substr(pos_exprs, keyWord.length - pos_exprs));
+						if(keyWord.substr(pos, 1) == ":"){
+							// Contain any of the tags
+							_.forEach(this._playLists, function(playListTuple, idx){
+								var isDisplayVal = false;	// isDisplay of PlayList
+								_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+									_.forEach(exprs, function(expr, idx){
+										_.forEach(songItemTuple[1]._tags, function(tag, idx){
+											if(expr === tag){
+												songItemTuple[1].isDisplay = true;
+											}
+										});
+									});
+									// Save result to playlist
+									isDisplayVal = isDisplayVal || songItemTuple[1].isDisplay;
+								});
+								playListTuple[1].isDisplay = isDisplayVal;
+							});
+						}
+						else if(keyWord.substr(pos, 1) == "="){
+							// Contain all tags
+							
+						}
+					}
+				}
+				else if (keyWord.search(/#rate>=/gi) != -1){
+					// Rate greater than or equal to
+					
+				}
+
+				// Search SongItem Name
+
+			}
+		}
+
+		// Search Helper functions: Set 
+		this.Search_Set_isDisplay_All = function(val){
+			// Set all SongItem to Display
+			_.forEach(this._playLists, function(playListTuple, idx){
+				_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+					songItemTuple[1].isDisplay = val;
+				});
+				playListTuple[1].isDisplay = val;
+			});
+		};
+
+		this.Search_Split = function(expression){
+			var exprs = expression.split(" ");
+			return exprs;
+		};
+
 		// Parse JSON string of PlayList
         this.ParseJSON = function(jsonPlayLists){
 			// _playLists.pop();
@@ -198,6 +279,10 @@
 
         // Update View
         this.update = function(){
+			// Set Searchbar Button
+			$("div#Playlists").find("#PlaylistsSearchbar").find("#songSearchBtn").click(controller.makeSearchBarBtnController(model));
+			
+			// PlayList view			
             var html_divList = $(divList);
             html_divList.empty();
 
@@ -205,45 +290,52 @@
 
             // Create PlayList from template
             _.forEach(playLists, function(playListTuple, idx) {
-                var t_Playlist = $("template#Playlist_template");
-				var t_html_Playlist = $(t_Playlist.html()); // to DOM element
-                t_html_Playlist.find("h3").html(playListTuple[1].Name);
+				// Check isDisplay
+				if(playListTuple[1].isDisplay === true){
+					var t_Playlist = $("template#Playlist_template");
+					var t_html_Playlist = $(t_Playlist.html()); // to DOM element
+					t_html_Playlist.find("h3").html(playListTuple[1].Name);
 
-                //Create SongItem
-                _.forEach(playListTuple[1]._songs, function(songItemTuple, idx) {
-                    var t_SongItem = $("template#SongItem_template");
-                    var t_html_SongItem = $(t_SongItem.html()); // to DOM element
+					//Create SongItem
+					_.forEach(playListTuple[1]._songs, function(songItemTuple, idx) {
 
-                    t_html_SongItem.find(".name").html(idx + "." + songItemTuple[1].Name);
-					t_html_SongItem.find("#rateDecBtn").find(".rateBtn").click(controller.makeRateOpBtnController(songItemTuple[1], "-"));					
-                    t_html_SongItem.find(".rate").html(that.toSTAR(songItemTuple[1].Rate));
-					t_html_SongItem.find("#rateIncBtn").find(".rateBtn").click(controller.makeRateOpBtnController(songItemTuple[1], "+"));
+						// Check isDisplay
+						if(songItemTuple[1].isDisplay === true){
+							var t_SongItem = $("template#SongItem_template");
+							var t_html_SongItem = $(t_SongItem.html()); // to DOM element
 
-					// Tag related
-					t_html_SongItem.find("#tagShownBtn").find(".tagBtn").click(controller.makeTagShownToggleController(songItemTuple[1]));														
-                    if(songItemTuple[1].TagShow === true){
-						t_html_SongItem.find(".tags").show();
-						// # tagBtnList
-						_.forEach(songItemTuple[1]._tags, function(tag, idx) {
-							// Add Button
-							var pos = t_html_SongItem.find(".tags").find(".tagBtnList");
-							pos.append("<button class=\"tagBtn\" id=\"" + tag + "\">" + tag + "</button>");
-							// Add handler
-							pos.find("#" + tag).click(controller.makeDelTagBtnController(songItemTuple[1], tag));
-						});
-						// # Bind handler to tagAppendBtn
-						var pos = t_html_SongItem.find(".tags").find("#tagAppendBtn");
-						pos.click(controller.makeAddTagBtnController(songItemTuple[1], model));
-					}
-					else{
-						t_html_SongItem.find(".tags").hide();
-					}
-                    // Add to Playlist
-                    t_html_Playlist.append(t_html_SongItem);                 
-                });
+							t_html_SongItem.find(".name").html(idx + "." + songItemTuple[1].Name);
+							t_html_SongItem.find("#rateDecBtn").find(".rateBtn").click(controller.makeRateOpBtnController(songItemTuple[1], "-"));					
+							t_html_SongItem.find(".rate").html(that.toSTAR(songItemTuple[1].Rate));
+							t_html_SongItem.find("#rateIncBtn").find(".rateBtn").click(controller.makeRateOpBtnController(songItemTuple[1], "+"));
 
-                // Add to HTML page
-                html_divList.append(t_html_Playlist);
+							// Tag related
+							t_html_SongItem.find("#tagShownBtn").find(".tagBtn").click(controller.makeTagShownToggleController(songItemTuple[1]));														
+							if(songItemTuple[1].TagShow === true){
+								t_html_SongItem.find(".tags").show();
+								// # tagBtnList
+								_.forEach(songItemTuple[1]._tags, function(tag, idx) {
+									// Add Button
+									var pos = t_html_SongItem.find(".tags").find(".tagBtnList");
+									pos.append("<button class=\"tagBtn\" id=\"" + tag + "\">" + tag + "</button>");
+									// Add handler
+									pos.find("#" + tag).click(controller.makeDelTagBtnController(songItemTuple[1], tag));
+								});
+								// # Bind handler to tagAppendBtn
+								var pos = t_html_SongItem.find(".tags").find("#tagAppendBtn");
+								pos.click(controller.makeAddTagBtnController(songItemTuple[1], model));
+							}
+							else{
+								t_html_SongItem.find(".tags").hide();
+							}
+							// Add to Playlist
+							t_html_Playlist.append(t_html_SongItem);   
+						}
+					});
+
+					// Add to HTML page
+					html_divList.append(t_html_Playlist);
+				}
             });
         };
 
@@ -307,7 +399,7 @@
 		// Switch to Playlist Button handler
 		this.makeSwitchPlaylistBtn = function(){
 			return function(){
-				var playlistPos = $("div#PlaylistsDisplay");
+				var playlistPos = $("div#Playlists");
 				var taglistPos = $("div#Taglists");
 				playlistPos.show();
 				taglistPos.hide();
@@ -317,7 +409,7 @@
 		// Switch to Taglist Button handler
 		this.makeSwitchTaglistBtn = function(){
 			return function(){
-				var playlistPos = $("div#PlaylistsDisplay");
+				var playlistPos = $("div#Playlists");
 				var taglistPos = $("div#Taglists");
 				playlistPos.hide();
 				taglistPos.show();
@@ -362,6 +454,17 @@
 		this.makeDelTagBtnController = function(songItem, tag){
 			return function(){
 				songItem.RemoveTag(tag);
+				// update
+				model.Notify();
+			};
+		};
+
+		// Searchbar Button handler
+		this.makeSearchBarBtnController = function(model){
+			return function(){
+				// Search
+				var keyWord = $(".songSearchbar").val();
+				model.Search(keyWord);
 				// update
 				model.Notify();
 			};

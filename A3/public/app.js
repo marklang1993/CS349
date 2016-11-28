@@ -217,6 +217,7 @@
 					t_html_SongItem.find("#tagShownBtn").find(".tagBtn").click(controller.makeTagShownToggleController(songItemTuple[1]));														
                     if(songItemTuple[1].TagShow === true){
 						t_html_SongItem.find(".tags").show();
+						// # tagBtnList
 						_.forEach(songItemTuple[1]._tags, function(tag, idx) {
 							// Add Button
 							var pos = t_html_SongItem.find(".tags").find(".tagBtnList");
@@ -224,6 +225,9 @@
 							// Add handler
 							pos.find("#" + tag).click(controller.makeDelTagBtnController(songItemTuple[1], tag));
 						});
+						// # Bind handler to tagAppendBtn
+						var pos = t_html_SongItem.find(".tags").find("#tagAppendBtn");
+						pos.click(controller.makeAddTagBtnController(songItemTuple[1], model));
 					}
 					else{
 						t_html_SongItem.find(".tags").hide();
@@ -231,8 +235,6 @@
                     // Add to Playlist
                     t_html_Playlist.append(t_html_SongItem);                 
                 });
-
-                
 
                 // Add to HTML page
                 html_divList.append(t_html_Playlist);
@@ -263,6 +265,8 @@
             html_divList.empty();
 			var html_inputArea = $(divList);
 			html_inputArea = html_inputArea.find(".InputTag");
+			// Bind selectedTag Display
+			$(divList).find("#selectedTag").html("Selected Tag: "+ selectedTag);
 
 			// Bind Input Button
 			html_inputArea.find("#addTagBtn").click(controller.makeAddTagBtnController());
@@ -279,10 +283,11 @@
 				t_html_Taglist.append("<div class=\"tagCollectionItem\" id=\"" + tagBtnID + "\"> </div>");
                 // Add Text & Button
 				var pos = t_html_Taglist.find("#" + tagBtnID);
-				pos.append("<div class=\"tagCollectionName\">" + tag + "</div>");
+				pos.append("<button class=\"tagCollectionName\">" + tag + "</button>");
                 pos.append("<button class=\"tagBtn\">-</button>");
 
 				// Add handler
+				pos.find(".tagCollectionName").click(controller.makeSelectTagBtnController(tag));		
 				pos.find(".tagBtn").click(controller.makeRemoveTagBtnController(tag));			
 			});
 
@@ -309,6 +314,19 @@
 				songItem.TagShownToggle();
 				// update
 				model.Notify();
+			};
+		};
+
+		// Insert tag Button handler
+		this.makeAddTagBtnController = function(songItem, model){
+			return function(){
+				if(selectedTag != ""){
+					if(model._tagCollection.FindTag(selectedTag != -1)){
+						songItem.AddTag(selectedTag);
+						// update
+						model.Notify();
+					}
+				}
 			};
 		};
 
@@ -349,7 +367,22 @@
 		// Remove tag from TagCollection
 		this.makeRemoveTagBtnController = function(tag){
 			return function(){
+				// check selectedTag
+				if(selectedTag === tag){
+					// clear
+					selectedTag = "";
+				}
+				// remove from model
 				model.RemoveTag(tag);
+				// update
+				model.Notify();
+			};
+		};
+
+		// Set tag as selectedTag
+		this.makeSelectTagBtnController = function(tag){
+			return function(){
+				selectedTag = tag;
 				// update
 				model.Notify();
 			};

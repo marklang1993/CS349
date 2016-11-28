@@ -93,6 +93,19 @@
     margin-top: 5px;
 }
 .tagCollectionName{
+    background-color: cyan; /* Green */
+    margin-left: 7px;
+    border: none;
+    color: white;
+    padding: 3px 3px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 20px;
+    font-family: "Arial"; 
+}
+
+.tagCollectionTip{
     margin-top: 2px;
     float: left;
 }

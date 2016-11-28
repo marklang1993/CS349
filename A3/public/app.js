@@ -187,13 +187,10 @@
 							_.forEach(this._playLists, function(playListTuple, idx){
 								var isDisplayVal = false;	// isDisplay of PlayList
 								_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
-									_.forEach(exprs, function(expr, idx){
-										_.forEach(songItemTuple[1]._tags, function(tag, idx){
-											if(expr === tag){
-												songItemTuple[1].isDisplay = true;
-											}
-										});
-									});
+									var ret = _.intersection(exprs, songItemTuple[1]._tags);
+									if(ret.length > 0){
+										songItemTuple[1].isDisplay = true;
+									}
 									// Save result to playlist
 									isDisplayVal = isDisplayVal || songItemTuple[1].isDisplay;
 								});
@@ -202,7 +199,18 @@
 						}
 						else if(keyWord.substr(pos, 1) == "="){
 							// Contain all tags
-							
+							_.forEach(this._playLists, function(playListTuple, idx){
+								var isDisplayVal = false;	// isDisplay of PlayList
+								_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+									var ret = _.intersection(exprs, songItemTuple[1]._tags);
+									if(ret.length === exprs.length){
+										songItemTuple[1].isDisplay = true;
+									}
+									// Save result to playlist
+									isDisplayVal = isDisplayVal || songItemTuple[1].isDisplay;
+								});
+								playListTuple[1].isDisplay = isDisplayVal;
+							});
 						}
 					}
 				}

@@ -5,9 +5,6 @@
 // environment.
 (function(exports) {
 
-	// Connector
-	var connector;
-
 // --------------------------------mvc.js###Start--------------------------------
 	// class - Song
     var SongItem = function() {
@@ -134,6 +131,8 @@
     // class - Model
     var SpotifyWebModel = function(){
 		var that = this;
+		var connector = {};			// Httpcall connector
+		
         this._playLists = [];   	// PlayList list (hashkey, PlayListItem)
         this._viewLists = [];   	// View List
 		this._tagCollection = {};	// Tag Collection
@@ -333,6 +332,11 @@
         this.AddView = function(view){
             this._viewLists.push(view);
         };
+
+		// Set Connector
+		this.SetConnector = function(conn){
+			connector = conn;
+		}
 
 		// Notify all views
         this.Notify = function(){
@@ -713,13 +717,14 @@
 		console.log('start app.');
 		// init.
 		var model = new SpotifyWebModel();
-		connector = new Connector(model);
+		var connector = new Connector(model);
 		var controllerPlayList = new PlaylistsController(model);
 		var controllerTagList = new TaglistsController(model);
 		var controllerSwitchBtn = new SwitchBtnController();
 		var viewSwitchBtn = new SwitchBtnView(controllerSwitchBtn, "div#viewSwitchBtn");
 		var viewPlayList = new PlaylistsView(model, controllerPlayList, "div#PlaylistsDisplay");
 		var viewTagList = new TaglistsView(model, controllerTagList, "div#Taglists");
+		model.SetConnector(connector);
 		model.AddView(viewSwitchBtn);
 		model.AddView(viewPlayList);
 		model.AddView(viewTagList);

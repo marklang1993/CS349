@@ -1,0 +1,38 @@
+
+CS349 A2.4 Marking Scheme
+
+TA:	Eldar Khalilov
+Email: ekhalilov@gsd.uwaterloo.ca
+
+
+12/17 - Zooming & Panning
+	4/4	Functionality for zooming exists for zooming at 10% increments using the 
+		mouse scroll wheel [2], as well as “Ctrl+[“ and “Ctrl+]” [2].
+	0/2	Zooming is about the center or the mouse.
+	2/4	Functionality exists for repositioning the diagram. [2] Uses direct manipulation. [2]
+	4/4	Group 3 features (creating entities, selecting and moving entities, connecting with arrows)
+		continues to work well with a zoomed/panned graphic.
+	2/3	Zooming and panning is implemented with affine transforms.
+		[3] if zooming/panning manipulates a matrix directly;  
+		[2] if values are stored and then placed in a matrix prior to drawing.
+		[0] if affine transform is not used.
+
+3/3 - Arrow Orthogonality
+	/1	Arrows connecting two entities are correctly orthogonal upon creation.
+	/2	Arrows orthogonality persists when a connected entity is moved in the diagram.
+
+
+10/10 - Enhancement
+	/5	Enhancement is well thought-out. Time was clearly spent toward design and implementation.
+	/5	Enhancement is functional.
+
+		Examples:
+		Jog adjustment:  7
+		Applying colors to entities:  3
+		Save/Load 10 (with menus), 5 (with buttons)
+		Grid and/or other drawing aids 
+		Other tools
+
+
+Total:
+25/30

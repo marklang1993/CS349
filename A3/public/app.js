@@ -172,9 +172,7 @@
 				this.Search_Set_isDisplay_All(true);
 			}
 			else {
-				// Set all SongItem not to Display first
-				this.Search_Set_isDisplay_All(false);
-				// Try to Split and Check expression
+				// #tag?
 				if(keyWord.search(/#tag/gi) != -1){
 					var pos = keyWord.search(/#tag/gi) + 3;
 					// Read operand & Split keyword
@@ -182,15 +180,16 @@
 						pos = pos + 1;
 						var pos_exprs = pos + 1;
 						var exprs = this.Search_Split(keyWord.substr(pos_exprs, keyWord.length - pos_exprs));
+
 						if(keyWord.substr(pos, 1) == ":"){
 							// Contain any of the tags
 							_.forEach(this._playLists, function(playListTuple, idx){
 								var isDisplayVal = false;	// isDisplay of PlayList
 								_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
 									var ret = _.intersection(exprs, songItemTuple[1]._tags);
-									if(ret.length > 0){
-										songItemTuple[1].isDisplay = true;
-									}
+									// Detemination
+									songItemTuple[1].isDisplay = ret.length > 0;
+
 									// Save result to playlist
 									isDisplayVal = isDisplayVal || songItemTuple[1].isDisplay;
 								});
@@ -203,8 +202,79 @@
 								var isDisplayVal = false;	// isDisplay of PlayList
 								_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
 									var ret = _.intersection(exprs, songItemTuple[1]._tags);
-									if(ret.length === exprs.length){
-										songItemTuple[1].isDisplay = true;
+									// Detemination
+									songItemTuple[1].isDisplay = ret.length === exprs.length;
+
+									// Save result to playlist
+									isDisplayVal = isDisplayVal || songItemTuple[1].isDisplay;
+								});
+								playListTuple[1].isDisplay = isDisplayVal;
+							});
+						}
+					}
+				}
+				// #rate?
+				else if (keyWord.search(/#rate/gi) != -1){
+					var pos = keyWord.search(/#rate/gi) + 4;
+					// Read compound operand & Split keyword
+					if(pos + 3 < keyWord.length){
+						pos = pos + 1;
+						var pos_exprs = pos + 2;	// opearand has size of 2
+						var exprs = this.Search_Split(keyWord.substr(pos_exprs, keyWord.length - pos_exprs));
+						var inputRate = parseInt(exprs[0]);
+						// Check isNumber
+						if(isNaN(inputRate) == false){
+							
+							_.forEach(this._playLists, function(playListTuple, idx){
+								var isDisplayVal = false;	// isDisplay of PlayList
+								_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+									// Condition Detemination
+									if(keyWord.substr(pos, 2) == ">="){
+										songItemTuple[1].isDisplay = songItemTuple[1].Rate >= inputRate;
+									}
+									else if(keyWord.substr(pos, 2) == "<="){
+										songItemTuple[1].isDisplay = songItemTuple[1].Rate <= inputRate;
+									}
+									else if(keyWord.substr(pos, 2) == "=="){
+										songItemTuple[1].isDisplay = songItemTuple[1].Rate == inputRate;
+									}
+									else if(keyWord.substr(pos, 2) == "!="){
+										songItemTuple[1].isDisplay = songItemTuple[1].Rate != inputRate;
+									}
+									else {
+										// Unrecognized oprand
+										songItemTuple[1].isDisplay = false;
+									}
+									// Save result to playlist
+									isDisplayVal = isDisplayVal || songItemTuple[1].isDisplay;
+								});
+								playListTuple[1].isDisplay = isDisplayVal;
+							});
+
+						}
+					}
+					// Read opearand & Split keyword
+					else if (pos + 2 < keyWord.length){
+						pos = pos + 1;
+						var pos_exprs = pos + 1;	// opearand has size of 1
+						var exprs = this.Search_Split(keyWord.substr(pos_exprs, keyWord.length - pos_exprs));
+						var inputRate = parseInt(exprs[0]);
+						// Check isNumber
+						if(isNaN(inputRate) == false){
+							
+							_.forEach(this._playLists, function(playListTuple, idx){
+								var isDisplayVal = false;	// isDisplay of PlayList
+								_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+									// Condition Detemination
+									if(keyWord.substr(pos, 1) == ">"){
+										songItemTuple[1].isDisplay = songItemTuple[1].Rate > inputRate;
+									}
+									else if(keyWord.substr(pos, 1) == "<"){
+										songItemTuple[1].isDisplay = songItemTuple[1].Rate < inputRate;
+									}
+									else {
+										// Unrecognized oprand
+										songItemTuple[1].isDisplay = false;
 									}
 									// Save result to playlist
 									isDisplayVal = isDisplayVal || songItemTuple[1].isDisplay;
@@ -214,12 +284,10 @@
 						}
 					}
 				}
-				else if (keyWord.search(/#rate>=/gi) != -1){
-					// Rate greater than or equal to
+				// # Search SongItem Name
+				else {
 					
 				}
-
-				// Search SongItem Name
 
 			}
 		}

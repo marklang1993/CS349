@@ -511,7 +511,7 @@
 								_.forEach(songItemTuple[1]._tags, function(tag, idx) {
 									// Add Button
 									var pos = t_html_SongItem.find(".tags").find(".tagBtnList");
-									pos.append("<button class=\"tagBtn\" id=\"" + tag + "\">" + tag + "</button>");
+									pos.append("<button class=\"tagItemBtn\" id=\"" + tag + "\">" + tag + "</button>");
 									// Add handler
 									pos.find("#" + tag).click(controller.makeDelTagBtnController(songItemTuple[1], tag));
 								});
@@ -759,6 +759,8 @@
 	*  bwbecker 20161113
 	*  
 	*  Some code adapted from https://github.com/possan/playlistcreator-example
+	*
+	*  Modified by Chen Lang 2016.11.28
 	*/
 	var Connector = function(model) {
 		var client_id = '617e177e250b42f28cc2c7994cf90cb9';		// Fill in with your value from Spotify

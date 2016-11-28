@@ -1,4 +1,8 @@
-
+@charset "utf-8";
+*{
+    color: white;
+    background-color: black;
+}
 
 .btn {
 	background-color: #4CAF50; /* Green */
@@ -22,8 +26,13 @@
 }
 
 /*Switch button*/
+#viewSwitchBtn{
+    text-align: center;
+}
+
 #switchPlaylistBtn{
     background-color: fuchsia; 
+    width: 115px;
     border: none;
     color: white;
     padding: 5px 32px;
@@ -36,6 +45,7 @@
 
 #switchTaglistBtn{
     background-color: darkorange; 
+    width: 115px;    
     border: none;
     color: white;
     padding: 5px 32px;
@@ -48,6 +58,7 @@
 
 #switchPushBtn{
     background-color: chartreuse; 
+    width: 115px;    
     border: none;
     color: white;
     padding: 5px 32px;
@@ -60,18 +71,26 @@
 
 
 /*Playlist View*/
+h3{
+    margin: 15px 0px 6px;
+    font-weight: bold;
+}
+
 #PlaylistsSearchbar{
-    margin-top: 10px;
+    padding-top: 10px;
     text-align: center;
 }
 
-.songSearchbar{
-    margin-left: 5px;
+.songSearchbar, .tagTextBox{
+    padding: 2px 5px 2px 5px;
+    margin: 0px 10px 0px 10px;
     border-color: blue;
+    width: 170px;
 }
 
 #songSearchBtn {
     background-color: deeppink; 
+    width: 70px;
     border: none;
     color: white;
     padding: 3px 3px;
@@ -79,12 +98,11 @@
     text-decoration: none;
     display: inline-block;
     border-radius: 20px;
-    font: bold;
     font-family: "Arial"; 
 }
 
 div#PlaylistsPlayButton{
-    margin-top: 10px;
+    padding-top: 10px;
     text-align: center;
 }
 
@@ -93,12 +111,16 @@ iframe#PlayButton {
     height : 300;
 }
 
+.SongItem{
+    padding: 12px 0px 12px 0px;
+}
+
 .playBtn {
     background-color:#4CAF50;
-    margin-left: 7px;
     border: none;
     color: white;
-    padding: 3px 3px;
+    margin: -1.5px 6px 0px 0px;
+    padding: 3px 5px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -108,25 +130,25 @@ iframe#PlayButton {
 
 
 .Playlist{
-    margin-top: -10px;
+    padding-top: -10px;
     float: left;
 }
 
 .name {
-    width: 13em;
+    width: 12em;
     float: left;
 }
 
 .rateBtn {
-    background-color: #4CAF50; 
+    background-color: deepskyblue; 
     border: none;
     color: white;
+    margin: -1.5px -3px 0px;
     padding: 3px 3px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     border-radius: 20px;
-    font: bold;
     font-family: "Arial"; 
 }
 
@@ -138,16 +160,31 @@ iframe#PlayButton {
 
 .rate {
     width: 5.2em;
+    padding: 0px 3px;
     float: left;
     text-align: center;
+    color: gold;
 }
 
 .tagBtn {
     background-color: #FF5050;
-    margin-left: 7px;
     border: none;
     color: white;
-    padding: 3px 3px;
+    margin: -1.5px 0px 0px 0px;
+    padding: 3px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 20px;
+    font-family: "Arial"; 
+}
+
+.tagItemBtn {
+    background-color: violet;
+    border: none;
+    color: white;
+    margin: -1.5px 5px 0px 5px;
+    padding: 3px 5px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -158,10 +195,13 @@ iframe#PlayButton {
 #tagShownBtn, #playSongBtn{
     width: 1em;
     max-width: 1em;
+    margin: 0px 3px 0px 3px;
     float: left;
 }
 
 .tags {
+    padding: 30px 0px 0px 13px;
+    margin: 0px 0px -12px 0px;
     text-align: left;
 }
 
@@ -177,14 +217,15 @@ iframe#PlayButton {
 
 /*TagList View*/
 .tagCollectionItem{
-    margin-top: 5px;
+    padding-top: 5px;
 }
 .tagCollectionName{
     background-color: cyan;
-    margin-left: 7px;
+    padding-left: 7px;
     border: none;
     color: white;
-    padding: 3px 3px;
+    padding: 3px 10px;
+    margin: 5px 10px 0px 0px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -193,15 +234,10 @@ iframe#PlayButton {
 }
 
 .tagCollectionTip{
-    margin-top: 2px;
+    padding-top: 2px;
     float: left;
 }
 
-.tagTextBox{
-    margin-left: 5px;
-    border-color: blue;
-}
-
 .InputTag{
-    margin-top: 10px;
+    padding-top: 10px;
 }

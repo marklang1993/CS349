@@ -48,7 +48,33 @@
 
 
 /*Playlist View*/
+#PlaylistsSearchbar{
+    margin-top: 10px;
+    text-align: center;
+}
+
+.songSearchbar{
+    margin-left: 5px;
+    border-color: blue;
+}
+
+#songSearchBtn {
+    background-color: deeppink; 
+    border: none;
+    color: white;
+    padding: 3px 3px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 20px;
+    font: bold;
+    font-family: "Arial"; 
+}
+
+
+
 .Playlist{
+    margin-top: -10px;
     float: left;
 }
 

@@ -307,7 +307,7 @@
 		// Switch to Playlist Button handler
 		this.makeSwitchPlaylistBtn = function(){
 			return function(){
-				var playlistPos = $("div#Playlists");
+				var playlistPos = $("div#PlaylistsDisplay");
 				var taglistPos = $("div#Taglists");
 				playlistPos.show();
 				taglistPos.hide();
@@ -317,7 +317,7 @@
 		// Switch to Taglist Button handler
 		this.makeSwitchTaglistBtn = function(){
 			return function(){
-				var playlistPos = $("div#Playlists");
+				var playlistPos = $("div#PlaylistsDisplay");
 				var taglistPos = $("div#Taglists");
 				playlistPos.hide();
 				taglistPos.show();
@@ -523,7 +523,7 @@
 		var controllerTagList = new TaglistsController(model);
 		var controllerSwitchBtn = new SwitchBtnController();
 		var viewSwitchBtn = new SwitchBtnView(controllerSwitchBtn, "div#viewSwitchBtn");
-		var viewPlayList = new PlaylistsView(model, controllerPlayList, "div#Playlists");
+		var viewPlayList = new PlaylistsView(model, controllerPlayList, "div#PlaylistsDisplay");
 		var viewTagList = new TaglistsView(model, controllerTagList, "div#Taglists");
 		model.AddView(viewSwitchBtn);
 		model.AddView(viewPlayList);

@@ -10,13 +10,6 @@
 	
 	// MVC
 	var model;
-	// var controllerPlayList;
-	// var controllerTagList;	
-	// var viewPlayList;
-	// var viewTagList;
-	
-	// Others
-	var selectedTag = "";
 
 // --------------------------------mvc.js###Start--------------------------------
 	// class - Song
@@ -96,7 +89,8 @@
 	// class - TagCollection
 	var TagCollection = function(){
 		var that = this;
-		this._tags = [];	// All tags
+		this.selectedTag = "";	// Selected tag
+		this._tags = [];		// All tags
 
 		// Failed : return -1;
 		this.FindTag = function(tag){
@@ -278,7 +272,7 @@
 			var html_inputArea = $(divList);
 			html_inputArea = html_inputArea.find(".InputTag");
 			// Bind selectedTag Display
-			$(divList).find("#selectedTag").html("Selected Tag: "+ selectedTag);
+			$(divList).find("#selectedTag").html("Selected Tag: "+ model._tagCollection.selectedTag);
 
 			// Bind Input Button
 			html_inputArea.find("#addTagBtn").click(controller.makeAddTagBtnController());
@@ -300,7 +294,7 @@
 
 				// Add handler
 				pos.find(".tagCollectionName").click(controller.makeSelectTagBtnController(tag));		
-				pos.find(".tagBtn").click(controller.makeRemoveTagBtnController(tag));			
+				pos.find(".tagBtn").click(controller.makeRemoveTagBtnController(model,tag));			
 			});
 
 			// Add to HTML page
@@ -354,9 +348,9 @@
 		// Insert tag Button handler
 		this.makeAddTagBtnController = function(songItem, model){
 			return function(){
-				if(selectedTag != ""){
-					if(model._tagCollection.FindTag(selectedTag != -1)){
-						songItem.AddTag(selectedTag);
+				if(model._tagCollection.selectedTag != ""){
+					if(model._tagCollection.FindTag(model._tagCollection.selectedTag != -1)){
+						songItem.AddTag(model._tagCollection.selectedTag);
 						// update
 						model.Notify();
 					}
@@ -399,12 +393,12 @@
 		};
 
 		// Remove tag from TagCollection
-		this.makeRemoveTagBtnController = function(tag){
+		this.makeRemoveTagBtnController = function(model, tag){
 			return function(){
 				// check selectedTag
-				if(selectedTag === tag){
+				if(model._tagCollection.selectedTag === tag){
 					// clear
-					selectedTag = "";
+					model._tagCollection.selectedTag = "";
 				}
 				// remove from model
 				model.RemoveTag(tag);
@@ -416,7 +410,7 @@
 		// Set tag as selectedTag
 		this.makeSelectTagBtnController = function(tag){
 			return function(){
-				selectedTag = tag;
+				model._tagCollection.selectedTag = tag;
 				// update
 				model.Notify();
 			};

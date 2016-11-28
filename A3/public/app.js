@@ -141,6 +141,15 @@
         this._viewLists = [];   	// View List
 		this._tagCollection = {};	// Tag Collection
 
+		// Init.
+		this.Init = function(){
+			this.InitTagCollection();
+			// Init. all Views 
+			this._viewLists.forEach(function(view) {
+                view.init();
+            });
+		};
+
 		// Init. TagCollection
 		this.InitTagCollection = function(){
 			this._tagCollection = new TagCollection();
@@ -242,7 +251,7 @@
 										songItemTuple[1].isDisplay = songItemTuple[1].Rate != inputRate;
 									}
 									else {
-										// Unrecognized oprand
+										// Unrecognized operand
 										songItemTuple[1].isDisplay = false;
 									}
 									// Save result to playlist
@@ -273,7 +282,7 @@
 										songItemTuple[1].isDisplay = songItemTuple[1].Rate < inputRate;
 									}
 									else {
-										// Unrecognized oprand
+										// Unrecognized operand
 										songItemTuple[1].isDisplay = false;
 									}
 									// Save result to playlist
@@ -341,23 +350,31 @@
 	var SwitchBtnView = function(controller, divList){
 		var that = this;
 
-		// Update View
-		this.update = function(){
+		// Init. View
+		this.init = function(){
 			var html_divList = $(divList);
 			// Bind buttons
 			html_divList.find("#switchPlaylistBtn").click(controller.makeSwitchPlaylistBtn());
 			html_divList.find("#switchTaglistBtn").click(controller.makeSwitchTaglistBtn());
+		};
+
+		// Update View
+		this.update = function(){
+			
 		};
 	};
 
     var PlaylistsView = function(model, controller, divList){
         var that = this;
 
-        // Update View
-        this.update = function(){
+		// Init. View
+		this.init = function(){
 			// Set Searchbar Button
 			$("div#Playlists").find("#PlaylistsSearchbar").find("#songSearchBtn").click(controller.makeSearchBarBtnController(model));
-			
+		};
+
+        // Update View
+        this.update = function(){
 			// PlayList view			
             var html_divList = $(divList);
             html_divList.empty();
@@ -432,18 +449,24 @@
 	var TaglistsView = function(model, controller, divList){
 		var that = this;
 
+		// Init. View
+		this.init = function(){
+			// Set Searchbar Button
+			var html_inputArea = $(divList);
+			html_inputArea = html_inputArea.find(".InputTag");
+			// Bind Input Button
+			html_inputArea.find("#addTagBtn").click(controller.makeAddTagBtnController());
+		};
+
+ 		// Update View
 		this.update = function(){
 			// select right locations
 			var html_divList = $(divList);
 			html_divList = html_divList.find(".CurrentTags");
             html_divList.empty();
-			var html_inputArea = $(divList);
-			html_inputArea = html_inputArea.find(".InputTag");
-			// Bind selectedTag Display
+			
+			// Update selectedTag Display
 			$(divList).find("#selectedTag").html("Selected Tag: "+ model._tagCollection.selectedTag);
-
-			// Bind Input Button
-			html_inputArea.find("#addTagBtn").click(controller.makeAddTagBtnController());
 
 			// Pick data
 			var tagCollection = model._tagCollection._tags;
@@ -707,7 +730,7 @@
 		model.AddView(viewSwitchBtn);
 		model.AddView(viewPlayList);
 		model.AddView(viewTagList);
-		model.InitTagCollection();
+		model.Init();
 
 		console.log('location = ' + location);
 

@@ -21,6 +21,33 @@
 	display: none;
 }
 
+/*Switch button*/
+#switchPlaylistBtn{
+    background-color: fuchsia; 
+    border: none;
+    color: white;
+    padding: 5px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 20px;
+}
+
+#switchTaglistBtn{
+    background-color: darkorange; 
+    border: none;
+    color: white;
+    padding: 5px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 20px;
+}
+
+
+/*Playlist View*/
 .Playlist{
     float: left;
 }
@@ -31,7 +58,7 @@
 }
 
 .rateBtn {
-    background-color: #4CAF50; /* Green */
+    background-color: #4CAF50; 
     border: none;
     color: white;
     padding: 3px 3px;
@@ -56,7 +83,7 @@
 }
 
 .tagBtn {
-    background-color: #FF5050; /* Green */
+    background-color: #FF5050;
     margin-left: 7px;
     border: none;
     color: white;
@@ -93,7 +120,7 @@
     margin-top: 5px;
 }
 .tagCollectionName{
-    background-color: cyan; /* Green */
+    background-color: cyan;
     margin-left: 7px;
     border: none;
     color: white;

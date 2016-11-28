@@ -187,6 +187,18 @@
     };
 
     // class - View
+	var SwitchBtnView = function(controller, divList){
+		var that = this;
+
+		// Update View
+		this.update = function(){
+			var html_divList = $(divList);
+			// Bind buttons
+			html_divList.find("#switchPlaylistBtn").click(controller.makeSwitchPlaylistBtn());
+			html_divList.find("#switchTaglistBtn").click(controller.makeSwitchTaglistBtn());
+		};
+	};
+
     var PlaylistsView = function(model, controller, divList){
         var that = this;
 
@@ -297,6 +309,28 @@
 	}
 
 	// class - Controller 
+	var SwitchBtnController = function(){
+		// Switch to Playlist Button handler
+		this.makeSwitchPlaylistBtn = function(){
+			return function(){
+				var playlistPos = $("div#Playlists");
+				var taglistPos = $("div#Taglists");
+				playlistPos.show();
+				taglistPos.hide();
+			};
+		};
+
+		// Switch to Taglist Button handler
+		this.makeSwitchTaglistBtn = function(){
+			return function(){
+				var playlistPos = $("div#Playlists");
+				var taglistPos = $("div#Taglists");
+				playlistPos.hide();
+				taglistPos.show();
+			};
+		};
+	};
+
 	var PlaylistsController = function(model){
 		
 		// Rate operation Button handler
@@ -493,8 +527,11 @@
 		model = new SpotifyWebModel();
 		var controllerPlayList = new PlaylistsController(model);
 		var controllerTagList = new TaglistsController(model);
+		var controllerSwitchBtn = new SwitchBtnController();
+		var viewSwitchBtn = new SwitchBtnView(controllerSwitchBtn, "div#viewSwitchBtn");
 		var viewPlayList = new PlaylistsView(model, controllerPlayList, "div#Playlists");
 		var viewTagList = new TaglistsView(model, controllerTagList, "div#Taglists");
+		model.AddView(viewSwitchBtn);
 		model.AddView(viewPlayList);
 		model.AddView(viewTagList);
 		model.InitTagCollection();

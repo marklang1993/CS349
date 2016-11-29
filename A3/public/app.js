@@ -183,7 +183,7 @@
 					// Read operand & Split keyword
 					if(pos + 2 < keyWord.length){
 						pos = pos + 1;
-						var pos_exprs = pos + 1;
+						var pos_exprs = pos + 1; // opearand has size of 1
 						var exprs = this.Search_Split(keyWord.substr(pos_exprs, keyWord.length - pos_exprs));
 
 						if(keyWord.substr(pos, 1) == ":"){
@@ -289,11 +289,61 @@
 						}
 					}
 				}
-				// # Search SongItem Name
-				else {
-					
-				}
+				// #playlist?
+				else if (keyWord.search(/#playlist/gi) != -1){
+					// Disable all 
+					that.Search_Set_isDisplay_All(false);
+					// Match
+					var pos = keyWord.search(/#playlist/gi) + 8;
+					// Read operand & Split keyword
+					if(pos + 2 < keyWord.length){
+						pos = pos + 1;
+						var pos_exprs = pos + 1; // opearand has size of 1
+						var exprs = this.Search_Split(keyWord.substr(pos_exprs, keyWord.length - pos_exprs));
 
+						_.forEach(this._playLists, function(playListTuple, idx){
+							var tokenPlaylistName = that.Search_Split(playListTuple[1].Name);
+							if(keyWord.substr(pos, 1) == ":"){
+								// fuzzy matching
+								var ret = _.intersectionBy(tokenPlaylistName, exprs, that.Search_FuzzyMatch);
+								// Detemination
+								playListTuple[1].isDisplay = ret.length > 0;
+							}
+							else if(keyWord.substr(pos, 1) == "="){
+								// exactly same
+								var ret = _.intersection(tokenPlaylistName, exprs);
+								// Detemination
+								playListTuple[1].isDisplay = ret.length == tokenPlaylistName.length;
+							}
+							// All SongItems in this Playlist
+							if(playListTuple[1].isDisplay){
+								// Enable display of all SongItems
+								_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+									songItemTuple[1].isDisplay = true;									
+								});
+							}
+						});
+					}
+				}
+				// # General Serach --- Search based on SongItem Name
+				else {
+					// Tokenlize
+					var tokensKeyword = that.Search_Split(keyWord);
+					// Find the SongItem
+					_.forEach(this._playLists, function(playListTuple, idx){
+						var isDisplayVal = false;	// isDisplay of PlayList
+						_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+							var tokensSongName = that.Search_Split(songItemTuple[1].Name);
+							var ret = _.intersectionBy(tokensKeyword, tokensSongName, that.Search_FuzzyMatch);
+							// Detemination
+							songItemTuple[1].isDisplay = ret.length > 0;
+
+							// Save result to playlist
+							isDisplayVal = isDisplayVal || songItemTuple[1].isDisplay;
+						});
+						playListTuple[1].isDisplay = isDisplayVal;
+					});
+				}
 			}
 		}
 
@@ -308,9 +358,15 @@
 			});
 		};
 
+		// Search Helper functions: Tokenlizer		
 		this.Search_Split = function(expression){
 			var exprs = expression.split(" ");
 			return exprs;
+		};
+
+		// Search Helper functions: keyword fuzzy matching
+		this.Search_FuzzyMatch = function(token){
+			return token.toLowerCase();
 		};
 
 		// Parse JSON string of PlayList

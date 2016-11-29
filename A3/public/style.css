@@ -129,10 +129,28 @@ div#PlaylistsPlayButton{
     text-align: center;
 }
 
-iframe#PlayButton {
-    width : 300;
-    height : 300;
+@media (orientation : portrait) {
+    iframe#PlayButton {
+        width : 300px;
+        height : 300px;
+    }
+
+    #emptyPlaylistPlaceholder{
+        width: 370px;
+    }
 }
+
+@media (orientation : landscape){
+    iframe#PlayButton {
+        width : 600px;
+        height : 300px;
+    }
+
+    #emptyPlaylistPlaceholder{
+        width: 650px;
+    }
+}
+    
 
 .SongItem{
     padding: 15px 0px 15px 0px;

@@ -587,6 +587,11 @@
 						}
 					});
 
+					// Empty Playlist Detection
+					if(playListTuple[1]._songs.length === 0){
+						t_html_Playlist.append("<div id=\"emptyPlaylistPlaceholder\"></div>");
+					}
+
 					// Add to HTML page
 					html_divList.append(t_html_Playlist);
 				}

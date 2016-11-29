@@ -819,9 +819,26 @@
 	*  Modified by Chen Lang 2016.11.28
 	*/
 	var Connector = function(model) {
+		var that = this;
 		var client_id = '617e177e250b42f28cc2c7994cf90cb9';		// Fill in with your value from Spotify
 		var redirect_uri = 'http://localhost:3000/index.html';
 		this.g_access_token = '6973204623354ff6ae5a1b16295b34de';
+
+
+		/*
+		* Connection Error handling
+		*/
+		this.connOnErr = function(){
+			alert("Session is lost OR Connection error. Please login again.");
+			
+			// Prepare for Relogin
+			$('#start').click(function() {
+				that.doLogin(function() {});
+			});
+			$('#login').show();
+			$('#loggedin').hide();
+		};
+
 
 		/*
 		* Get the playlists of the logged-in user.
@@ -840,7 +857,7 @@
 					callback(r.items);
 				},
 				error: function(r) {
-					callback(null);
+					callback(that.connOnErr());
 				}
 			});
 		}
@@ -861,7 +878,7 @@
 					callback(r);
 				},
 				error: function(r) {
-					callback(null);
+					callback(that.connOnErr());
 				}
 			});
 		}

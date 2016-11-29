@@ -641,7 +641,7 @@
                 // Add Text & Button
 				var pos = t_html_Taglist.find("#" + tagBtnID);
 				pos.append("<button class=\"tagCollectionName\">" + tag + "</button>");
-                pos.append("<button class=\"tagBtn\">-</button>");
+                pos.append("<button class=\"tagBtnAdd\">-</button>");
 
 				// Add handler
 				pos.find(".tagCollectionName").click(controller.makeSelectTagBtnController(tag));		

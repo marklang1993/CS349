@@ -33,41 +33,43 @@
 
 #switchPlaylistBtn{
     background-color: fuchsia; 
-    width: 115px;
-    border: none;
-    color: white;
-    padding: 5px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    border-radius: 20px;
 }
 
 #switchTaglistBtn{
     background-color: darkorange; 
-    width: 115px;    
-    border: none;
-    color: white;
-    padding: 5px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    border-radius: 20px;
 }
 
 #switchPushBtn{
     background-color: chartreuse; 
-    width: 115px;    
-    border: none;
-    color: white;
-    padding: 5px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    border-radius: 20px;
+}
+
+@media (orientation : portrait) {
+    .switchBtn{
+        width: 115px;    
+        border: none;
+        color: white;
+        padding: 5px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        border-radius: 20px;
+    }
+}
+
+@media (orientation : landscape) {
+    .switchBtn{
+        width: 165px;    
+        border: none;
+        color: white;
+        padding: 5px 32px;
+        margin: 0px 10px 0px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        border-radius: 20px;
+    }
 }
 
 
@@ -79,20 +81,38 @@ h3{
 }
 
 #PlaylistsSearchbar{
-    padding-top: 10px;
+    padding-top: 20px;
     text-align: center;
+}
+
+@media (orientation : portrait)  {
+    .songSearchbar, .tagTextBox{
+        width: 170px;
+    }
+
+    #songSearchBtn {
+         width: 70px;
+    }
+}
+
+@media (orientation : landscape)  {
+    .songSearchbar, .tagTextBox{
+        width: 270px;
+    }
+
+    #songSearchBtn {
+        width: 120px;
+    }
 }
 
 .songSearchbar, .tagTextBox{
     padding: 2px 5px 2px 5px;
     margin: 0px 10px 0px 10px;
     border-color: blue;
-    width: 170px;
 }
 
-#songSearchBtn {
-    background-color: deeppink; 
-    width: 70px;
+#songSearchBtn{
+    background-color: deeppink;     
     border: none;
     color: white;
     padding: 3px 3px;
@@ -100,6 +120,7 @@ h3{
     text-decoration: none;
     display: inline-block;
     border-radius: 20px;
+    font-size: 13px;
     font-family: "Arial"; 
 }
 
@@ -136,9 +157,18 @@ iframe#PlayButton {
     float: left;
 }
 
-.name {
+@media (orientation : portrait)  {
+    .name {
     width: 12em;
     float: left;
+    }
+}
+
+@media (orientation : landscape)  {
+    .name {
+    width: 30em;
+    float: left;
+    }
 }
 
 .rateBtn {

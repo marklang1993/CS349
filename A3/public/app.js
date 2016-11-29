@@ -299,7 +299,8 @@
 					if(pos + 2 < keyWord.length){
 						pos = pos + 1;
 						var pos_exprs = pos + 1; // opearand has size of 1
-						var exprs = this.Search_Split(keyWord.substr(pos_exprs, keyWord.length - pos_exprs));
+						var conditionStr = keyWord.substr(pos_exprs, keyWord.length - pos_exprs);
+						var exprs = this.Search_Split(conditionStr);
 
 						_.forEach(this._playLists, function(playListTuple, idx){
 							var tokenPlaylistName = that.Search_Split(playListTuple[1].Name);
@@ -311,9 +312,9 @@
 							}
 							else if(keyWord.substr(pos, 1) == "="){
 								// exactly same
-								var ret = _.intersection(tokenPlaylistName, exprs);
+								var ret = conditionStr === playListTuple[1].Name;
 								// Detemination
-								playListTuple[1].isDisplay = ret.length == tokenPlaylistName.length;
+								playListTuple[1].isDisplay = ret;
 							}
 							// All SongItems in this Playlist
 							if(playListTuple[1].isDisplay){

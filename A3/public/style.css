@@ -269,6 +269,7 @@ iframe#PlayButton {
     text-decoration: none;
     display: inline-block;
     border-radius: 20px;
+    font-size: 13px;
     font-family: "Arial"; 
 }
 
@@ -302,7 +303,7 @@ iframe#PlayButton {
     padding-top: 5px;
 }
 .tagCollectionName{
-    background-color: cyan;
+    background-color: lightseagreen;
     padding-left: 7px;
     border: none;
     color: white;
@@ -312,6 +313,7 @@ iframe#PlayButton {
     text-decoration: none;
     display: inline-block;
     border-radius: 20px;
+    font-size: 13px;
     font-family: "Arial"; 
 }
 

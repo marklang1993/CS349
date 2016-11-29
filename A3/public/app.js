@@ -5,12 +5,6 @@
 // environment.
 (function(exports) {
 
-	// Connector
-	var connector;
-	
-	// MVC
-	var model;
-
 // --------------------------------mvc.js###Start--------------------------------
 	// class - Song
     var SongItem = function() {
@@ -137,6 +131,8 @@
     // class - Model
     var SpotifyWebModel = function(){
 		var that = this;
+		var connector = {};			// Httpcall connector
+
         this._playLists = [];   	// PlayList list (hashkey, PlayListItem)
         this._viewLists = [];   	// View List
 		this._tagCollection = {};	// Tag Collection
@@ -187,7 +183,7 @@
 					// Read operand & Split keyword
 					if(pos + 2 < keyWord.length){
 						pos = pos + 1;
-						var pos_exprs = pos + 1;
+						var pos_exprs = pos + 1; // opearand has size of 1
 						var exprs = this.Search_Split(keyWord.substr(pos_exprs, keyWord.length - pos_exprs));
 
 						if(keyWord.substr(pos, 1) == ":"){
@@ -293,11 +289,62 @@
 						}
 					}
 				}
-				// # Search SongItem Name
-				else {
-					
-				}
+				// #playlist?
+				else if (keyWord.search(/#playlist/gi) != -1){
+					// Disable all 
+					that.Search_Set_isDisplay_All(false);
+					// Match
+					var pos = keyWord.search(/#playlist/gi) + 8;
+					// Read operand & Split keyword
+					if(pos + 2 < keyWord.length){
+						pos = pos + 1;
+						var pos_exprs = pos + 1; // opearand has size of 1
+						var conditionStr = keyWord.substr(pos_exprs, keyWord.length - pos_exprs);
+						var exprs = this.Search_Split(conditionStr);
 
+						_.forEach(this._playLists, function(playListTuple, idx){
+							var tokenPlaylistName = that.Search_Split(playListTuple[1].Name);
+							if(keyWord.substr(pos, 1) == ":"){
+								// fuzzy matching
+								var ret = _.intersectionBy(tokenPlaylistName, exprs, that.Search_FuzzyMatch);
+								// Detemination
+								playListTuple[1].isDisplay = ret.length > 0;
+							}
+							else if(keyWord.substr(pos, 1) == "="){
+								// exactly same
+								var ret = conditionStr === playListTuple[1].Name;
+								// Detemination
+								playListTuple[1].isDisplay = ret;
+							}
+							// All SongItems in this Playlist
+							if(playListTuple[1].isDisplay){
+								// Enable display of all SongItems
+								_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+									songItemTuple[1].isDisplay = true;									
+								});
+							}
+						});
+					}
+				}
+				// # General Serach --- Search based on SongItem Name
+				else {
+					// Tokenlize
+					var tokensKeyword = that.Search_Split(keyWord);
+					// Find the SongItem
+					_.forEach(this._playLists, function(playListTuple, idx){
+						var isDisplayVal = false;	// isDisplay of PlayList
+						_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+							var tokensSongName = that.Search_Split(songItemTuple[1].Name);
+							var ret = _.intersectionBy(tokensKeyword, tokensSongName, that.Search_FuzzyMatch);
+							// Detemination
+							songItemTuple[1].isDisplay = ret.length > 0;
+
+							// Save result to playlist
+							isDisplayVal = isDisplayVal || songItemTuple[1].isDisplay;
+						});
+						playListTuple[1].isDisplay = isDisplayVal;
+					});
+				}
 			}
 		}
 
@@ -312,9 +359,15 @@
 			});
 		};
 
+		// Search Helper functions: Tokenlizer		
 		this.Search_Split = function(expression){
 			var exprs = expression.split(" ");
 			return exprs;
+		};
+
+		// Search Helper functions: keyword fuzzy matching
+		this.Search_FuzzyMatch = function(token){
+			return token.toLowerCase();
 		};
 
 		// Parse JSON string of PlayList
@@ -337,8 +390,112 @@
             this._viewLists.push(view);
         };
 
+		// Set Connector
+		this.SetConnector = function(conn){
+			connector = conn;
+		};
+
+		// Push Local Modification to Remote Database
+		this.Push = function(){
+			// Remove Old Data
+			$.ajax({
+				url: 'http://localhost:3000/demo/1',
+				type: 'DELETE',
+				success: function(result) {
+					console.log("DELETE OK!");
+				},
+				error: function(result){
+					console.log("DELETE FAILED!");
+				}
+			});
+
+			// Prepare Data
+			var pushData = {
+				PlayLists : that._playLists,
+				Tags: that._tagCollection._tags
+			};
+			var pushData_JSON = JSON.stringify(pushData);
+
+			// Push New Data
+
+			// Post data to a server-side database.  See 
+			// https://github.com/typicode/json-server
+			$.post("http://localhost:3000/demo", {"id" : 1, "data": pushData_JSON}, null, "json");
+		};
+
+		// Get Data from Remote Database 
+		this.Get = function(){
+			var objRemote;
+ 			// Get Data back
+			$.ajax({
+				url: 'http://localhost:3000/demo/1',
+				type: 'GET',
+				async: false,
+				dataType: "text",
+				success: function(JSONdata){
+					var getData = JSON.parse(JSONdata);
+					objRemote = JSON.parse(getData.data);
+					console.log("GET OK!");
+				},
+				error: function(result){
+					console.log("GET FAILED!");
+				}
+			});
+
+			return objRemote;
+		};
+
+		// SynchronizeData
+		this.SynchronizeData = function(){
+			// Retrive Data from database
+			var objRemote = that.Get();
+			if (typeof(objRemote) != "undefined"){
+				// Data is Defined
+				// Check structure
+				if(_.has(objRemote, 'PlayLists') && _.has(objRemote, 'Tags')){
+					if(_.isArray(objRemote.PlayLists) && _.isArray(objRemote.Tags)){
+						// Checked
+						// Restore Tags back
+						that._tagCollection._tags = objRemote.Tags;
+						
+						// Restore SongItems back
+						/*
+						 *	Ignore all PlayList, Only check SongItem's Hashcode to do a match
+						 *  If Spotify's data does not contain a song, then discard the data from remote database
+						 */
+						_.forEach(that._playLists, function(playListTuple, idx){
+							_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+								var foundSongItem = that.RetriveSongItem(objRemote.PlayLists, songItemTuple[0]);
+								if(typeof(foundSongItem) != "undefined"){
+									// Find a match - Do a copy
+									songItemTuple[1].Rate = foundSongItem.Rate;
+									songItemTuple[1]._tags = foundSongItem._tags;									
+								}
+							});
+						});
+
+						console.log("Syn. OK");
+					}
+				}
+			}
+		};
+
+		// Retrive SongItem from SongLists with Hashcode
+		this.RetriveSongItem = function(PlayLists, Hashcode){
+			var foundSongItem;
+			_.forEach(PlayLists, function(playListTuple, idx){
+				_.forEach(playListTuple[1]._songs, function(songItemTuple, idx){
+					if(songItemTuple[0] === Hashcode){
+						foundSongItem = songItemTuple[1];
+					}
+				});
+			});
+			return foundSongItem;
+		};
+
 		// Notify all views
         this.Notify = function(){
+			// Update All Views
             this._viewLists.forEach(function(view) {
                 view.update();
             });
@@ -356,6 +513,7 @@
 			// Bind buttons
 			html_divList.find("#switchPlaylistBtn").click(controller.makeSwitchPlaylistBtn());
 			html_divList.find("#switchTaglistBtn").click(controller.makeSwitchTaglistBtn());
+			html_divList.find("#switchPushBtn").click(controller.makeSwitchPushBtn());
 		};
 
 		// Update View
@@ -370,7 +528,7 @@
 		// Init. View
 		this.init = function(){
 			// Set Searchbar Button
-			$("div#Playlists").find("#PlaylistsSearchbar").find("#songSearchBtn").click(controller.makeSearchBarBtnController(model));
+			$("div#Playlists").find("#PlaylistsSearchbar").find("#songSearchBtn").click(controller.makeSearchBarBtnController());
 		};
 
         // Update View
@@ -410,21 +568,29 @@
 								_.forEach(songItemTuple[1]._tags, function(tag, idx) {
 									// Add Button
 									var pos = t_html_SongItem.find(".tags").find(".tagBtnList");
-									pos.append("<button class=\"tagBtn\" id=\"" + tag + "\">" + tag + "</button>");
+									pos.append("<button class=\"tagItemBtn\" id=\"" + tag + "\">" + tag + "</button>");
 									// Add handler
 									pos.find("#" + tag).click(controller.makeDelTagBtnController(songItemTuple[1], tag));
 								});
 								// # Bind handler to tagAppendBtn
 								var pos = t_html_SongItem.find(".tags").find("#tagAppendBtn");
-								pos.click(controller.makeAddTagBtnController(songItemTuple[1], model));
+								pos.click(controller.makeAddTagBtnController(songItemTuple[1]));
 							}
 							else{
 								t_html_SongItem.find(".tags").hide();
 							}
+							// PlayButton related
+							t_html_SongItem.find("#playSongBtn").find(".playBtn").click(controller.makePlayButtonController(songItemTuple[0]));
+
 							// Add to Playlist
 							t_html_Playlist.append(t_html_SongItem);   
 						}
 					});
+
+					// Empty Playlist Detection
+					if(playListTuple[1]._songs.length === 0){
+						t_html_Playlist.append("<div id=\"emptyPlaylistPlaceholder\"></div>");
+					}
 
 					// Add to HTML page
 					html_divList.append(t_html_Playlist);
@@ -481,11 +647,11 @@
                 // Add Text & Button
 				var pos = t_html_Taglist.find("#" + tagBtnID);
 				pos.append("<button class=\"tagCollectionName\">" + tag + "</button>");
-                pos.append("<button class=\"tagBtn\">-</button>");
+                pos.append("<button class=\"tagBtnDel\">-</button>");
 
 				// Add handler
 				pos.find(".tagCollectionName").click(controller.makeSelectTagBtnController(tag));		
-				pos.find(".tagBtn").click(controller.makeRemoveTagBtnController(model,tag));			
+				pos.find(".tagBtn").click(controller.makeRemoveTagBtnController(tag));			
 			});
 
 			// Add to HTML page
@@ -494,7 +660,7 @@
 	}
 
 	// class - Controller 
-	var SwitchBtnController = function(){
+	var SwitchBtnController = function(model){
 		// Switch to Playlist Button handler
 		this.makeSwitchPlaylistBtn = function(){
 			return function(){
@@ -514,10 +680,19 @@
 				taglistPos.show();
 			};
 		};
+
+		// Push Data Button handler
+		this.makeSwitchPushBtn = function(){
+			return function(){
+				var ret = model.Push();
+			};
+		};
 	};
 
 	var PlaylistsController = function(model){
 		
+		var _hashCodePlayBtn = "";
+
 		// Rate operation Button handler
 		this.makeRateOpBtnController = function(songItem, rateOp){
 			return function(){
@@ -536,8 +711,25 @@
 			};
 		};
 
+		// Play Button handler
+		this.makePlayButtonController = function(Hashcode){
+			return function(){
+				if(_hashCodePlayBtn != Hashcode){
+					_hashCodePlayBtn = Hashcode;
+					var playBtnObj = $("div").find("#PlaylistsPlayButton");
+					playBtnObj.empty();
+					playBtnObj.html("<iframe id=\"PlayButton\" src=\"https://embed.spotify.com/?uri=spotify:track:" + Hashcode + "\" frameborder=\"0\" allowtransparency=\"true\"></iframe>");
+				}
+				else {
+					_hashCodePlayBtn = "";
+					var playBtnObj = $("div").find("#PlaylistsPlayButton");
+					playBtnObj.empty();
+				}
+			};
+		}
+
 		// Insert tag Button handler
-		this.makeAddTagBtnController = function(songItem, model){
+		this.makeAddTagBtnController = function(songItem){
 			return function(){
 				if(model._tagCollection.selectedTag != ""){
 					if(model._tagCollection.FindTag(model._tagCollection.selectedTag != -1)){
@@ -559,7 +751,7 @@
 		};
 
 		// Searchbar Button handler
-		this.makeSearchBarBtnController = function(model){
+		this.makeSearchBarBtnController = function(){
 			return function(){
 				// Search
 				var keyWord = $(".songSearchbar").val();
@@ -595,7 +787,7 @@
 		};
 
 		// Remove tag from TagCollection
-		this.makeRemoveTagBtnController = function(model, tag){
+		this.makeRemoveTagBtnController = function(tag){
 			return function(){
 				// check selectedTag
 				if(model._tagCollection.selectedTag === tag){
@@ -629,11 +821,30 @@
 	*  bwbecker 20161113
 	*  
 	*  Some code adapted from https://github.com/possan/playlistcreator-example
+	*
+	*  Modified by Chen Lang 2016.11.28
 	*/
-	var Connector = function() {
+	var Connector = function(model) {
+		var that = this;
 		var client_id = '617e177e250b42f28cc2c7994cf90cb9';		// Fill in with your value from Spotify
 		var redirect_uri = 'http://localhost:3000/index.html';
 		this.g_access_token = '6973204623354ff6ae5a1b16295b34de';
+
+
+		/*
+		* Connection Error handling
+		*/
+		this.connOnErr = function(){
+			alert("Session is lost OR Connection error. Please login again.");
+			
+			// Prepare for Relogin
+			$('#start').click(function() {
+				that.doLogin(function() {});
+			});
+			$('#login').show();
+			$('#loggedin').hide();
+		};
+
 
 		/*
 		* Get the playlists of the logged-in user.
@@ -652,7 +863,7 @@
 					callback(r.items);
 				},
 				error: function(r) {
-					callback(null);
+					callback(that.connOnErr());
 				}
 			});
 		}
@@ -673,7 +884,7 @@
 					callback(r);
 				},
 				error: function(r) {
-					callback(null);
+					callback(that.connOnErr());
 				}
 			});
 		}
@@ -700,13 +911,8 @@
 			$('#login').hide();
 			$('#loggedin').show();
 
+			// Get Newest data from Spotify
 			this.getPlaylists(model.ParseJSON);
-			model.Notify();
-
-			// Post data to a server-side database.  See 
-			// https://github.com/typicode/json-server
-			var now = new Date();
-			$.post("http://localhost:3000/demo", {"msg": "accessed at " + now.toISOString()}, null, "json");
 		}
 	};
 		
@@ -719,14 +925,15 @@
 	exports.startApp = function() {
 		console.log('start app.');
 		// init.
-		connector = new Connector();
-		model = new SpotifyWebModel();
+		var model = new SpotifyWebModel();
+		var connector = new Connector(model);
+		var controllerSwitchBtn = new SwitchBtnController(model);
 		var controllerPlayList = new PlaylistsController(model);
 		var controllerTagList = new TaglistsController(model);
-		var controllerSwitchBtn = new SwitchBtnController();
 		var viewSwitchBtn = new SwitchBtnView(controllerSwitchBtn, "div#viewSwitchBtn");
 		var viewPlayList = new PlaylistsView(model, controllerPlayList, "div#PlaylistsDisplay");
 		var viewTagList = new TaglistsView(model, controllerTagList, "div#Taglists");
+		model.SetConnector(connector);
 		model.AddView(viewSwitchBtn);
 		model.AddView(viewPlayList);
 		model.AddView(viewTagList);
@@ -753,8 +960,13 @@
 			$('#login').show();
 			$('#loggedin').hide();
 		} else {
+			// Get PlayList from Spotify
 			connector.g_access_token = args['access_token'];
 			connector.loggedIn();
+			// Synchronize Playlist
+			model.SynchronizeData();
+			// Update all views
+			model.Notify();
 		}
 	}
 

@@ -1,4 +1,9 @@
+@charset "utf-8";
 
+*{
+    color: white;
+    background-color: black;
+}
 
 .btn {
 	background-color: #4CAF50; /* Green */
@@ -22,44 +27,92 @@
 }
 
 /*Switch button*/
+#viewSwitchBtn{
+    text-align: center;
+}
+
 #switchPlaylistBtn{
     background-color: fuchsia; 
-    border: none;
-    color: white;
-    padding: 5px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    border-radius: 20px;
 }
 
 #switchTaglistBtn{
     background-color: darkorange; 
-    border: none;
-    color: white;
-    padding: 5px 32px;
-    text-align: center;
-    text-decoration: none;
-    display: inline-block;
-    font-size: 16px;
-    border-radius: 20px;
+}
+
+#switchPushBtn{
+    background-color: chartreuse; 
+}
+
+@media (orientation : portrait) {
+    .switchBtn{
+        width: 115px;    
+        border: none;
+        color: white;
+        padding: 5px 32px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        border-radius: 20px;
+    }
+}
+
+@media (orientation : landscape) {
+    .switchBtn{
+        width: 165px;    
+        border: none;
+        color: white;
+        padding: 5px 32px;
+        margin: 0px 10px 0px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 16px;
+        border-radius: 20px;
+    }
 }
 
 
 /*Playlist View*/
+h3{
+    margin: 15px 0px 6px;
+    font-weight: bold;
+    text-decoration: underline;
+}
+
 #PlaylistsSearchbar{
-    margin-top: 10px;
+    padding-top: 20px;
     text-align: center;
 }
 
-.songSearchbar{
-    margin-left: 5px;
+@media (orientation : portrait)  {
+    .songSearchbar, .tagTextBox{
+        width: 170px;
+    }
+
+    #songSearchBtn {
+        width: 70px;
+    }
+}
+
+@media (orientation : landscape)  {
+    .songSearchbar, .tagTextBox{
+        width: 270px;
+    }
+
+    #songSearchBtn {
+        width: 120px;
+    }
+}
+
+.songSearchbar, .tagTextBox{
+    padding: 2px 5px 2px 5px;
+    margin: 0px 10px 0px 10px;
     border-color: blue;
 }
 
-#songSearchBtn {
-    background-color: deeppink; 
+#songSearchBtn{
+    background-color: deeppink;     
     border: none;
     color: white;
     padding: 3px 3px;
@@ -67,24 +120,95 @@
     text-decoration: none;
     display: inline-block;
     border-radius: 20px;
-    font: bold;
+    font-size: 13px;
+    font-family: "Arial"; 
+}
+
+div#PlaylistsPlayButton{
+    padding-top: 10px;
+    text-align: center;
+}
+
+@media (orientation : portrait) {
+    iframe#PlayButton {
+        width : 300px;
+        height : 300px;
+    }
+
+    #emptyPlaylistPlaceholder{
+        width: 370px;
+    }
+}
+
+@media (orientation : landscape){
+    iframe#PlayButton {
+        width : 600px;
+        height : 300px;
+    }
+
+    #emptyPlaylistPlaceholder{
+        width: 650px;
+    }
+}
+    
+
+.SongItem{
+    padding: 15px 0px 15px 0px;
+}
+
+.playBtn {
+    background-color:#4CAF50;
+    border: none;
+    color: white;
+    margin: -1.5px 6px 0px 0px;
+    padding: 3px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 20px;
     font-family: "Arial"; 
 }
 
 
-
 .Playlist{
-    margin-top: -10px;
+    padding-top: -10px;
     float: left;
 }
 
-.name {
-    width: 13em;
-    float: left;
+@media (orientation : portrait)  {
+    .name {
+        width: 12em;
+    }
 }
+
+@media (orientation : landscape)  {
+    .name {
+        width: 30em;
+    }
+}
+
+.name{
+    float: left;
+    overflow: hidden; 
+    text-overflow: ellipsis; 
+    white-space: nowrap;
+}
+
+@media (orientation : portrait)  {
+    .rateBtn{
+        margin: -1.5px -2px 0px;    
+    }
+}
+
+@media (orientation : landscape)  {
+    .rateBtn{
+        margin: -1.5px -49px 0px;  
+    }
+}
+
 
 .rateBtn {
-    background-color: #4CAF50; 
+    background-color: deepskyblue; 
     border: none;
     color: white;
     padding: 3px 3px;
@@ -92,7 +216,6 @@
     text-decoration: none;
     display: inline-block;
     border-radius: 20px;
-    font: bold;
     font-family: "Arial"; 
 }
 
@@ -102,18 +225,43 @@
     float: left;
 }
 
+@media (orientation : portrait)  {
+    .rate{
+        padding: 0px 3px;
+    }
+}
+
+@media (orientation : landscape)  {
+    .rate{
+        padding: 0px 3px;
+        margin: 0px 50px 0px -45px;
+    }
+}
+
 .rate {
     width: 5.2em;
     float: left;
     text-align: center;
+    color: yellow;
 }
 
-.tagBtn {
+@media (orientation : portrait)  {
+    .tagBtn{
+        margin: -1.5px 0px 0px 0px;
+    }
+}
+
+@media (orientation : landscape)  {
+    .tagBtn{
+        margin: -1.5px 0px 0px -21px;
+    }
+}
+
+.tagBtn, .tagBtnAdd, .tagBtnDel {
     background-color: #FF5050;
-    margin-left: 7px;
     border: none;
     color: white;
-    padding: 3px 3px;
+    padding: 3px 5px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
@@ -121,13 +269,40 @@
     font-family: "Arial"; 
 }
 
-#tagShownBtn{
+.tagBtnAdd{
+    margin: -1.5px 0px 0px 10px;
+}
+
+.tagBtnDel{
+    margin: 0px 0px 0px 10px;
+}
+
+.tagItemBtn {
+    background-color: violet;
+    border: none;
+    color: white;
+    margin: -1.5px 5px 0px 5px;
+    padding: 3px 5px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    border-radius: 20px;
+    font-size: 13px;
+    font-family: "Arial"; 
+}
+
+#tagShownBtn, #playSongBtn{
     width: 1em;
     max-width: 1em;
+    margin: 0px 3px 0px 3px;
     float: left;
 }
 
+
+
 .tags {
+    padding: 31px 0px 0px 13px;
+    margin: 0px 0px -12px 0px;
     text-align: left;
 }
 
@@ -143,31 +318,28 @@
 
 /*TagList View*/
 .tagCollectionItem{
-    margin-top: 5px;
+    padding-top: 5px;
 }
 .tagCollectionName{
-    background-color: cyan;
-    margin-left: 7px;
+    background-color: lightseagreen;
+    padding-left: 7px;
     border: none;
     color: white;
-    padding: 3px 3px;
+    padding: 3px 10px;
+    margin: 5px 10px 0px 0px;
     text-align: center;
     text-decoration: none;
     display: inline-block;
     border-radius: 20px;
+    font-size: 13px;
     font-family: "Arial"; 
 }
 
 .tagCollectionTip{
-    margin-top: 2px;
+    padding-top: 2px;
     float: left;
 }
 
-.tagTextBox{
-    margin-left: 5px;
-    border-color: blue;
-}
-
 .InputTag{
-    margin-top: 10px;
+    padding-top: 10px;
 }

@@ -91,7 +91,7 @@ h3{
     }
 
     #songSearchBtn {
-         width: 70px;
+        width: 70px;
     }
 }
 
@@ -171,11 +171,23 @@ iframe#PlayButton {
     }
 }
 
+@media (orientation : portrait)  {
+    .rateBtn{
+        margin: -1.5px -2px 0px;    
+    }
+}
+
+@media (orientation : landscape)  {
+    .rateBtn{
+        margin: -1.5px -49px 0px;  
+    }
+}
+
+
 .rateBtn {
     background-color: deepskyblue; 
     border: none;
     color: white;
-    margin: -1.5px -3px 0px;
     padding: 3px 3px;
     text-align: center;
     text-decoration: none;
@@ -190,19 +202,42 @@ iframe#PlayButton {
     float: left;
 }
 
+@media (orientation : portrait)  {
+    .rate{
+        padding: 0px 3px;
+    }
+}
+
+@media (orientation : landscape)  {
+    .rate{
+        padding: 0px 3px;
+        margin: 0px 50px 0px -45px;
+    }
+}
+
 .rate {
     width: 5.2em;
-    padding: 0px 3px;
     float: left;
     text-align: center;
     color: yellow;
+}
+
+@media (orientation : portrait)  {
+    .tagBtn{
+        margin: -1.5px 0px 0px 0px;
+    }
+}
+
+@media (orientation : landscape)  {
+    .tagBtn{
+        margin: -1.5px 0px 0px -22px;
+    }
 }
 
 .tagBtn {
     background-color: #FF5050;
     border: none;
     color: white;
-    margin: -1.5px 0px 0px 0px;
     padding: 3px 5px;
     text-align: center;
     text-decoration: none;
